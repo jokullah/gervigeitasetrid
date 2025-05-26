@@ -17,7 +17,6 @@ class DepartmentIndexPage(Page):
 
 class PeopleIndexPage(Page):
     intro = RichTextField(blank=True)
-    textual = RichTextField()
 
     content_panels = Page.content_panels + [
         FieldPanel('intro'),
