@@ -37,13 +37,45 @@ main{
   max-width:1100px;width:100%;margin-inline:auto;
   display:flex;align-items:center;gap:2rem;flex-wrap:nowrap
 }
-/* language switch */
-.lang-switch{display:flex}
-.lang-switch a{
-  padding:.75rem 1.25rem;border-left:1px solid #ddd;color:#4d535c
+
+/* -------------- LANGUAGE TOGGLE -------------- */
+/* paste this AFTER any earlier .lang-switch rules */
+.lang-switch{
+  display:inline-flex;
+  border:0px solid #ddd;
+  border-radius:4px;
+  overflow:hidden;                 /* hides double borders   */
 }
-.lang-switch a:first-child{border-left:none}
-.lang-switch .is-active{font-weight:700;color:#10099F;background:#fff}
+
+.lang-switch button{
+  /* reset default button look */
+  background:#fff;
+  border:0;                        /* no extra borders       */
+  font:inherit;                    /* stay in Jost           */
+  cursor:pointer;
+  padding:.65rem 1.25rem;
+  color:#4d535c;
+  text-transform:uppercase;
+  line-height:1;
+  transition:background .15s,color .15s;
+}
+
+/* divider between the two pills */
+.lang-switch button + button{
+  border-left:1px solid #ddd;
+}
+
+/* subtle hover for the inactive pill */
+.lang-switch button:not(.is-active):hover{
+  background:#f0f0f0;
+}
+
+/* active language */
+.lang-switch button.is-active{
+  background:#f5f5f5;
+  color:#10099F;
+  font-weight:700;
+}
 
 /* quick links */
 .utility-links{
@@ -95,6 +127,7 @@ main{
   color:#6d747d;transition:color .15s
 }
 .main-nav a:hover{color:#10099F}
+
 
 /* ===========================================================
    3. CARDS & COMPONENTS  (people, blog, forms, hero, …)

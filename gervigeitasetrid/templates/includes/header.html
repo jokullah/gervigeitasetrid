@@ -1,62 +1,79 @@
+{# templates/includes/header.html #}
 {% load static wagtailcore_tags navigation_tags wagtailuserbar %}
-{% get_site_root as site_root %}
+{% load i18n i18n_extra %}
+{% get_current_language as cur_lang %}
+
+{#   always yields a real Page object – never ""   #}
+{% get_site_root as base_root %}
+{% with base_root|translate_page:cur_lang as root_page %}
 
 <header class="site-header">
 
-  {# 1 ▸ UTILITY STRIP --------------------------------------------------- #}
+  {# 1 ▸ UTILITY STRIP #}
   <div class="utility-bar">
     <div class="inner">
 
-      <nav class="lang-switch">
-        <a href="?lang=en">EN</a>
-        <a href="?lang=is" class="is-active">IS</a>
-      </nav>
+      {# language toggle #}
+      {% with LANGUAGE_CODE|slice:":2" as lang %}
+        <form action="{% url 'set_language' %}" method="post" class="lang-switch">
+          {% csrf_token %}
+          <input type="hidden" name="next" value="{{ request.path }}">
+          <button type="submit" name="language" value="en"
+                  {% if lang == 'en' %}class="is-active"{% endif %}>EN</button>
+          <button type="submit" name="language" value="is"
+                  {% if lang == 'is' %}class="is-active"{% endif %}>ÍS</button>
+        </form>
+      {% endwith %}
 
+      {# quick links #}
       <nav class="utility-links">
-        <a href="https://thjonusta.hi.is/hc/is-is">Þjónusta</a>
+        <a href="https://thjonusta.hi.is/hc/is-is">{% trans "Þjónusta" %}</a>
         <a href="https://ugla.hi.is/">UGLA</a>
-        <a href="https://hi.is/starfsmannaleit#">Finna&nbsp;starfsfólk</a>
+        <a href="https://hi.is/starfsmannaleit#">
+          {% trans "Finna" %}&nbsp;{% trans "starfsfólk" %}
+        </a>
       </nav>
 
+      {# search #}
       <form class="utility-search" action="/search/" method="get">
-        <label for="search-box" class="visually-hidden">Leita</label>
-
-        <!-- ★ name MUST be “query” so Wagtail picks it up -->
-        <input id="search-box" name="query" type="search" placeholder="Leita">
-
-        <button type="submit" aria-label="Leita">
+        <label class="visually-hidden" for="search-box">{% trans "Leita" %}</label>
+        <input id="search-box" name="query" type="search"
+               placeholder="{% trans 'Leita' %}">
+        <button type="submit" aria-label="{% trans 'Leita' %}">
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <circle cx="10" cy="10" r="7" stroke="currentColor"
                     stroke-width="2" fill="none"/>
-            <line   x1="15" y1="15" x2="22" y2="22"
-                    stroke="currentColor" stroke-width="2"/>
+            <line x1="15" y1="15" x2="22" y2="22"
+                  stroke="currentColor" stroke-width="2"/>
           </svg>
         </button>
       </form>
 
-    </div> <!-- /.inner -->
+    </div>
   </div>
 
-  {# 2 ▸ PRIMARY STRIP ---------------------------------------------------- #}
+  {# 2 ▸ PRIMARY STRIP #}
   <div class="primary-bar">
     <div class="inner">
 
-      <a class="site-logo"
-         href="{% if site_root %}{% pageurl site_root %}{% else %}/{% endif %}">
-        <img src="{% static 'images/hi-logo-white-on-blue.svg' %}"
-             alt="Háskóli Íslands">
+      {# logo → root of active language #}
+      <a class="site-logo" href="{% pageurl root_page %}">
+        <img src="{% static 'images/hi-logo-white-on-blue.svg' %}" alt="Háskóli Íslands">
       </a>
 
+      {# main menu #}
       <nav class="main-nav">
-        {% if site_root %}
-          {% for p in site_root.get_children.live.in_menu %}
-            <a href="{% pageurl p %}">{{ p.title }}</a>
-          {% endfor %}
-        {% endif %}
+        {% for p in root_page.get_children.live.in_menu %}
+          {% with p|translate_page:cur_lang as tp %}
+            <a href="{% pageurl tp %}">{{ tp.title }}</a>
+          {% endwith %}
+        {% endfor %}
       </nav>
 
-    </div> <!-- /.inner -->
+    </div>
   </div>
 
   {% wagtailuserbar "top-right" %}
 </header>
+
+{% endwith %}

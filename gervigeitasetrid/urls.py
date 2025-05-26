@@ -7,13 +7,20 @@ from wagtail import urls as wagtail_urls
 from wagtail.documents import urls as wagtaildocs_urls
 
 from search import views as search_views
+from django.conf.urls.i18n import i18n_patterns
+from django.views.i18n import set_language
 
 urlpatterns = [
     path("django-admin/", admin.site.urls),
     path("admin/", include(wagtailadmin_urls)),
     path("documents/", include(wagtaildocs_urls)),
-    path("search/", search_views.search, name="search"),
 ]
+
+urlpatterns += i18n_patterns(
+    path('search/', search_views.search, name='search'),
+    path("i18n/", include("django.conf.urls.i18n")),
+    path("", include("wagtail.urls")),
+)
 
 
 if settings.DEBUG:
