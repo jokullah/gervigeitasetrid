@@ -290,16 +290,18 @@ main{
    4. FOOTER
    =========================================================== */
 .site-footer{background:#10099F;color:#fff;padding:3rem 1rem}
+
+.site-footer h1 {
+  font-size: 1rem;font-weight: bold;text-transform:uppercase;
+}
+
 .footer-grid{
   max-width:1200px;margin-inline:auto;
   display:grid;gap:2rem;align-items:start;
   grid-template-columns:minmax(140px,160px) repeat(3,minmax(180px,1fr))
 }
 .footer-logo img{width:140px;height:auto;display:block}
-.footer-col h4{
-  font-size:.9rem;text-transform:uppercase;margin-bottom:.75rem;
-  letter-spacing:.05em
-}
+
 .footer-col p,.footer-col a{font-size:.9rem;line-height:1.4;color:#fff}
 .footer-col a{text-decoration:underline;transition:color .2s}
 .footer-col a:hover{color:#FFD700}
