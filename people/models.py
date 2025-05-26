@@ -19,7 +19,7 @@ class PeopleIndexPage(Page):
     intro = RichTextField(blank=True)
 
     content_panels = Page.content_panels + [
-        FieldPanel('intro'),
+      #  FieldPanel('intro'),
     ]
 
     parent_page_types = ['people.DepartmentIndexPage']
