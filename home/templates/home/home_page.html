@@ -1,22 +1,24 @@
 {% extends "base.html" %}
-{% load wagtailcore_tags wagtailimages_tags %}
+{% load wagtailcore_tags wagtailimages_tags i18n i18n_extra %}   {# ← added i18n_extra #}
 
 {% block body_class %}template-homepage{% endblock %}
 
 {% block content %}
-    <div>
-        <h1>{{ page.title }}</h1>
-        {% image page.image max-480x320 class="home-hero__image" %}
-        <p>{{ page.hero_text }}</p>
-        {% if page.hero_cta_link %}
-            <a
-                href="{% pageurl page.hero_cta_link %}"
-                class="home-hero__cta"
-            >
-                {{ page.hero_cta|default:page.hero_cta_link.title }}
-            </a>
-        {% endif %}
-    </div>
+<div>
+    <h1>{{ page.title }}</h1>
+    {% image page.image max-480x320 class="home-hero__image" %}
+    <p>{{ page.hero_text }}</p>
 
-  {{ page.body|richtext }}
-{% endblock content %}
+    {% if page.hero_cta_link %}
+        {# work out the counterpart of hero_cta_link in the active language #}
+        {% with page.hero_cta_link|translate_page:request.LANGUAGE_CODE as target %}
+            <a href="{% pageurl target %}"
+               class="home-hero__cta">
+                {{ page.hero_cta|default:target.title }}
+            </a>
+        {% endwith %}
+    {% endif %}
+</div>
+
+{{ page.body|richtext }}
+{% endblock %}
