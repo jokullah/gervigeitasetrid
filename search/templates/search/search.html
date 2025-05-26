@@ -1,21 +1,37 @@
 {% extends "base.html" %}
 {% load static wagtailcore_tags %}
-
+{% load i18n i18n_extra %}
 {% block body_class %}template-searchresults{% endblock %}
 
 {% block title %}Search{% endblock %}
 
 {% block content %}
-<h1>Leita</h1>
+<h1>{% trans "Leita" %}</h1>
 
-<form action="{% url 'search' %}" method="get">
-    <input type="text" name="query"{% if search_query %} value="{{ search_query }}"{% endif %}>
-    <input type="submit" value="Leit" class="button">
+<form action="{% url 'search' %}" method="get" class="search-form">
+    <input type="text"
+           name="query"
+           {% if search_query %}value="{{ search_query }}"{% endif %}
+           placeholder="{% trans 'Leita' %}"
+           class="search-input">
+
+    {# ⤵︎ NEW button ⤵︎ #}
+    <button type="submit"
+            class="search-btn"
+            aria-label="{% trans 'Leita' %}">
+        <!-- simple magnifying-glass SVG -->
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+            <circle  cx="11" cy="11" r="7"
+                     stroke="currentColor" stroke-width="2" fill="none"/>
+            <line    x1="16" y1="16" x2="22" y2="22"
+                     stroke="currentColor" stroke-width="2"/>
+        </svg>
+    </button>
 </form>
 
 {% if search_results %}
 
-<p>Þú leitaðir að{% if search_query %} “{{ search_query }}”{% endif %}, niðurstaða:</p>
+<p>{% trans "Þú leitaðir að" %}{% if search_query %} “{{ search_query }}”{% endif %}, {% trans "niðurstaða" %}:</p>
 
 <ol>
     {% for result in search_results %}
@@ -33,14 +49,14 @@
 {% endif %}
 
 {% if search_results.has_previous %}
-<a href="{% url 'search' %}?query={{ search_query|urlencode }}&amp;page={{ search_results.previous_page_number }}">Previous</a>
+<a href="{% url 'search' %}?query={{ search_query|urlencode }}&amp;page={{ search_results.previous_page_number }}">{% trans "Fyrri" %}</a>
 {% endif %}
 
 {% if search_results.has_next %}
-<a href="{% url 'search' %}?query={{ search_query|urlencode }}&amp;page={{ search_results.next_page_number }}">Next</a>
+<a href="{% url 'search' %}?query={{ search_query|urlencode }}&amp;page={{ search_results.next_page_number }}">{% trans "Næsta" %}</a>
 {% endif %}
 
 {% elif search_query %}
-Engin leitarniðurstaða fannst
+{% trans "Engin leitarniðurstaða fannst" %}
 {% endif %}
 {% endblock %}

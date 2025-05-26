@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-
+{% load i18n i18n_extra %}
 {% load wagtailcore_tags wagtailimages_tags %}
 
 {% block body_class %}template-blogpage{% endblock %}
@@ -11,7 +11,7 @@
     <!-- Add this: -->
     {% with authors=page.authors.all %}
         {% if authors %}
-            <h3>Grein eftir:</h3>
+            <h3>{% trans "Grein eftir:" %}</h3>
             <ul>
                 {% for author in authors %}
                     <li style="display: inline">
@@ -34,7 +34,7 @@
         </div>
     {% endfor %}
 
-    <p><a href="{{ page.get_parent.url }}">Aftur á blogg</a></p>
+    <p><a href="{{ page.get_parent.url }}">{% trans "Aftur á blogg" %}</a></p>
 
     {% with tags=page.tags.all %}
         {% if tags %}

@@ -14,15 +14,38 @@
     <div class="inner">
 
       {# language toggle #}
-      {% with LANGUAGE_CODE|slice:":2" as lang %}
-        <form action="{% url 'set_language' %}" method="post" class="lang-switch">
-          {% csrf_token %}
-          <input type="hidden" name="next" value="{{ request.path }}">
-          <button type="submit" name="language" value="en"
-                  {% if lang == 'en' %}class="is-active"{% endif %}>EN</button>
-          <button type="submit" name="language" value="is"
-                  {% if lang == 'is' %}class="is-active"{% endif %}>ÍS</button>
-        </form>
+      {# ------------------------------------------------------------------ #}
+      {#  Pick the current Page.  “page” exists on Wagtail pages;           #}
+      {#  fall back to root_page on views (search, 404, etc.)               #}
+      {# ------------------------------------------------------------------ #}
+      {% with page|default:root_page as this_page %}
+          {% with this_page|translate_page:'en' as en_page %}
+              {% with this_page|translate_page:'is' as is_page %}
+
+                  <div class="lang-switch">
+                    {# ---- English button ---- #}
+                    <form action="{% url 'set_language' %}" method="post">
+                      {% csrf_token %}
+                      <input type="hidden" name="next" value="{% pageurl en_page %}">
+                      <button type="submit" name="language" value="en"
+                              {% if cur_lang|slice:":2" == 'en' %}class="is-active"{% endif %}>
+                        EN
+                      </button>
+                    </form>
+
+                    {# ---- Icelandic button ---- #}
+                    <form action="{% url 'set_language' %}" method="post">
+                      {% csrf_token %}
+                      <input type="hidden" name="next" value="{% pageurl is_page %}">
+                      <button type="submit" name="language" value="is"
+                              {% if cur_lang|slice:":2" == 'is' %}class="is-active"{% endif %}>
+                        ÍS
+                      </button>
+                    </form>
+                  </div>
+
+              {% endwith %}
+          {% endwith %}
       {% endwith %}
 
       {# quick links #}

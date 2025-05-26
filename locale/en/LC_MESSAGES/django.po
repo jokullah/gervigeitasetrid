@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-26 11:04+0000\n"
+"POT-Creation-Date: 2025-05-26 16:30+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,6 +17,22 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: blog/templates/blog/blog_page.html:14
+msgid "Grein eftir:"
+msgstr "Article by:"
+
+#: blog/templates/blog/blog_page.html:37
+msgid "Aftur á blogg"
+msgstr "Back to blog"
+
+#: blog/templates/blog/blog_tag_index_page.html:9
+msgid "Síður taggaðar með:"
+msgstr "Sites with tag:"
+
+#: blog/templates/blog/blog_tag_index_page.html:20
+msgid "Engar síður fundust með þessu taggi"
+msgstr "No pages found with this tag"
 
 #: env/lib/python3.12/site-packages/django/contrib/messages/apps.py:16
 msgid "Messages"
@@ -1323,19 +1339,78 @@ msgstr ""
 msgid "None"
 msgstr ""
 
-#: gervigeitasetrid/templates/includes/header.html:32
+#: gervigeitasetrid/templates/includes/footer.html:16
+msgid "HÁSKOLI ÍSLANDS"
+msgstr "UNIVERSITY OF ICELAND"
+
+#: gervigeitasetrid/templates/includes/footer.html:19
+msgid "Póstlisti"
+msgstr "Email list"
+
+#: gervigeitasetrid/templates/includes/footer.html:20
+msgid "Kort af háskólasvæði"
+msgstr "Map of Campus"
+
+#: gervigeitasetrid/templates/includes/footer.html:25
+msgid "Opnunartímar"
+msgstr "Opening hours"
+
+#: gervigeitasetrid/templates/includes/footer.html:26
+msgid "Aðalbygging"
+msgstr "Main Building"
+
+#: gervigeitasetrid/templates/includes/footer.html:27
+msgid "Fös."
+msgstr "Fri."
+
+#: gervigeitasetrid/templates/includes/footer.html:28
+msgid "Háskólatorg"
+msgstr "University Centre"
+
+#: gervigeitasetrid/templates/includes/footer.html:29
+msgid "Allir opnunartímar"
+msgstr "All opening hours"
+
+#: gervigeitasetrid/templates/includes/footer.html:30
+msgid "Umsjónarmenn bygginga"
+msgstr "Building supervisors"
+
+#: gervigeitasetrid/templates/includes/footer.html:35
+msgid "Hafðu samband"
+msgstr "Contact us"
+
+#: gervigeitasetrid/templates/includes/footer.html:36
+msgid "Sími"
+msgstr "Tel."
+
+#: gervigeitasetrid/templates/includes/footer.html:37
+msgid "Hafa samband : hi@hi.is"
+msgstr "Contact: hi@hi.is"
+
+#: gervigeitasetrid/templates/includes/footer.html:38
+msgid "Rafræn vöktun"
+msgstr "Electronic surveillance"
+
+#: gervigeitasetrid/templates/includes/footer.html:39
+msgid "Tilkynna áreitni"
+msgstr "Report harassment"
+
+#: gervigeitasetrid/templates/includes/header.html:53
 msgid "Þjónusta"
 msgstr "Help Centre"
 
-#: gervigeitasetrid/templates/includes/header.html:34
+#: gervigeitasetrid/templates/includes/header.html:56
 msgid "Finna"
 msgstr "Find"
 
-#: gervigeitasetrid/templates/includes/header.html:34
+#: gervigeitasetrid/templates/includes/header.html:56
 msgid "starfsfólk"
 msgstr "staff"
 
-#: gervigeitasetrid/templates/includes/header.html:38
+#: gervigeitasetrid/templates/includes/header.html:62
+#: gervigeitasetrid/templates/includes/header.html:64
+#: gervigeitasetrid/templates/includes/header.html:65
+#: search/templates/search/search.html:9 search/templates/search/search.html:13
 msgid "Leita"
 msgstr "Search"
 
@@ -1381,3 +1456,23 @@ msgstr ""
 #: home/templates/home/welcome_page.html:50
 msgid "Create your superuser first!"
 msgstr ""
+
+#: search/templates/search/search.html:18
+msgid "Þú leitaðir að"
+msgstr "You searched for"
+
+#: search/templates/search/search.html:18
+msgid "niðurstaða"
+msgstr "result"
+
+#: search/templates/search/search.html:36
+msgid "Fyrri"
+msgstr "Previous"
+
+#: search/templates/search/search.html:40
+msgid "Næsta"
+msgstr "Next"
+
+#: search/templates/search/search.html:44
+msgid "Engin leitarniðurstaða fannst"
+msgstr "No search result"

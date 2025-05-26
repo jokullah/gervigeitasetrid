@@ -1,10 +1,12 @@
 {% extends "base.html" %}
 {% load wagtailcore_tags %}
+{% load i18n i18n_extra %}
+
 
 {% block content %}
 
     {% if request.GET.tag %}
-        <h4>Síður taggaðar með:"{{ request.GET.tag }}"</h4>
+        <h4>{% trans "Síður taggaðar með:" %}"{{ request.GET.tag }}"</h4>
     {% endif %}
 
     {% for blogpage in blogpages %}
@@ -15,7 +17,7 @@
           </p>
 
     {% empty %}
-        Engar síður fundust með þessu taggi.
+        {% trans "Engar síður fundust með þessu taggi" %}
     {% endfor %}
 
 {% endblock %}
