@@ -9,7 +9,7 @@ from django.forms import CheckboxSelectMultiple
 from modelcluster.fields import ParentalManyToManyField
 from django import forms
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-
+from wagtail.models import Locale
 
 
 
@@ -69,24 +69,31 @@ class EventPage(Page):
 
 
 
+
 class EventIndexPage(Page):
     def get_context(self, request):
         context = super().get_context(request)
-        
-        # Get tag from query parameter
+
         tag = request.GET.get('tag')
-        
-        # Filter events by tag if provided
+        lang_code = request.LANGUAGE_CODE
+        current_locale = Locale.objects.get(language_code=lang_code)
+
+        # Filter events by current language
         if tag:
-            events = EventPage.objects.live().filter(tags__name=tag).specific()
+            events = (
+                EventPage.objects.live()
+                .filter(locale=current_locale, tags__name=tag)
+                .specific()
+            )
+            events = sorted(events, key=lambda p: p.date)
             context['current_tag'] = tag
         else:
-            events = EventPage.objects.live().order_by('date')
-            
-        # Sort events by date (only needed for tag filtering since we already ordered the main query)
-        if tag:
-            events = sorted(events, key=lambda p: p.date)
-        
+            events = (
+                EventPage.objects.live()
+                .filter(locale=current_locale)
+                .order_by('date')
+            )
+
         # Pagination - 6 events per page
         page = request.GET.get('page', 1)
         paginator = Paginator(events, 6)
@@ -96,7 +103,7 @@ class EventIndexPage(Page):
             events = paginator.page(1)
         except EmptyPage:
             events = paginator.page(paginator.num_pages)
-            
+
         context['events'] = events
         return context
 
