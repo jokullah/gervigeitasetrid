@@ -8,6 +8,11 @@
     margin-bottom: 2rem;
 }
 
+.body-content {
+    margin-bottom: 3rem;
+    max-width: 800px;
+}
+
 .two-column-layout {
     display: flex;
     gap: 3rem;
@@ -23,10 +28,14 @@
     max-width: 1000px;
 }
 
-.events-section {
+.events-section,
+.latest-posts-section {
     background: #f8f9fa;
     border-radius: 12px;
     padding: 1rem;
+}
+
+.events-section {
     position: sticky;
     top: 2rem;
 }

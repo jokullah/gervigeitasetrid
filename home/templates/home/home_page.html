@@ -28,9 +28,14 @@
       {% endif %}
     </div>
 
+    {# ─── BODY CONTENT ────────────────────────────────────────── #}
+    <div class="body-content">
+      {{ page.body|richtext }}
+    </div>
+
     {# ─── TWO-COLUMN LAYOUT ────────────────────────────────────────── #}
     <div class="two-column-layout">
-      {# ◂▸ EVENTS SIDEBAR (unchanged structure) ▸▾ #}
+      {# ◂▸ EVENTS SIDEBAR ▸▾ #}
       <div class="left-column">
         <div class="events-section">
           <div class="events-header">
@@ -110,9 +115,30 @@
         </div>
       </div>
 
-      {# ▸▸ PAGE BODY ▸▸ #}
+      {# ▸▸ NEWS SECTION ▸▸ #}
       <div class="right-column">
-        {{ page.body|richtext }}
+        {% if latest_posts %}
+          <div class="latest-posts-section">
+            <h2>{% trans "Fréttir" %}</h2>
+            <div class="blog-grid">
+              {% for post in latest_posts %}
+                <article class="blog-card">
+                  <a href="{% pageurl post %}">
+                    {% if post.main_image %}
+                      {% image post.main_image fill-300x150 class="blog-card__image" %}
+                    {% endif %}
+                    <div class="blog-card__content">
+                      <h3 class="blog-card__title">{{ post.title }}</h3>
+                      <div class="blog-card__meta">
+                        <span>{{ post.date }}</span>
+                      </div>
+                    </div>
+                  </a>
+                </article>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
       </div>
     </div>
   </div>
