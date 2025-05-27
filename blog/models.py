@@ -9,16 +9,32 @@ from wagtail.search import index
 from wagtail.snippets.models import register_snippet
 from modelcluster.contrib.taggit import ClusterTaggableManager
 from taggit.models import TaggedItemBase
+from wagtail.models import Locale
 
 
 class BlogIndexPage(Page):
     intro = RichTextField(blank=True)
-    # add the get_context method:
+
+    content_panels = Page.content_panels + [
+        FieldPanel("intro"),
+    ]
+
     def get_context(self, request):
-        # Update context to include only published posts, ordered by reverse-chron
         context = super().get_context(request)
-        blogpages = self.get_children().live().order_by('-first_published_at')
-        context['blogpages'] = blogpages
+
+        current_locale = getattr(request, "locale", None)
+        if current_locale is None:                     # fallback for older Wagtail
+            current_locale = Locale.objects.get(
+                language_code=request.LANGUAGE_CODE[:2]
+            )
+
+        blogpages = (
+            BlogPage.objects.live()                    # only published
+                     .filter(locale=current_locale)    # <-- locale filter
+                     .order_by("-first_published_at")
+        )
+
+        context["blogpages"] = blogpages
         return context
 
 
@@ -93,13 +109,21 @@ class Author(models.Model):
 class BlogTagIndexPage(Page):
 
     def get_context(self, request):
-
-        # Filter by tag
-        tag = request.GET.get('tag')
-        blogpages = BlogPage.objects.filter(tags__name=tag)
-
-        # Update template context
         context = super().get_context(request)
-        context['blogpages'] = blogpages
-        return context
 
+        tag = request.GET.get("tag")
+
+        current_locale = getattr(request, "locale", None)
+        if current_locale is None:
+            current_locale = Locale.objects.get(
+                language_code=request.LANGUAGE_CODE[:2]
+            )
+
+        blogpages = (
+            BlogPage.objects.live()
+                     .filter(locale=current_locale)     # same trick
+                     .filter(tags__name=tag)
+        )
+
+        context["blogpages"] = blogpages
+        return context

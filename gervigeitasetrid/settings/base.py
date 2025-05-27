@@ -26,6 +26,8 @@ BASE_DIR = os.path.dirname(PROJECT_DIR)
 INSTALLED_APPS = [
     "people",
     "event",
+    "wagtail.locales",
+    "modeltranslation",
     "base",
     "wagtail.contrib.settings",
     "blog",
@@ -62,7 +64,10 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "wagtail.contrib.redirects.middleware.RedirectMiddleware",
+    "django.middleware.locale.LocaleMiddleware",
 ]
+
+LOCALE_PATHS = [ os.path.join(BASE_DIR, "locale") ]
 
 ROOT_URLCONF = "gervigeitasetrid.urls"
 
@@ -80,6 +85,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "wagtail.contrib.settings.context_processors.settings",
+                "django.template.context_processors.i18n",
             ],
         },
     },
@@ -122,6 +128,17 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
 LANGUAGE_CODE = "en-us"
+WAGTAIL_I18N_ENABLED = True
+LANGUAGE_CODE = "is"           # default
+LANGUAGES = [
+    ("is", "Íslenska"),
+    ("en", "English"),
+]
+
+WAGTAIL_CONTENT_LANGUAGES = [
+    ("is", "Íslenska"),
+    ("en", "English"),          # plain “en” is now explicitly allowed
+]
 
 TIME_ZONE = "UTC"
 
@@ -138,9 +155,9 @@ STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
 ]
 
-# STATICFILES_DIRS = [
-#     os.path.join(PROJECT_DIR, "static"),
-# ]
+STATICFILES_DIRS = [
+    os.path.join(PROJECT_DIR, "static"),
+]
 
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 STATIC_URL = "/static/"

@@ -40,7 +40,6 @@ class HomePage(Page):
     )
 
     body = RichTextField(blank=True)
-    
     # modify your content_panels:
     content_panels = Page.content_panels + [
         MultiFieldPanel(

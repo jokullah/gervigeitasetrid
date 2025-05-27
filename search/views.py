@@ -1,41 +1,56 @@
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.template.response import TemplateResponse
 
-from wagtail.models import Page
-
-# To enable logging of search queries for use with the "Promoted search results" module
-# <https://docs.wagtail.org/en/stable/reference/contrib/searchpromotions.html>
-# uncomment the following line and the lines indicated in the search function
-# (after adding wagtail.contrib.search_promotions to INSTALLED_APPS):
-
+from wagtail.models import Page, Locale
+# If you use “Promoted search results”, leave this import uncommented
 # from wagtail.contrib.search_promotions.models import Query
 
 
 def search(request):
-    search_query = request.GET.get("query", None)
-    page = request.GET.get("page", 1)
+    """
+    Language-aware search view.
+    Only pages whose locale matches request.LANGUAGE_CODE are shown.
+    """
+    search_query = request.GET.get("query", "").strip()
+    page_number  = request.GET.get("page", 1)
 
-    # Search
+    # ------------------------------------------------------------------
+    # 1.  Work out the active Wagtail locale object
+    # ------------------------------------------------------------------
+    lang = request.LANGUAGE_CODE[:2]  # 'en-gb' → 'en';
+    try:
+        active_locale = Locale.objects.get(language_code=lang)
+    except Locale.DoesNotExist:
+        active_locale = Locale.get_default()
+
+    # ------------------------------------------------------------------
+    # 2.  Do the search, restricted to that locale
+    # ------------------------------------------------------------------
     if search_query:
-        search_results = Page.objects.live().search(search_query)
+        search_results = (
+            Page.objects.live()
+                .filter(locale=active_locale)        # ← key line
+                .search(search_query)
+        )
 
-        # To log this query for use with the "Promoted search results" module:
-
+        # If you use promoted search results, log the query
         # query = Query.get(search_query)
         # query.add_hit()
-
     else:
         search_results = Page.objects.none()
 
-    # Pagination
+    # ------------------------------------------------------------------
+    # 3.  Paginate
+    # ------------------------------------------------------------------
     paginator = Paginator(search_results, 10)
     try:
-        search_results = paginator.page(page)
-    except PageNotAnInteger:
+        search_results = paginator.page(page_number)
+    except (PageNotAnInteger, EmptyPage):
         search_results = paginator.page(1)
-    except EmptyPage:
-        search_results = paginator.page(paginator.num_pages)
 
+    # ------------------------------------------------------------------
+    # 4.  Render
+    # ------------------------------------------------------------------
     return TemplateResponse(
         request,
         "search/search.html",
