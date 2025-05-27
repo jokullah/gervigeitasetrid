@@ -1,8 +1,12 @@
 from django.db import models
-
+from django.core.paginator import Paginator
 from wagtail.models import Page
 from wagtail.fields import RichTextField
 from wagtail.admin.panels import FieldPanel, MultiFieldPanel
+from event.models import EventIndexPage
+
+from event.models import EventPage
+
 
 
 class HomePage(Page):
@@ -36,7 +40,6 @@ class HomePage(Page):
     )
 
     body = RichTextField(blank=True)
-
     # modify your content_panels:
     content_panels = Page.content_panels + [
         MultiFieldPanel(
@@ -50,3 +53,23 @@ class HomePage(Page):
         ),
         FieldPanel('body'),
     ]
+
+
+    def get_context(self, request):
+        context = super().get_context(request)
+
+        # Get all future events ordered by date
+        events = EventPage.objects.live().order_by('date')
+        
+        # Get the page number from the query string
+        page_number = request.GET.get('page', 1)
+        
+        # Create a paginator with 3 events per page
+        paginator = Paginator(events, 3)
+        events_page = paginator.get_page(page_number)
+        
+        context['events_page'] = events_page
+        context['event_index_page'] = EventIndexPage.objects.live().first()
+        
+        return context
+

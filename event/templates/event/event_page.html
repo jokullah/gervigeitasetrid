@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags wagtailimages_tags %}
+
+
+{% block content %}
+  <article style="max-width: 800px; margin: auto;">
+    <h1>{{ page.title }}</h1>
+
+    {% if page.tags.all %}
+        <p><strong>Tags:</strong>
+            {% for tag in page.tags.all %}
+                <a href="{% pageurl page.get_parent %}?tag={{ tag.name|urlencode }}" 
+                   style="display: inline-block; background-color: #eee; padding: 0.25em 0.5em; margin-right: 0.25em; border-radius: 4px; font-size: 0.9em; text-decoration: none; color: #333;">
+                    {{ tag.name }}
+                </a>
+            {% endfor %}
+        </p>
+    {% endif %}
+
+
+    {% if page.event_image %}
+        {% image page.event_image fill-800x600 %}
+    {% endif %}
+
+
+    <p><strong>Date:</strong> {{ page.date }}</p>
+
+    {% if page.start_time and page.end_time %}
+      <p><strong>Time:</strong> {{ page.start_time|time:"H:i" }} - {{ page.end_time|time:"H:i" }}</p>
+    {% endif %}
+
+    <p><strong>Location:</strong> {{ page.location }}</p>
+    <p><strong>Type:</strong> {{ page.get_event_type_display }}</p>
+
+    {% if page.event_type == "lecture" %}
+      <p><strong>Host:</strong> {{ page.host }}</p>
+      <p><strong>Speaker:</strong> {{ page.speaker }}</p>
+    {% endif %}
+
+    <hr>
+
+    <div>
+      <h3>Description</h3>
+      <p>{{ page.description }}</p>
+    </div>
+  </article>
+{% endblock %}
