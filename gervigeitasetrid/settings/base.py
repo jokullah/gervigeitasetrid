@@ -25,9 +25,10 @@ BASE_DIR = os.path.dirname(PROJECT_DIR)
 
 INSTALLED_APPS = [
     "core",
+    "people",
+    "event",
     "wagtail.locales",
     "modeltranslation",
-    "people",
     "base",
     "wagtail.contrib.settings",
     "blog",
@@ -127,6 +128,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
+LANGUAGE_CODE = "en-us"
 WAGTAIL_I18N_ENABLED = True
 LANGUAGE_CODE = "is"           # default
 LANGUAGES = [
