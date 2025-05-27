@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
-{% load wagtailcore_tags wagtailimages_tags %}
+{% load wagtailcore_tags wagtailimages_tags i18n i18n_extra %}
 
 {% block extra_css %}
     <link rel="stylesheet" type="text/css" href="{% static 'css/event.css' %}">
@@ -10,9 +10,9 @@
 <div class="event-index">
     <div class="event-index-header">
         {% if current_tag %}
-            <h2>Events tagged with "{{ current_tag }}"</h2>
+            <h2>{% trans "Viðburðir taggaðir með" %} "{{ current_tag }}"</h2>
         {% else %}
-            <h2>Upcoming Events</h2>
+            <h2>{% trans "Viðburðir" %}</h2>
         {% endif %}
         
         <div class="pagination">
@@ -101,7 +101,7 @@
     </div>
 
     {% if current_tag %}
-        <a href="{% pageurl page %}" class="view-all-link">View All Events</a>
+        <a href="{% pageurl page %}" class="view-all-link">{% trans "Sjá alla viðburði:" %}</a>
     {% endif %}
 </div>
 {% endblock %}

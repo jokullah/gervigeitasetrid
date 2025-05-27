@@ -34,7 +34,7 @@
       <div class="left-column">
         <div class="events-section">
           <div class="events-header">
-            <h2>{% trans "Upcoming Events" %}</h2>
+            <h2>{% trans "Viðburðir" %}</h2>
             <div class="pagination">
               {% if events_page.has_previous %}
                 <a href="?page={{ events_page.previous_page_number }}">&larr;</a>
@@ -94,15 +94,19 @@
                 </a>
               </article>
             {% empty %}
-              <p class="no-events">{% trans "No upcoming events." %}</p>
+              <p class="no-events">{% trans "Engir væntanlegir viðburðir." %}</p>
             {% endfor %}
           </div>
 
-          <p>
-            <a href="{{ event_index_page.url }}" class="view-all-link">
-              {% trans "View All Events" %}
-            </a>
-          </p>
+          {% with event_index_page|translate_page:request.LANGUAGE_CODE as localized_index %}
+            {% if localized_index %}
+              <p>
+                <a href="{% pageurl localized_index %}" class="view-all-link">
+                  {% trans "Sjá alla viðburði" %}
+                </a>
+              </p>
+            {% endif %}
+          {% endwith %}
         </div>
       </div>
 
