@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags wagtailimages_tags static %}
+
+{% block content %}
+  <h1 class="page-title">{{ page.title }}</h1>
+  <div class="page-intro">
+    {{ page.intro|richtext }}
+  </div>
+
+  <div class="department-grid">
+    {% for department in page.get_children.live.specific %}
+      <a href="{{ department.url }}" class="department-card">
+        <h2 class="department-title">{{ department.title }}</h2>
+      </a>
+    {% endfor %}
+  </div>
+{% endblock %}

@@ -8,7 +8,7 @@
   <div class="people-grid">
     {% for person in page.get_children.live.specific %}
       <div class="person-card">
-        <a href="{{ person.url }}">
+        <a href="{% if person.personal_website %}{{ person.personal_website }}{% else %}{{ person.url }}{% endif %}">
           {% if person.image %}
             {% image person.image fill-100x100 %}
           {% else %}

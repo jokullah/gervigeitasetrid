@@ -1,5 +1,6 @@
 {# templates/includes/footer.html #}
 {% load static wagtailcore_tags %}
+{% load i18n i18n_extra %}
 
 <footer class="site-footer">
   <div class="footer-grid">
@@ -12,30 +13,30 @@
 
     {# — Column 1: Address — #}
     <div class="footer-col footer-address">
-      <h4>HÁSKÓLI ÍSLANDS</h4>
+      <h1>{% trans "HÁSKOLI ÍSLANDS" %}</h1>
       <p>Sæmundargötu 2<br>102 Reykjavík</p>
       <p>Kt. 600169-2039</p>
-      <p><a href="https://forms.office.com/pages/responsepage.aspx?id=Dl_6CRghVkaFKWd-2P2-eAJvj7XcxOFLlMZOkktK1mxURDBJREFEUUFJTzFPSkc1RzNBS1U1UklQNi4u">Póstlisti</a></p>
-      <p><a href="https://hi.is/kort_allt">Kort af háskólasvæði</a></p>
+      <p><a href="https://forms.office.com/pages/responsepage.aspx?id=Dl_6CRghVkaFKWd-2P2-eAJvj7XcxOFLlMZOkktK1mxURDBJREFEUUFJTzFPSkc1RzNBS1U1UklQNi4u">{% trans "Póstlisti" %}</a></p>
+      <p><a href="https://hi.is/kort_allt">{% trans "Kort af háskólasvæði" %}</a></p>
     </div>
 
     {# — Column 2: Opening Hours — #}
     <div class="footer-col footer-hours">
-      <h4>Opnunartímar</h4>
-      <p>Aðalbygging: 07:30–17:00</p>
-      <p>Fös.: 07:30–16:00</p>
-      <p>Háskólatorg: 07:30–19:00</p>
-      <p><a href="https://hi.is/haskolinn/haskolabyggingar">Allir opnunartímar</a></p>
-      <p><a href="https://hi.is/haskolinn/framkvaemda_og_taeknisvid#Umsjonamenn_bygginga">Umsjónarmenn bygginga</a></p>
+      <h1>{% trans "Opnunartímar" %}</h1>
+      <p>{% trans "Aðalbygging" %}: 07:30–17:00</p>
+      <p>{% trans "Fös." %}: 07:30–16:00</p>
+      <p>{% trans "Háskólatorg" %}: 07:30–19:00</p>
+      <p><a href="https://hi.is/haskolinn/haskolabyggingar">{% trans "Allir opnunartímar" %}</a></p>
+      <p><a href="https://hi.is/haskolinn/framkvaemda_og_taeknisvid#Umsjonamenn_bygginga">{% trans "Umsjónarmenn bygginga" %}</a></p>
     </div>
 
     {# — Column 3: Contact — #}
     <div class="footer-col footer-contact">
-      <h4>Hafðu samband</h4>
-      <p>Sími: +354 525 4000</p>
-      <p><a href="mailto:hi@hi.is">Hafa samband : hi@hi.is</a></p>
-      <p><a href="https://hi.is/haskolinn/rafraen_voktun">Rafræn vöktun</a></p>
-      <p><a href="https://ugla.hi.is/kerfi/view/page.php?sid=4428">Tilkynna áreitni</a></p>
+      <h1>{% trans "Hafðu samband" %}</h1>
+      <p>{% trans "Sími" %}: +354 525 4000</p>
+      <p><a href="mailto:hi@hi.is">{% trans "Hafa samband : hi@hi.is" %}</a></p>
+      <p><a href="https://hi.is/haskolinn/rafraen_voktun">{% trans "Rafræn vöktun" %}</a></p>
+      <p><a href="https://ugla.hi.is/kerfi/view/page.php?sid=4428">{% trans "Tilkynna áreitni" %}</a></p>
     </div>
 
   </div>
