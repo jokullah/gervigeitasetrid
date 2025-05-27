@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% load static %}
+{% load wagtailcore_tags wagtailimages_tags %}
+
+{% block extra_css %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/home.css' %}">
+{% endblock %}
+
+{% block body_class %}template-homepage{% endblock %}
+
+{% block content %}
+    <div class="page-content">
+        <div class="main-content">
+            <h1>{{ page.title }}</h1>
+            {% image page.image max-480x320 class="home-hero__image" %}
+            <p>{{ page.hero_text }}</p>
+            {% if page.hero_cta_link %}
+                <a href="{% pageurl page.hero_cta_link %}" class="home-hero__cta">
+                    {{ page.hero_cta|default:page.hero_cta_link.title }}
+                </a>
+            {% endif %}
+        </div>
+
+        <div class="two-column-layout">
+            <div class="left-column">
+                <div class="events-section">
+                    <div class="events-header">
+                        <h2>Upcoming Events</h2>
+                        <div class="pagination">
+                            {% if events_page.has_previous %}
+                                <a href="?page={{ events_page.previous_page_number }}">&larr;</a>
+                            {% endif %}
+                            
+                            {% for num in events_page.paginator.page_range %}
+                                {% if num == events_page.number %}
+                                    <span class="current">{{ num }}</span>
+                                {% else %}
+                                    <a href="?page={{ num }}">{{ num }}</a>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if events_page.has_next %}
+                                <a href="?page={{ events_page.next_page_number }}">&rarr;</a>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="events-grid">
+                        {% for event in events_page %}
+                            <article class="event-card">
+                                <a href="{{ event.url }}" style="text-decoration: none; color: inherit;">
+                                    <div class="event-image-container">
+                                        {% if event.event_image %}
+                                            {% image event.event_image fill-300x150 class="event-image" %}
+                                        {% else %}
+                                            <div class="event-placeholder">No image available</div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="event-content">
+                                        <div class="event-date-container">
+                                            <div class="event-day">{{ event.date|date:"d" }}</div>
+                                            <div class="event-month-year">{{ event.date|date:"F Y" }}</div>
+                                        </div>
+                                        
+                                        <h3 class="event-title">{{ event.title }}</h3>
+                                        
+                                        {% if event.start_time and event.end_time %}
+                                            <div class="event-location">
+                                                {{ event.start_time|time:"H:i" }} - {{ event.end_time|time:"H:i" }}
+                                            </div>
+                                        {% endif %}
+                                        
+                                        <div class="event-location">{{ event.location }}</div>
+                                        
+                                        {% if event.tags.all %}
+                                            <div class="event-tags">
+                                                {% for tag in event.tags.all %}
+                                                    <a href="{% pageurl event_index_page %}?tag={{ tag.name|urlencode }}" 
+                                                       class="event-tag">
+                                                        {{ tag.name }}
+                                                    </a>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </a>
+                            </article>
+                        {% empty %}
+                            <p>No upcoming events.</p>
+                        {% endfor %}
+                    </div>
+                    
+                    <p><a href="{{ event_index_page.url }}" class="view-all-link">View All Events</a></p>
+                </div>
+            </div>
+
+            <div class="right-column">
+                {{ page.body|richtext }}
+            </div>
+        </div>
+    </div>
+{% endblock content %}

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags wagtailimages_tags %}
+
+{% block content %}
+  <h1>{{ page.title }}</h1>
+  {% if page.job_title %}
+  <p><strong>{{ page.job_title }}</strong></p>
+  {% endif %}
+  {% if page.image %}
+    {% image page.image fill-300x300 %}
+  {% endif %}
+  {{ page.bio|richtext }}
+  <p><a href="mailto:{{ page.email }}">{{ page.email }}</a></p>
+{% endblock %}

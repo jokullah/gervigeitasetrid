@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags wagtailimages_tags static %}
+
+{% block body_class %}template-blogindexpage{% endblock %}
+
+{% block content %}
+  <h1>{{ page.title }}</h1>
+  <div class="intro">{{ page.intro|richtext }}</div>
+
+  <div class="blog-grid">
+    {% for post in blogpages %}
+      {% with post=post.specific %}
+        <div class="blog-card">
+          <a href="{% pageurl post %}">
+            {# -- Featured image for the post, if any -- #}
+            <div class="blog-card__image">
+              {% with post.main_image as img %}
+                {% if img %}{% image img fill-320x180 %}{% endif %}
+              {% endwith %}
+            </div>
+
+            {# -- Title -- #}
+            <h2 class="blog-card__title">{{ post.title }}</h2>
+
+            {# -- Meta row: date + authors -- #}
+            <div class="blog-card__meta">
+              <time class="blog-card__date">
+                {{ post.first_published_at|date:"F j, Y" }}
+              </time>
+              <div class="blog-card__authors">
+                {% for author in post.authors.all %}
+                  {% with author.author_image as img %}
+                    {% if img %}
+                      {% image img fill-32x32 alt=author.name class="author-icon" %}
+                    {% else %}
+                      <img
+                        src="{% static 'images/default-user-icon.svg' %}"
+                        alt="{{ author.name }}"
+                        class="author-icon">
+                    {% endif %}
+                  {% endwith %}
+                {% endfor %}
+              </div>
+            </div>
+          </a>
+        </div>
+      {% endwith %}
+    {% endfor %}
+  </div>
+{% endblock %}
