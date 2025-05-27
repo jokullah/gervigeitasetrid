@@ -66,6 +66,8 @@ class EventPage(Page):
             FieldPanel('speaker'),
         ], heading="Public Lecture Fields"),
     ]
+    parent_page_types = ['event.EventIndexPage']
+    subpage_types = []
 
 
 
@@ -106,6 +108,9 @@ class EventIndexPage(Page):
 
         context['events'] = events
         return context
+    
+    parent_page_types = ['home.HomePage']
+    subpage_types = ['event.EventIndexPage']
 
 
 class EventTagIndexPage(Page):
@@ -122,5 +127,8 @@ class EventTagIndexPage(Page):
         context['events'] = events
         context['current_tag'] = tag
         return context
+    
+    parent_page_types = ['home.HomePage']
+    subpage_types = []
 
 
