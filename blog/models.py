@@ -36,6 +36,9 @@ class BlogIndexPage(Page):
 
         context["blogpages"] = blogpages
         return context
+    
+    parent_page_types = ['home.HomePage']
+    subpage_types = ['blog.BlogPage']
 
 
 class BlogPageTag(TaggedItemBase):
@@ -76,6 +79,8 @@ class BlogPage(Page):
         ], heading="Blog information"),
             "intro", "body", "gallery_images"
         ]
+    parent_page_types = ['blog.BlogIndexPage']
+    subpage_types = []
 
 
 
@@ -127,3 +132,7 @@ class BlogTagIndexPage(Page):
 
         context["blogpages"] = blogpages
         return context
+    
+    parent_page_types = ['home.HomePage']
+    subpage_types = []
+    

@@ -116,4 +116,6 @@ class AboutPage(Page):
         FieldPanel("body"),
     ]
 
+    parent_page_types = ['home.HomePage']
+    subpage_types = []
 
