@@ -4,18 +4,26 @@
 {% block content %}
   <h1>{{ page.title }}</h1>
   <div class="intro">{{ page.intro|richtext }}</div>
-  <div class="supporters">
+  
+  <div class="supporters-grid">
     {% for block in page.supporters %}
       {% if block.block_type == 'supporter' %}
-        <div class="supporter">
-          {% if block.value.logo %}
-            {% image block.value.logo fill-300x300 alt=block.value.name %}
-          {% endif %}
-          <h2>{{ block.value.name }}</h2>
-          {% if block.value.website %}
-            <p><a href="{{ block.value.website }}" target="_blank">Website</a></p>
-          {% endif %}
-        </div>
+        {% if block.value.website %}
+          <a href="{{ block.value.website }}" target="_blank" class="supporter-cell">
+        {% else %}
+          <div class="supporter-cell">
+        {% endif %}
+        
+            <div class="supporter-content">
+              {% image block.value.logo fill-300x300 alt=block.value.name %}
+              <h2>{{ block.value.name }}</h2>
+            </div>
+        
+        {% if block.value.website %}
+          </a>
+        {% else %}
+          </div>
+        {% endif %}
       {% endif %}
     {% endfor %}
   </div>
