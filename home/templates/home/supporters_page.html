@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags wagtailimages_tags %}
+
+{% block content %}
+  <h1>{{ page.title }}</h1>
+  <div class="intro">{{ page.intro|richtext }}</div>
+  <div class="supporters">
+    {% for block in page.supporters %}
+      {% if block.block_type == 'supporter' %}
+        <div class="supporter">
+          {% if block.value.logo %}
+            {% image block.value.logo fill-300x300 alt=block.value.name %}
+          {% endif %}
+          <h2>{{ block.value.name }}</h2>
+          {% if block.value.website %}
+            <p><a href="{{ block.value.website }}" target="_blank">Website</a></p>
+          {% endif %}
+        </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+{% endblock %}

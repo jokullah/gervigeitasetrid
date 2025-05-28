@@ -1,13 +1,15 @@
 from django.db import models
 from django.core.paginator import Paginator
-from wagtail.models import Page
-from wagtail.fields import RichTextField
+from django.utils.translation import gettext_lazy
+
+from wagtail.models import Page, Locale
+from wagtail.fields import RichTextField, StreamField
 from wagtail.admin.panels import FieldPanel, MultiFieldPanel
-from event.models import EventIndexPage
-from django.utils.translation import gettext_lazy as _
-from event.models import EventPage
+from wagtail import blocks
+from wagtail.images.blocks import ImageChooserBlock
+
+from event.models import EventPage, EventIndexPage
 from blog.models import BlogPage
-from wagtail.models import Locale
 
 
 class HomePage(Page):
@@ -102,18 +104,41 @@ class AboutPage(Page):
         null=True,
         blank=True,
         related_name="+",
-        verbose_name=_("About image"),
-        help_text=_("An image to introduce your organization")
+        verbose_name=gettext_lazy("About image"),
+        help_text=gettext_lazy("An image to introduce your organization")
     )
     body = RichTextField(
         blank=True,
-        verbose_name=_("Body text"),
-        help_text=_("Main content for the About Us page")
+        verbose_name=gettext_lazy("Body text"),
+        help_text=gettext_lazy("Main content for the About Us page")
     )
 
     content_panels = Page.content_panels + [
         FieldPanel("intro_image"),
         FieldPanel("body"),
+    ]
+
+    parent_page_types = ['home.HomePage']
+    subpage_types = []
+
+class SupporterBlock(blocks.StructBlock):
+    name = blocks.CharBlock(required=True)
+    logo = ImageChooserBlock(required=False)
+    website = blocks.URLBlock(required=False)
+
+    class Meta:
+        icon = "user"
+        label = "Supporter"
+
+class SupportersPage(Page):
+    intro = RichTextField(blank=True)
+    supporters = StreamField([
+        ('supporter', SupporterBlock())
+    ], blank=True)
+
+    content_panels = Page.content_panels + [
+        FieldPanel('intro'),
+        FieldPanel('supporters'),
     ]
 
     parent_page_types = ['home.HomePage']
