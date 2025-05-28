@@ -267,38 +267,70 @@ main {
 }
 
 /* --- people cards --- */
+.people-index-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+h1+.rich-text,
+/* Target the intro text after h1 */
+.people-grid {
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 2rem;
+}
+
+.people-index-content h1 {
+  font-size: 2.5rem;
+  margin-top: 3rem;
+  margin-bottom: 1rem;
+  color: var(--Svartur);
+}
+
+.people-index-content .rich-text {
+  font-size: 1.2rem;
+  line-height: 1.6;
+  color: var(--Dokkgrar);
+  margin-bottom: 2rem;
+}
+
 .people-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 1rem;
-  margin-top: 1.5rem
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin: 3rem auto;
 }
 
 .person-card {
   background: #fff;
   border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 1rem;
+  border-radius: 12px;
+  padding: 1.5rem;
   text-align: center;
-  transition: box-shadow .2s
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .person-card:hover {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, .1)
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .person-card img,
 .person-icon {
-  width: 80px;
-  height: 80px;
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
   object-fit: cover;
-  margin-bottom: .5rem
+  margin-bottom: 1rem;
 }
 
 .person-card .person-name {
-  font-weight: 700;
-  margin: 0
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0.5rem 0 0;
+  color: var(--Svartur);
 }
 
 /* --- blog cards --- */
@@ -480,8 +512,6 @@ main {
   height: auto;
 }
 
-
-
 /* --- hero --- */
 .home-hero__image {
   max-width: 100%;
@@ -565,4 +595,23 @@ main {
 
 .footer-social img:hover {
   filter: brightness(.8) invert(1)
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .people-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1rem;
+    padding: 0 1rem;
+  }
+
+  .people-grid+h1 {
+    font-size: 2rem;
+    padding: 0 1rem;
+  }
+
+  .people-grid+h1+.rich-text {
+    font-size: 1.1rem;
+    padding: 0 1rem;
+  }
 }
