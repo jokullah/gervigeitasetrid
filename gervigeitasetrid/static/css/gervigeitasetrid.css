@@ -231,7 +231,8 @@ main {
   display: flex;
   gap: 3rem;
   margin-left: auto;
-  flex-wrap: nowrap
+  flex-wrap: nowrap;
+  font-size: 18px
 }
 
 .main-nav a {
