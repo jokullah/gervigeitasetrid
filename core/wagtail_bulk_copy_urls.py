@@ -1,11 +1,10 @@
-from django.urls import path
-from .views import bulk_copy_is_to_en      # the view you already wrote
+# core/wagtail_bulk_copy_urls.py
 
-# tell Django what this mini-module is called ⬇︎
-app_name = "bulk_copy"            #  ← add this line
+from django.urls import path
+from .wagtail_bulk_copy_views import bulk_copy_view  # <-- ✅ this is the updated view
+
+app_name = "bulk_copy"
 
 urlpatterns = [
-    path("",                      # /admin/bulk-copy/   (root of namespace)
-         bulk_copy_is_to_en,
-         name="bulk_copy_is_en"),
+    path("", bulk_copy_view, name="bulk_copy_is_en"),
 ]

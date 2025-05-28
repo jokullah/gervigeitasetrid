@@ -1,0 +1,106 @@
+{% extends "wagtailadmin/base.html" %}
+{% load i18n wagtailadmin_tags %}
+
+{% block content %}
+<div class="bulk-copy-wrapper">
+
+  <h1 class="bulk-copy-title">{% trans "Copy pages between languages" %}</h1>
+
+  {# --- IS → EN Section --- #}
+  <section class="bulk-copy-section">
+    <h2>{% trans "From Icelandic to English" %}</h2>
+
+    {% if is_to_en %}
+      <p>{% trans "Only Icelandic pages without English translations are listed." %}</p>
+
+      <form method="post" class="bulk-copy-form">
+        {% csrf_token %}
+        <input type="hidden" name="dst_lang" value="en">
+
+        <label class="bulk-copy-checkbox-label">
+          <input type="checkbox" id="select-all-is">
+          <strong>{% trans "Select all" %}</strong>
+        </label>
+
+        <ul class="listing">
+          {% for page in is_to_en %}
+            <li>
+              <label>
+                <input type="checkbox" name="pages" value="{{ page.id }}">
+                {{ page.get_admin_display_title }}
+              </label>
+            </li>
+          {% endfor %}
+        </ul>
+
+        <button type="submit" class="button button-primary">{% trans "Copy selected to English" %}</button>
+      </form>
+    {% else %}
+      <p>{% trans "All Icelandic pages already have English versions." %}</p>
+    {% endif %}
+  </section>
+
+  <hr>
+
+  {# --- EN → IS Section --- #}
+  <section class="bulk-copy-section">
+    <h2>{% trans "From English to Icelandic" %}</h2>
+
+    {% if en_to_is %}
+      <p>{% trans "Only English pages without Icelandic translations are listed." %}</p>
+
+      <form method="post" class="bulk-copy-form">
+        {% csrf_token %}
+        <input type="hidden" name="dst_lang" value="is">
+
+        <label class="bulk-copy-checkbox-label">
+          <input type="checkbox" id="select-all-en">
+          <strong>{% trans "Select all" %}</strong>
+        </label>
+
+        <ul class="listing">
+          {% for page in en_to_is %}
+            <li>
+              <label>
+                <input type="checkbox" name="pages" value="{{ page.id }}">
+                {{ page.get_admin_display_title }}
+              </label>
+            </li>
+          {% endfor %}
+        </ul>
+
+        <button type="submit" class="button button-primary">{% trans "Copy selected to Icelandic" %}</button>
+      </form>
+    {% else %}
+      <p>{% trans "All English pages already have Icelandic versions." %}</p>
+    {% endif %}
+  </section>
+
+  <a href="{% url 'wagtailadmin_home' %}" class="button button-secondary">{% trans "Cancel" %}</a>
+
+</div>
+
+<script>
+  const selectAllIS = document.getElementById("select-all-is");
+  if (selectAllIS) {
+    selectAllIS.addEventListener("change", function () {
+      document.querySelectorAll("form input[name='pages']").forEach(cb => {
+        if (cb.closest("form").querySelector("input[name='dst_lang']").value === "en") {
+          cb.checked = this.checked;
+        }
+      });
+    });
+  }
+
+  const selectAllEN = document.getElementById("select-all-en");
+  if (selectAllEN) {
+    selectAllEN.addEventListener("change", function () {
+      document.querySelectorAll("form input[name='pages']").forEach(cb => {
+        if (cb.closest("form").querySelector("input[name='dst_lang']").value === "is") {
+          cb.checked = this.checked;
+        }
+      });
+    });
+  }
+</script>
+{% endblock %}
