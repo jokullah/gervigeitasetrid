@@ -440,6 +440,39 @@ main {
   text-decoration: underline;
 }
 
+/* --- supporters --- */
+.supporters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.supporter-cell {
+  text-decoration: none;
+  color: inherit;
+  border: 1px solid var(--Grar);
+  padding: 1rem;
+  border-radius: 8px;
+  transition: box-shadow 0.2s ease;
+  display: block;
+}
+
+.supporter-cell:hover {
+  background-color: var(--Ljosgrar);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.supporter-content {
+  text-align: center;
+}
+
+.supporter-content img {
+  max-width: 100%;
+  height: auto;
+}
+
+
 
 /* --- hero --- */
 .home-hero__image {
