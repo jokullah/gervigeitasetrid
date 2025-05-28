@@ -12,6 +12,7 @@ from taggit.models import TaggedItemBase
 from wagtail.models import Locale
 
 
+
 class BlogIndexPage(Page):
     intro = RichTextField(blank=True)
 
@@ -50,6 +51,13 @@ class BlogPageTag(TaggedItemBase):
 
 
 class BlogPage(Page):
+    thumbnail_image = models.ForeignKey(
+        'wagtailimages.Image',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='+'
+    )
     date = models.DateField("Post date")
     intro = models.CharField(max_length=250)
     body = RichTextField(blank=True)
@@ -70,6 +78,7 @@ class BlogPage(Page):
     ]
 
     content_panels = Page.content_panels + [
+        FieldPanel('thumbnail_image'),
         MultiFieldPanel([
             "date",
             FieldPanel("authors", widget=forms.CheckboxSelectMultiple),

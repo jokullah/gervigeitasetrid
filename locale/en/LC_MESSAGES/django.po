@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-27 16:25+0000\n"
+"POT-Creation-Date: 2025-05-27 16:39+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1364,7 +1364,7 @@ msgid "Viðburðir taggaðir með"
 msgstr "Events tagged with"
 
 #: event/templates/event/event_index_page.html:15
-#: home/templates/home/home_page.html:37
+#: home/templates/home/home_page.html:42
 msgid "Viðburðir"
 msgstr "Events"
 
@@ -1481,33 +1481,37 @@ msgstr "staff"
 msgid "Leita"
 msgstr "Search"
 
-#: home/models.py:91
+#: home/models.py:105
 msgid "About image"
 msgstr ""
 
-#: home/models.py:92
+#: home/models.py:106
 msgid "An image to introduce your organization"
 msgstr ""
 
-#: home/models.py:96
+#: home/models.py:110
 msgid "Body text"
 msgstr ""
 
-#: home/models.py:97
+#: home/models.py:111
 msgid "Main content for the About Us page"
 msgstr ""
 
-#: home/templates/home/home_page.html:63
+#: home/templates/home/home_page.html:68
 msgid "No image available"
 msgstr ""
 
-#: home/templates/home/home_page.html:97
+#: home/templates/home/home_page.html:102
 msgid "Engir væntanlegir viðburðir."
 msgstr "No upcoming events."
 
-#: home/templates/home/home_page.html:105
+#: home/templates/home/home_page.html:110
 msgid "Sjá alla viðburði"
 msgstr "See All Events"
+
+#: home/templates/home/home_page.html:122
+msgid "Fréttir"
+msgstr "News"
 
 #: home/templates/home/welcome_page.html:6
 msgid "Visit the Wagtail website"

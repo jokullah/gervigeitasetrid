@@ -14,14 +14,19 @@
                     {{ tag.name }}
                 </a>
             {% endfor %}
-        </p>
+        </div>
     {% endif %}
 
+    <div style="display: flex; gap: 2em; margin: 2em 0;">
+        <div class="event-details" style="flex: 1; min-width: 200px;">
+            <p>{{ page.date|date:"F j, Y" }}</p>
 
-    {% if page.event_image %}
-        {% image page.event_image fill-800x600 %}
-    {% endif %}
+            {% if page.start_time and page.end_time %}
+              <p>{{ page.start_time|time:"H:i" }} - {{ page.end_time|time:"H:i" }}</p>
+            {% endif %}
 
+            <p>{{ page.location }}</p>
+            <p>{{ page.get_event_type_display }}</p>
 
     <p><strong>{% trans "Dagsetning:" %}</strong> {{ page.date }}</p>
 
