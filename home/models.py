@@ -10,7 +10,6 @@ from blog.models import BlogPage
 from wagtail.models import Locale
 
 
-
 class HomePage(Page):
     # add the Hero section of HomePage:
     image = models.ForeignKey(
@@ -60,8 +59,10 @@ class HomePage(Page):
     def get_context(self, request):
         context = super().get_context(request)
 
+        current_locale = Locale.objects.get(language_code=request.LANGUAGE_CODE)
+
         # Get all future events ordered by date
-        events = EventPage.objects.live().order_by('date')
+        events = EventPage.objects.live().filter(locale=current_locale).order_by('date')
         
         # Get the page number from the query string
         page_number = request.GET.get('page', 1)
@@ -115,4 +116,6 @@ class AboutPage(Page):
         FieldPanel("body"),
     ]
 
+    parent_page_types = ['home.HomePage']
+    subpage_types = []
 

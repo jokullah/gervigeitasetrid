@@ -10,10 +10,14 @@ from search import views as search_views
 from django.conf.urls.i18n import i18n_patterns
 from django.views.i18n import set_language
 
+from core.views import hide_translation_notice
+
+
 urlpatterns = [
     path("django-admin/", admin.site.urls),
     path("admin/", include(wagtailadmin_urls)),
     path("documents/", include(wagtaildocs_urls)),
+    path("admin/hide-translation-notice/", hide_translation_notice),
 ]
 
 urlpatterns += i18n_patterns(

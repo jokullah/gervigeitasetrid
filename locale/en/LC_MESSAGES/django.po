@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-26 16:30+0000\n"
+"POT-Creation-Date: 2025-05-27 16:39+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -33,6 +33,26 @@ msgstr "Sites with tag:"
 #: blog/templates/blog/blog_tag_index_page.html:20
 msgid "Engar síður fundust með þessu taggi"
 msgstr "No pages found with this tag"
+
+#: core/templates/bulk_copy/confirm.html:6
+msgid "Copy the entire Icelandic tree into English?"
+msgstr ""
+
+#: core/templates/bulk_copy/confirm.html:7
+msgid "Any page that already has an English translation will be skipped."
+msgstr ""
+
+#: core/templates/bulk_copy/confirm.html:12
+msgid "Run copy"
+msgstr ""
+
+#: core/templates/bulk_copy/confirm.html:16
+msgid "Cancel"
+msgstr ""
+
+#: core/wagtail_hooks.py:19
+msgid "Clone IS → EN pages"
+msgstr ""
 
 #: env/lib/python3.12/site-packages/django/contrib/messages/apps.py:16
 msgid "Messages"
@@ -1339,6 +1359,52 @@ msgstr ""
 msgid "None"
 msgstr ""
 
+#: event/templates/event/event_index_page.html:13
+msgid "Viðburðir taggaðir með"
+msgstr "Events tagged with"
+
+#: event/templates/event/event_index_page.html:15
+#: home/templates/home/home_page.html:42
+msgid "Viðburðir"
+msgstr "Events"
+
+#: event/templates/event/event_index_page.html:104
+msgid "Sjá alla viðburði:"
+msgstr "See All Events"
+
+#: event/templates/event/event_page.html:10
+#: event/templates/event/event_tag_index_page.html:6
+msgid "Tögg:"
+msgstr "Tags:"
+
+#: event/templates/event/event_page.html:26
+msgid "Dagsetning:"
+msgstr "Date:"
+
+#: event/templates/event/event_page.html:29
+msgid "Tími:"
+msgstr "Time:"
+
+#: event/templates/event/event_page.html:32
+msgid "Staðsetning:"
+msgstr "Location:"
+
+#: event/templates/event/event_page.html:33
+msgid "Tegund:"
+msgstr "Type:"
+
+#: event/templates/event/event_page.html:36
+msgid "Gestgjafi:"
+msgstr "Host:"
+
+#: event/templates/event/event_page.html:37
+msgid "Kynnir:"
+msgstr "Speaker:"
+
+#: event/templates/event/event_page.html:43
+msgid "Lýsing:"
+msgstr "Description:"
+
 #: gervigeitasetrid/templates/includes/footer.html:16
 msgid "HÁSKOLI ÍSLANDS"
 msgstr "UNIVERSITY OF ICELAND"
@@ -1410,9 +1476,42 @@ msgstr "staff"
 #: gervigeitasetrid/templates/includes/header.html:62
 #: gervigeitasetrid/templates/includes/header.html:64
 #: gervigeitasetrid/templates/includes/header.html:65
-#: search/templates/search/search.html:9 search/templates/search/search.html:13
+#: search/templates/search/search.html:9 search/templates/search/search.html:15
+#: search/templates/search/search.html:21
 msgid "Leita"
 msgstr "Search"
+
+#: home/models.py:105
+msgid "About image"
+msgstr ""
+
+#: home/models.py:106
+msgid "An image to introduce your organization"
+msgstr ""
+
+#: home/models.py:110
+msgid "Body text"
+msgstr ""
+
+#: home/models.py:111
+msgid "Main content for the About Us page"
+msgstr ""
+
+#: home/templates/home/home_page.html:68
+msgid "No image available"
+msgstr ""
+
+#: home/templates/home/home_page.html:102
+msgid "Engir væntanlegir viðburðir."
+msgstr "No upcoming events."
+
+#: home/templates/home/home_page.html:110
+msgid "Sjá alla viðburði"
+msgstr "See All Events"
+
+#: home/templates/home/home_page.html:122
+msgid "Fréttir"
+msgstr "News"
 
 #: home/templates/home/welcome_page.html:6
 msgid "Visit the Wagtail website"
@@ -1457,22 +1556,22 @@ msgstr ""
 msgid "Create your superuser first!"
 msgstr ""
 
-#: search/templates/search/search.html:18
+#: search/templates/search/search.html:34
 msgid "Þú leitaðir að"
 msgstr "You searched for"
 
-#: search/templates/search/search.html:18
+#: search/templates/search/search.html:34
 msgid "niðurstaða"
 msgstr "result"
 
-#: search/templates/search/search.html:36
+#: search/templates/search/search.html:52
 msgid "Fyrri"
 msgstr "Previous"
 
-#: search/templates/search/search.html:40
+#: search/templates/search/search.html:56
 msgid "Næsta"
 msgstr "Next"
 
-#: search/templates/search/search.html:44
+#: search/templates/search/search.html:60
 msgid "Engin leitarniðurstaða fannst"
 msgstr "No search result"
