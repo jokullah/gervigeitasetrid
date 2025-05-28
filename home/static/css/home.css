@@ -1,34 +1,38 @@
 /* General page layout */
 .page-content {
-    max-width: 1400px;
+    max-width: 90%;
     margin: 0 auto;
     padding: 2rem;
 }
 
 .main-content {
     margin-bottom: 2rem;
+    max-width: 80%;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .body-content {
     margin-bottom: 3rem;
-    max-width: 800px;
+    max-width: 80%;
     margin-left: auto;
     margin-right: auto;
 }
 
 /* Two-column breakout wrapper */
 .two-column-outer {
-  width: 100%;
-  background-color: #fefefe;
+    width: 100%;
+    background-color: #fefefe;
 }
+
 .two-column-layout {
-  display: grid;
-  grid-template-columns: 1fr 2fr;
-  gap: 4rem;
-  max-width: 1800px;
-  padding: 0 4rem;
-  margin: 0 auto 4rem auto;
-  box-sizing: border-box;
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 4rem;
+    width: 90%;
+    padding: 0 2rem;
+    margin: 0 auto 4rem auto;
+    box-sizing: border-box;
 }
 
 /* Columns */
@@ -276,10 +280,22 @@
 }
 
 /* Responsive */
+@media (max-width: 1400px) {
+    .two-column-layout {
+        width: 95%;
+    }
+}
+
 @media (max-width: 1200px) {
     .two-column-layout {
         grid-template-columns: 1fr;
         padding: 0 2rem;
+        width: 100%;
+    }
+
+    .main-content,
+    .body-content {
+        max-width: 95%;
     }
 
     .blog-grid {
