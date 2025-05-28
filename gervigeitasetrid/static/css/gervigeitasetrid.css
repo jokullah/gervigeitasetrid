@@ -47,7 +47,9 @@ body {
   margin: 0;
   min-height: 100vh;
   display: grid;
-  grid-template-rows: min-content 1fr min-content
+  grid-template-rows: min-content 1fr min-content;
+  background: var(--Hvitur);
+  color: var(--Svartur);
 }
 
 main {
@@ -70,15 +72,15 @@ main {
 .site-header {
   display: flex;
   flex-direction: column;
-  border-bottom: 1px solid #e8e8e8;
+  border-bottom: 1px solid var(--Grar);
   font-size: 15px;
   line-height: 1
 }
 
 /* ---------- UTILITY STRIP ---------- */
 .utility-bar {
-  background: #fff;
-  border-bottom: 1px solid #e8e8e8;
+  background: var(--Hvitur);
+  border-bottom: 1px solid var(--Grar);
 }
 
 .utility-bar>.inner {
@@ -103,14 +105,14 @@ main {
 
 .lang-switch button {
   /* reset default button look */
-  background: #fff;
+  background: var(--Hvitur);
   border: 0;
   /* no extra borders       */
   font: inherit;
   /* stay in Jost           */
   cursor: pointer;
   padding: .65rem 1.25rem;
-  color: #4d535c;
+  color: var(--Dokkgrar);
   text-transform: uppercase;
   line-height: 1;
   transition: background .15s, color .15s;
@@ -118,18 +120,18 @@ main {
 
 /* divider between the two pills */
 .lang-switch button+button {
-  border-left: 1px solid #ddd;
+  border-left: 1px solid var(--Grar);
 }
 
 /* subtle hover for the inactive pill */
 .lang-switch button:not(.is-active):hover {
-  background: #f0f0f0;
+  background: var(--Ljosgrar);
 }
 
 /* active language */
 .lang-switch button.is-active {
-  background: #f5f5f5;
-  color: #10099F;
+  background: var(--Ljosgrar);
+  color: var(--HI-blar);
   font-weight: 700;
 }
 
@@ -142,19 +144,19 @@ main {
 }
 
 .utility-links a {
-  color: #4d535c;
+  color: var(--Dokkgrar);
   font-weight: 600;
   transition: color .15s
 }
 
 .utility-links .cta {
-  background: #10099F;
-  color: #fff;
+  background: var(--HI-blar);
+  color: var(--Hvitur);
   padding: .75rem 1.25rem
 }
 
 .utility-links a:hover {
-  color: #10099F
+  color: var(--HI-blar)
 }
 
 /* search */
@@ -178,8 +180,8 @@ main {
 .utility-search button {
   width: 48px;
   border-radius: 0 4px 4px 0;
-  background: #10099F;
-  color: #fff;
+  background: var(--HI-blar);
+  color: var(--Hvitur);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -238,12 +240,12 @@ main {
 .main-nav a {
   font-weight: 700;
   text-transform: uppercase;
-  color: #6d747d;
+  color: var(--Dokkgrar);
   transition: color .15s
 }
 
 .main-nav a:hover {
-  color: #10099F
+  color: var(--HI-blar)
 }
 
 /* ===========================================================
@@ -304,8 +306,8 @@ h1+.rich-text,
 }
 
 .person-card {
-  background: #fff;
-  border: 1px solid #ddd;
+  background: var(--Hvitur);
+  border: 1px solid var(--Grar);
   border-radius: 12px;
   padding: 1.5rem;
   text-align: center;
@@ -344,8 +346,8 @@ h1+.rich-text,
 }
 
 .blog-card {
-  background: #fff;
-  border: 1px solid #ddd;
+  background: var(--Hvitur);
+  border: 1px solid var(--Grar);
   border-radius: 8px;
   overflow: hidden;
   transition: box-shadow .2s
@@ -370,7 +372,8 @@ h1+.rich-text,
 
 .blog-card__title {
   font-size: 1.25rem;
-  margin: .75rem 1rem 0
+  margin: .75rem 1rem 0;
+  color: var(--Svartur);
 }
 
 .blog-card__meta {
@@ -379,7 +382,7 @@ h1+.rich-text,
   align-items: center;
   padding: .5rem 1rem 1rem;
   font-size: .875rem;
-  color: #666
+  color: var(--Dokkgrar);
 }
 
 .author-icon {
@@ -524,23 +527,23 @@ h1+.rich-text,
   display: inline-block;
   margin-top: 1rem;
   padding: .75rem 1.5rem;
-  background: #FAC55B;
-  color: #fff;
+  background: var(--Bleikur);
+  color: var(--Hvitur);
   border-radius: 4px;
   font-weight: 700;
   transition: background-color .2s
 }
 
 .home-hero__cta:hover {
-  background: #2DD2C0
+  background: var(--Bleikur-til-aherslu);
 }
 
 /* ===========================================================
    4. FOOTER
    =========================================================== */
 .site-footer {
-  background: #10099F;
-  color: #fff;
+  background: var(--HI-blar);
+  color: var(--Hvitur);
   padding: 3rem 1rem
 }
 
@@ -569,7 +572,7 @@ h1+.rich-text,
 .footer-col a {
   font-size: .9rem;
   line-height: 1.4;
-  color: #fff
+  color: var(--Hvitur);
 }
 
 .footer-col a {
@@ -578,7 +581,7 @@ h1+.rich-text,
 }
 
 .footer-col a:hover {
-  color: #FFD700
+  color: var(--Ljosbleikur);
 }
 
 .footer-social {
