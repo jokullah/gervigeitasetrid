@@ -1,52 +1,186 @@
 {% extends "base.html" %}
-{% load wagtailcore_tags wagtailimages_tags i18n i18n_extra %}
-
+{% load wagtailcore_tags wagtailimages_tags i18n %}
 
 {% block content %}
-  <article style="max-width: 800px; margin: auto;">
-    <h1>{{ page.title }}</h1>
+<article class="event-article">
+    <header class="event-header">
+        <h1>{{ page.title }}</h1>
+        
+        {% if page.tags.all %}
+            <div class="event-tags">
+                {% for tag in page.tags.all %}
+                    <a href="{% pageurl page.get_parent %}?tag={{ tag.name|urlencode }}" 
+                       class="tag-button">
+                        {{ tag.name }}
+                    </a>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </header>
 
-    {% if page.tags.all %}
-        <p><strong>{% trans "Tögg:" %}</strong>
-            {% for tag in page.tags.all %}
-                <a href="{% pageurl page.get_parent %}?tag={{ tag.name|urlencode }}" 
-                   style="display: inline-block; background-color: #eee; padding: 0.25em 0.5em; margin-right: 0.25em; border-radius: 4px; font-size: 0.9em; text-decoration: none; color: #333;">
-                    {{ tag.name }}
-                </a>
-            {% endfor %}
-        </div>
-    {% endif %}
-
-    <div style="display: flex; gap: 2em; margin: 2em 0;">
-        <div class="event-details" style="flex: 1; min-width: 200px;">
-            <p>{{ page.date|date:"F j, Y" }}</p>
+    <div class="event-main-content">
+        <div class="event-details">
+            <div class="detail-item">
+                <div class="detail-date">{{ page.date|date:"j" }}
+                    <span class="detail-month">{{ page.date|date:"F Y" }}</span>
+                </div>
+            </div>
 
             {% if page.start_time and page.end_time %}
-              <p>{{ page.start_time|time:"H:i" }} - {{ page.end_time|time:"H:i" }}</p>
+            <div class="detail-item">
+                <div class="detail-time">
+                    {{ page.start_time|time:"H:i" }} - {{ page.end_time|time:"H:i" }}
+                </div>
+            </div>
             {% endif %}
 
-            <p>{{ page.location }}</p>
-            <p>{{ page.get_event_type_display }}</p>
+            <div class="detail-item">
+                <div class="detail-location">{{ page.location }}</div>
+            </div>
 
-    <p><strong>{% trans "Dagsetning:" %}</strong> {{ page.date }}</p>
+            {% if page.event_type == "lecture" %}
+                {% if page.host %}
+                <div class="detail-item">
+                    <div class="detail-host">{{ page.host }}</div>
+                </div>
+                {% endif %}
+                {% if page.speaker %}
+                <div class="detail-item">
+                    <div class="detail-speaker">{{ page.speaker }}</div>
+                </div>
+                {% endif %}
+            {% endif %}
+        </div>
 
-    {% if page.start_time and page.end_time %}
-      <p><strong>{% trans "Tími:" %}</strong> {{ page.start_time|time:"H:i" }} - {{ page.end_time|time:"H:i" }}</p>
-    {% endif %}
-
-    <p><strong>{% trans "Staðsetning:" %}</strong> {{ page.location }}</p>
-    <p><strong>{% trans "Tegund:" %}</strong> {{ page.get_event_type_display }}</p>
-
-    {% if page.event_type == "lecture" %}
-      <p><strong>{% trans "Gestgjafi:" %}</strong> {{ page.host }}</p>
-      <p><strong>{% trans "Kynnir:" %}</strong> {{ page.speaker }}</p>
-    {% endif %}
-
-    <hr>
-
-    <div>
-      <h3>{% trans "Lýsing:" %}</h3>
-      <p>{{ page.description }}</p>
+        {% if page.event_image %}
+        <div class="event-image">
+            {% image page.event_image width-400 class="main-image" %}
+        </div>
+        {% endif %}
     </div>
-  </article>
+
+    <div class="event-description">
+        {{ page.description|richtext }}
+    </div>
+</article>
+
+<style>
+.event-article {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.event-header {
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.event-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: #333;
+}
+
+.event-tags {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.tag-button {
+    background: #f0f0f0;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    color: #666;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+}
+
+.tag-button:hover {
+    background: #e0e0e0;
+    color: #333;
+}
+
+.event-main-content {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 3rem;
+    margin-bottom: 3rem;
+    align-items: start;
+}
+
+.event-details {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.detail-item {
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.detail-date {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #333;
+    line-height: 1;
+}
+
+.detail-month {
+    display: block;
+    font-size: 1.1rem;
+    color: #666;
+    margin-top: 0.5rem;
+}
+
+.detail-time,
+.detail-location,
+.detail-host,
+.detail-speaker {
+    font-size: 1.1rem;
+    color: #333;
+}
+
+.event-image {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    max-width: 400px;
+    margin-left: auto;
+}
+
+.main-image {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.event-description {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: #444;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+    .event-main-content {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .event-header h1 {
+        font-size: 2rem;
+    }
+
+    .event-article {
+        padding: 1rem;
+    }
+}
+</style>
 {% endblock %}
