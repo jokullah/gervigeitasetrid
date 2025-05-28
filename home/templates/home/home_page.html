@@ -62,12 +62,14 @@
           <div class="events-grid">
             {% for event in events_page %}
               <article class="event-card">
-                <a href="{{ event.url }}" style="text-decoration: none; color: inherit;">
+                <a href="{{ event.url }}" aria-label="{% trans 'Viðburður' %}: {{ event.title }}">
                   <div class="event-image-container">
                     {% if event.event_image %}
-                      {% image event.event_image fill-300x150 class="event-image" %}
+                      {% image event.event_image fill-300x150 class="event-image" alt=event.title %}
                     {% else %}
-                      <div class="event-placeholder">{% trans "No image available" %}</div>
+                      <div class="event-placeholder" role="img" aria-label="{% trans 'Engin mynd tiltæk' %}">
+                        {% trans "No image available" %}
+                      </div>
                     {% endif %}
                   </div>
 
@@ -88,10 +90,12 @@
                     <div class="event-location">{{ event.location }}</div>
 
                     {% if event.tags.all %}
-                      <div class="event-tags">
+                      <div class="event-tags" role="list">
                         {% for tag in event.tags.all %}
                           <a href="{% pageurl event_index_page %}?tag={{ tag.name|urlencode }}"
-                             class="event-tag">
+                             class="event-tag"
+                             aria-label="{% trans 'Skoða alla viðburði með merkinu' %}: {{ tag.name }}"
+                             role="listitem">
                             {{ tag.name }}
                           </a>
                         {% endfor %}

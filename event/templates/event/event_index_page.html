@@ -15,21 +15,24 @@
             <h2>{% trans "Viðburðir" %}</h2>
         {% endif %}
         
-        <div class="pagination">
+        <div class="pagination" role="navigation" aria-label="{% trans 'Síðufletting' %}">
             {% if events.has_previous %}
-                <a href="?page={{ events.previous_page_number }}{% if current_tag %}&tag={{ current_tag }}{% endif %}">&larr;</a>
+                <a href="?page={{ events.previous_page_number }}{% if current_tag %}&tag={{ current_tag }}{% endif %}" 
+                   aria-label="{% trans 'Fyrri síða' %}">&larr;</a>
             {% endif %}
             
             {% for num in events.paginator.page_range %}
                 {% if num == events.number %}
-                    <span class="current">{{ num }}</span>
+                    <span class="current" aria-current="page">{{ num }}</span>
                 {% else %}
-                    <a href="?page={{ num }}{% if current_tag %}&tag={{ current_tag }}{% endif %}">{{ num }}</a>
+                    <a href="?page={{ num }}{% if current_tag %}&tag={{ current_tag }}{% endif %}" 
+                       aria-label="{% trans 'Síða' %} {{ num }}">{{ num }}</a>
                 {% endif %}
             {% endfor %}
             
             {% if events.has_next %}
-                <a href="?page={{ events.next_page_number }}{% if current_tag %}&tag={{ current_tag }}{% endif %}">&rarr;</a>
+                <a href="?page={{ events.next_page_number }}{% if current_tag %}&tag={{ current_tag }}{% endif %}"
+                   aria-label="{% trans 'Næsta síða' %}">&rarr;</a>
             {% endif %}
         </div>
     </div>
@@ -37,12 +40,14 @@
     <div class="events-grid">
         {% for event in events %}
             <article class="event-card">
-                <a href="{{ event.url }}">
+                <a href="{{ event.url }}" aria-label="{% trans 'Viðburður' %}: {{ event.title }}">
                     <div class="event-image-container">
                         {% if event.event_image %}
-                            {% image event.event_image fill-400x200 class="event-image" %}
+                            {% image event.event_image fill-400x200 class="event-image" alt=event.title %}
                         {% else %}
-                            <div class="event-placeholder">No image available</div>
+                            <div class="event-placeholder" role="img" aria-label="{% trans 'Engin mynd tiltæk' %}">
+                                {% trans "No image available" %}
+                            </div>
                         {% endif %}
                     </div>
                     
@@ -65,26 +70,29 @@
                         
                         <div class="event-meta">
                             {% if event.start_time and event.end_time %}
-                                <span class="event-meta-label">Time:</span>
+                                <span class="event-meta-label">{% trans "Tími" %}:</span>
                                 <span>{{ event.start_time|time:"H:i" }} - {{ event.end_time|time:"H:i" }}</span>
                             {% endif %}
                             
-                            <span class="event-meta-label">Location:</span>
+                            <span class="event-meta-label">{% trans "Staðsetning" %}:</span>
                             <span>{{ event.location }}</span>
 
                             {% if event.event_type == "lecture" %}
-                                <span class="event-meta-label">Host:</span>
+                                <span class="event-meta-label">{% trans "Gestgjafi" %}:</span>
                                 <span>{{ event.host }}</span>
                                 
-                                <span class="event-meta-label">Speaker:</span>
+                                <span class="event-meta-label">{% trans "Kynnir" %}:</span>
                                 <span>{{ event.speaker }}</span>
                             {% endif %}
                         </div>
                         
                         {% if event.tags.all %}
-                            <div class="event-tags">
+                            <div class="event-tags" role="list">
                                 {% for tag in event.tags.all %}
-                                    <a href="?tag={{ tag.name|urlencode }}" class="event-tag">
+                                    <a href="?tag={{ tag.name|urlencode }}" 
+                                       class="event-tag"
+                                       aria-label="{% trans 'Skoða alla viðburði með merkinu' %}: {{ tag.name }}"
+                                       role="listitem">
                                         {{ tag.name }}
                                     </a>
                                 {% endfor %}
@@ -95,13 +103,17 @@
             </article>
         {% empty %}
             <div class="no-events">
-                <p>No events found{% if current_tag %} with this tag{% endif %}.</p>
+                <p>{% trans "Engir viðburðir fundust" %}{% if current_tag %} {% trans "með þessu merki" %}{% endif %}.</p>
             </div>
         {% endfor %}
     </div>
 
     {% if current_tag %}
-        <a href="{% pageurl page %}" class="view-all-link">{% trans "Sjá alla viðburði:" %}</a>
+        <a href="{% pageurl page %}" 
+           class="view-all-link"
+           aria-label="{% trans 'Skoða alla viðburði' %}">
+            {% trans "Sjá alla viðburði" %}
+        </a>
     {% endif %}
 </div>
 {% endblock %}
