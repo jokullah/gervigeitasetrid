@@ -120,8 +120,10 @@
               {% for post in latest_posts %}
                 <article class="blog-card">
                   <a href="{% pageurl post %}">
-                    {% if post.main_image %}
-                      {% image post.main_image fill-300x150 class="blog-card__image" %}
+                    {% if post.thumbnail_image %}
+                      {% image post.thumbnail_image original class="blog-card__image" %}
+                    {% elif post.main_image %}
+                      {% image post.main_image original class="blog-card__image" %}
                     {% endif %}
                     <div class="blog-card__content">
                       <h3 class="blog-card__title">{{ post.title }}</h3>

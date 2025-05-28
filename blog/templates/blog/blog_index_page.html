@@ -12,11 +12,13 @@
       {% with post=post.specific %}
         <div class="blog-card">
           <a href="{% pageurl post %}">
-            {# -- Featured image for the post, if any -- #}
+            {# -- Thumbnail image for the post -- #}
             <div class="blog-card__image">
-              {% with post.main_image as img %}
-                {% if img %}{% image img fill-320x180 %}{% endif %}
-              {% endwith %}
+              {% if post.thumbnail_image %}
+                {% image post.thumbnail_image fill-320x180 %}
+              {% elif post.main_image %}
+                {% image post.main_image fill-320x180 %}
+              {% endif %}
             </div>
 
             {# -- Title -- #}

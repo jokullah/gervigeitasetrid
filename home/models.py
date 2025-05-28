@@ -78,11 +78,11 @@ class HomePage(Page):
         if current_locale is None:
             current_locale = Locale.objects.get(language_code=request.LANGUAGE_CODE[:2])
 
-        # Get latest 3 blog posts
+        # Get latest 6 blog posts
         latest_posts = (
             BlogPage.objects.live()
             .filter(locale=current_locale)
-            .order_by('-first_published_at')[:3]
+            .order_by('-date', '-first_published_at')[:6]
         )
         context['latest_posts'] = latest_posts
         
