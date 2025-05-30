@@ -4,7 +4,7 @@ from wagtail import hooks
 from wagtail.admin.menu import MenuItem
 from wagtail.admin.ui.components import Component
 from django.templatetags.static import static
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from wagtail.models import Locale, Page
@@ -19,7 +19,7 @@ def register_bulk_copy_urls():
 @hooks.register("register_settings_menu_item")
 def register_bulk_copy_menu_item():
     return MenuItem(
-        _("Clone IS ↔ EN pages"),
+        gettext_lazy("Clone IS ↔ EN pages"),
         reverse("bulk_copy:bulk_copy_is_en"),
         icon_name="copy",
         order=1000,

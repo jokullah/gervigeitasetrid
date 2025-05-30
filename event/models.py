@@ -75,25 +75,15 @@ class EventIndexPage(Page):
     def get_context(self, request):
         context = super().get_context(request)
 
-        tag = request.GET.get('tag')
         lang_code = request.LANGUAGE_CODE
         current_locale = Locale.objects.get(language_code=lang_code)
 
         # Filter events by current language
-        if tag:
-            events = (
-                EventPage.objects.live()
-                .filter(locale=current_locale, tags__name=tag)
-                .specific()
-            )
-            events = sorted(events, key=lambda p: p.date)
-            context['current_tag'] = tag
-        else:
-            events = (
-                EventPage.objects.live()
-                .filter(locale=current_locale)
-                .order_by('date')
-            )
+        events = (
+            EventPage.objects.live()
+            .filter(locale=current_locale)
+            .order_by('date')
+        )
 
         # Pagination - 6 events per page
         page = request.GET.get('page', 1)
@@ -129,5 +119,3 @@ class EventTagIndexPage(Page):
     
     parent_page_types = ['home.HomePage']
     subpage_types = []
-
-
