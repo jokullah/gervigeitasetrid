@@ -103,36 +103,6 @@
     color: #495057;
 }
 
-.blog-tags {
-    margin-top: 2rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid #dee2e6;
-}
-
-.blog-tags h3 {
-    font-size: 1.1rem;
-    margin-bottom: 1rem;
-    color: #212529;
-}
-
-.tag-button {
-    display: inline-block;
-    padding: 0.5rem 1rem;
-    margin: 0.25rem;
-    background: #e9ecef;
-    border: none;
-    border-radius: 20px;
-    color: #495057;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.tag-button:hover {
-    background: #dee2e6;
-    color: #212529;
-}
-
 .blog-navigation {
     margin-top: 3rem;
     text-align: center;

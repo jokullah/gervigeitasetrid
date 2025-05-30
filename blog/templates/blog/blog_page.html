@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load i18n i18n_extra %}
-{% load static wagtailcore_tags wagtailimages_tags %}
+{% load static %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/blog.css' %}">
@@ -59,18 +59,5 @@
             {% endfor %}
         </div>
     {% endif %}
-
-    {% with tags=page.tags.all %}
-        {% if tags %}
-            <div class="blog-tags">
-                <h3>{% trans "Tags" %}</h3>
-                {% for tag in tags %}
-                    <a href="{% slugurl 'tags' %}?tag={{ tag }}">
-                        <button type="button" class="tag-button">{{ tag }}</button>
-                    </a>
-                {% endfor %}
-            </div>
-        {% endif %}
-    {% endwith %}
 </article>
 {% endblock %}
