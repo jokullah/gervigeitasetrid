@@ -1,15 +1,14 @@
-from wagtail.models import Page
-from django.db import models
-from wagtail.admin.panels import FieldPanel, MultiFieldPanel
-from django.forms.widgets import TimeInput
-from taggit.models import TaggedItemBase
-from modelcluster.fields import ParentalKey
-from wagtail.snippets.models import register_snippet
-from django.forms import CheckboxSelectMultiple
-from modelcluster.fields import ParentalManyToManyField
 from django import forms
+from django.db import models
+from django.forms.widgets import TimeInput
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from wagtail.models import Locale
+
+from wagtail.models import Page, Locale
+from wagtail.admin.panels import FieldPanel, MultiFieldPanel
+from wagtail.snippets.models import register_snippet
+
+from modelcluster.fields import ParentalManyToManyField
+
 
 
 
@@ -110,7 +109,7 @@ class EventIndexPage(Page):
         return context
     
     parent_page_types = ['home.HomePage']
-    subpage_types = ['event.EventIndexPage']
+    subpage_types = ['event.EventPage']
 
 
 class EventTagIndexPage(Page):
