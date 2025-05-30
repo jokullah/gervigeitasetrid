@@ -7,6 +7,9 @@ from wagtail.search import index
 from wagtail.admin.panels import MultiFieldPanel, FieldPanel
 from wagtail.snippets.models import register_snippet
 
+from taggit.models import TaggedItemBase
+
+from modelcluster.contrib.taggit import ClusterTaggableManager
 from modelcluster.fields import ParentalKey, ParentalManyToManyField
 
 
@@ -41,6 +44,14 @@ class BlogIndexPage(Page):
     subpage_types = ['blog.BlogPage']
 
 
+class BlogPageTag(TaggedItemBase):
+    content_object = ParentalKey(
+        'BlogPage',
+        related_name='tagged_items',
+        on_delete=models.CASCADE
+    )
+
+
 class BlogPage(Page):
     thumbnail_image = models.ForeignKey(
         'wagtailimages.Image',
@@ -53,6 +64,7 @@ class BlogPage(Page):
     intro = models.CharField(max_length=250)
     body = RichTextField(blank=True)
     authors = ParentalManyToManyField('blog.Author', blank=True)
+    tags = ClusterTaggableManager(through=BlogPageTag, blank=True)
 
     # Add the main_image method:
     def main_image(self):
@@ -72,6 +84,9 @@ class BlogPage(Page):
         MultiFieldPanel([
             "date",
             FieldPanel("authors", widget=forms.CheckboxSelectMultiple),
+
+            # Add this:
+            "tags",
         ], heading="Blog information"),
             "intro", "body", "gallery_images"
         ]
@@ -105,4 +120,30 @@ class Author(models.Model):
 
     class Meta:
         verbose_name_plural = 'Authors'
+
+
+class BlogTagIndexPage(Page):
+
+    def get_context(self, request):
+        context = super().get_context(request)
+
+        tag = request.GET.get("tag")
+
+        current_locale = getattr(request, "locale", None)
+        if current_locale is None:
+            current_locale = Locale.objects.get(
+                language_code=request.LANGUAGE_CODE[:2]
+            )
+
+        blogpages = (
+            BlogPage.objects.live()
+                     .filter(locale=current_locale)     # same trick
+                     .filter(tags__name=tag)
+        )
+
+        context["blogpages"] = blogpages
+        return context
+    
+    parent_page_types = ['home.HomePage']
+    subpage_types = []
     
