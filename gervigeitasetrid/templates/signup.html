@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% load static i18n %}
+
+{% block title %}{% trans "Sign Up" %} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="page-content">
+    <div class="main-content">
+        <h1>{% trans "Búa til aðgang" %}</h1>
+        
+        {% if error %}
+        <div class="error-message" style="color: #dc3545; margin-bottom: 1rem; text-align: center;">
+            {{ error }}
+        </div>
+        {% endif %}
+        
+        <form method="post" action="{% url 'signup' %}" class="page-form">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="email">{% trans "Email" %}</label>
+                <input type="email" id="email" name="email" required placeholder="@hi.is">
+            </div>
+            
+            <div class="form-group">
+                <label for="password1">{% trans "Password" %}</label>
+                <input type="password" id="password1" name="password1" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password2">{% trans "Staðfesta lykilorð" %}</label>
+                <input type="password" id="password2" name="password2" required>
+            </div>
+            
+            <button type="submit" class="home-hero__cta" style="cursor: pointer;">{% trans "Búa til aðgang" %}</button>
+            
+            <div class="login-link" style="margin-top: 1rem; text-align: center; font-size: 0.9rem; color: #666;">
+                {% trans "Nú þegar með aðgang?" %}
+                <a href="{% url 'login' %}" style="color: #10099F; text-decoration: underline;">
+                    {% trans "Innskrá" %}
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 

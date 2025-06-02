@@ -15,7 +15,7 @@
 
       {# language toggle #}
       {# ------------------------------------------------------------------ #}
-      {#  Pick the current Page.  “page” exists on Wagtail pages;           #}
+      {#  Pick the current Page.  "page" exists on Wagtail pages;           #}
       {#  fall back to root_page on views (search, 404, etc.)               #}
       {# ------------------------------------------------------------------ #}
       {% with page|default:root_page as this_page %}
@@ -55,6 +55,7 @@
         <a href="https://hi.is/starfsmannaleit#">
           {% trans "Finna" %}&nbsp;{% trans "starfsfólk" %}
         </a>
+        <a href="{% url 'login' %}" class="cta">{% trans "Log in" %}</a>
       </nav>
 
       {# search #}

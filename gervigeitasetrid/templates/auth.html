@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load static i18n %}
+
+{% block title %}{% trans "Staðfesting" %} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="page-content">
+    <div class="main-content">
+        <h1>{% trans "Staðfesting á nýjum aðgangi" %}</h1>
+        
+        <div class="auth-message" style="text-align: center; margin: 2rem 0;">
+            <p style="margin-bottom: 1.5rem;">
+                {% trans "Takk fyrir að búa til aðgang. Vinsamlegast staðfestu netfangið þitt með því að smella á tengilinn sem við sendum þér í tölvupósti." %}
+            </p>
+            
+            <p style="color: #666; font-size: 0.9rem;">
+                {% trans "Ekki búin(n) að fá tölvupóst?" %}
+                <a href="#" style="color: #10099F; text-decoration: underline;">
+                    {% trans "Senda aftur" %}
+                </a>
+            </p>
+        </div>
+        
+        <div class="auth-actions" style="text-align: center;">
+            <a href="{% url 'login' %}" class="home-hero__cta" style="cursor: pointer;">
+                {% trans "Fara á innskráningarsíðu" %}
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %} 
