@@ -172,170 +172,356 @@ def register_publish_project_ad_url():
         path('projectad/check-project/<int:pk>/', CheckProjectPageView.as_view(), name='check_project_page'),
     ]
 
-# Add the custom buttons
+# Custom JavaScript to hide panels and add functionality
 @hooks.register('insert_editor_js')
-def add_publish_button_js():
+def add_custom_projectad_js():
     return mark_safe("""
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Check if we're on a ProjectAd edit page by looking for the specific URL pattern
-        if (window.location.pathname.match(/\\/admin\\/projectad\\/edit\\/\\d+\\/$/)) {
-            console.log('On ProjectAd edit page, adding publish button');
+        // Check if we're on a ProjectAd edit page
+        if (window.location.pathname.match(/\\/admin\\/projectad\\/edit\\/\\d+\\/$/) || 
+            window.location.pathname.match(/\\/admin\\/projectad\\/create\\/$/)) {
             
-            // Extract the ID from the URL
+            console.log('On ProjectAd page, customizing interface');
+            
+            // Extract the ID from the URL (if editing)
             const match = window.location.pathname.match(/\\/admin\\/projectad\\/edit\\/(\\d+)\\/$/);
             const projectAdId = match ? match[1] : null;
             
-            if (!projectAdId) {
-                console.log('Could not extract ProjectAd ID from URL');
-                return;
-            }
-            
-            // Find the form actions div (where the save button lives)
-            const possibleSelectors = [
-                '.object-detail__actions',
-                '.actions', 
-                'form .button-row',
-                '.form-side__actions',
-                '.footer-actions',
-                'footer .actions',
-                '[data-edit-form] footer'
-            ];
-            
-            let actionsDiv = null;
-            for (let selector of possibleSelectors) {
-                actionsDiv = document.querySelector(selector);
-                if (actionsDiv) {
-                    console.log('Found actions div with selector:', selector);
-                    break;
-                }
-            }
-            
-            // If still not found, try to find any element containing a submit button
-            if (!actionsDiv) {
-                const submitBtn = document.querySelector('button[type="submit"], input[type="submit"]');
-                if (submitBtn) {
-                    actionsDiv = submitBtn.parentElement;
-                    console.log('Found actions div via submit button parent');
-                }
-            }
-            
-            if (actionsDiv) {
-                // Check if project page already exists
-                fetch('/admin/projectad/check-project/' + projectAdId + '/')
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.exists) {
-                            // Create "Skoða verkefni" button
-                            const viewBtn = document.createElement('a');
-                            viewBtn.href = data.edit_url;
-                            viewBtn.className = 'button button-secondary';
-                            viewBtn.style.marginLeft = '10px';
-                            viewBtn.innerHTML = '✓ Skoða verkefni';
-                            viewBtn.title = 'Verkefnasíða hefur þegar verið búin til úr þessari auglýsingu';
-                            actionsDiv.appendChild(viewBtn);
-                            console.log('View project button added');
-                        } else {
-                            // Create "Birta verkefni" button
-                            const publishBtn = document.createElement('a');
-                            publishBtn.href = '#';
-                            publishBtn.className = 'button button-primary';
-                            publishBtn.style.marginLeft = '10px';
-                            publishBtn.innerHTML = '📝 Birta verkefni';
-                            
-                            publishBtn.addEventListener('click', function(e) {
-                                e.preventDefault();
-                                
-                                if (!confirm('Ertu viss um að þú viljir búa til verkefnasíðu úr þessari auglýsingu?')) {
-                                    return false;
-                                }
-                                
-                                // Get all forms on the page (Wagtail might have multiple forms)
-                                const forms = document.querySelectorAll('form');
-                                console.log('Forms found:', forms.length);
-                                
-                                // Get all form inputs, textareas, and selects from all forms
-                                const allFormElements = document.querySelectorAll('input, textarea, select');
-                                console.log('All form elements found:', allFormElements.length);
-                                
-                                // Filter for the actual data fields (exclude search, pagination, etc.)
-                                const dataFields = Array.from(allFormElements).filter(element => {
-                                    const name = element.name;
-                                    const id = element.id;
-                                    console.log('Checking element:', {name, id, type: element.type, value: element.value});
-                                    
-                                    // Include fields that look like our model fields
-                                    return name && (
-                                        name.includes('title') || 
-                                        name.includes('description') || 
-                                        name.includes('company_name') || 
-                                        name.includes('contact_name') || 
-                                        name.includes('contact_email') || 
-                                        name.includes('other') ||
-                                        name === 'title' ||
-                                        name === 'description' ||
-                                        name === 'company_name' ||
-                                        name === 'contact_name' ||
-                                        name === 'contact_email' ||
-                                        name === 'other'
-                                    ) && name !== 'csrfmiddlewaretoken';
-                                });
-                                
-                                console.log('Data fields found:', dataFields.length);
-                                
-                                // Create a new form for our publish action
-                                const publishForm = document.createElement('form');
-                                publishForm.method = 'POST';
-                                publishForm.action = '/admin/projectad/publish/' + projectAdId + '/';
-                                
-                                // Copy the data fields to our publish form
-                                dataFields.forEach(element => {
-                                    console.log('Copying field:', element.name, '=', element.value);
-                                    const input = document.createElement('input');
-                                    input.type = 'hidden';
-                                    input.name = element.name;
-                                    input.value = element.value;
-                                    publishForm.appendChild(input);
-                                });
-                                
-                                // IMPORTANT: Add CSRF token
-                                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
-                                if (csrfToken) {
-                                    const csrfInput = document.createElement('input');
-                                    csrfInput.type = 'hidden';
-                                    csrfInput.name = 'csrfmiddlewaretoken';
-                                    csrfInput.value = csrfToken.value;
-                                    publishForm.appendChild(csrfInput);
-                                    console.log('CSRF token added');
-                                } else {
-                                    console.error('CSRF token not found!');
-                                    alert('CSRF token not found. Please refresh the page and try again.');
-                                    return;
-                                }
-                                
-                                console.log('About to submit form with action:', publishForm.action);
-                                document.body.appendChild(publishForm);
-                                publishForm.submit();
-                            });
-                            
-                            actionsDiv.appendChild(publishBtn);
-                            console.log('Publish button added successfully');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error checking for existing project:', error);
-                        // Fallback: show publish button
-                        const publishBtn = document.createElement('a');
-                        publishBtn.href = '#';
-                        publishBtn.className = 'button button-primary';
-                        publishBtn.style.marginLeft = '10px';
-                        publishBtn.innerHTML = '📝 Birta verkefni';
-                        actionsDiv.appendChild(publishBtn);
+            // Wait a bit for Wagtail to render the page
+            setTimeout(function() {
+                // Debug: Find where panels should go
+                console.log('DEBUG: Looking for sidebar elements...');
+                const possibleSidebarSelectors = [
+                    '.form-side',
+                    '.edit-form__side',
+                    '.w-form-side',
+                    '[data-form-side]',
+                    '.col-12.col-lg-4',
+                    '.form-side__panel',
+                    'aside',
+                    '[role="complementary"]'
+                ];
+                
+                let foundSidebar = false;
+                possibleSidebarSelectors.forEach(selector => {
+                    const element = document.querySelector(selector);
+                    if (element) {
+                        console.log(`Found potential sidebar: ${selector}`, element);
+                        console.log(`  Classes: ${element.className}`);
+                        console.log(`  Children: ${element.children.length}`);
+                        foundSidebar = true;
+                    }
+                });
+                
+                if (!foundSidebar) {
+                    console.log('No sidebar found. Looking for any panels...');
+                    const anyPanels = document.querySelectorAll('.w-panel');
+                    console.log(`Found ${anyPanels.length} panels total`);
+                    anyPanels.forEach((panel, i) => {
+                        console.log(`Panel ${i} parent:`, panel.parentElement.className);
                     });
-            } else {
-                console.log('Could not find actions div to add button');
+                }
+                
+                // Find and hide ALL panels with unwanted titles
+                const allPanels = document.querySelectorAll('.w-panel');
+                allPanels.forEach(panel => {
+                    const heading = panel.querySelector('.w-panel__heading');
+                    if (heading) {
+                        const text = heading.textContent.trim().toLowerCase();
+                        console.log('Found panel with heading:', text);
+                        // Hide panels with these specific texts
+                        if (text.includes('í birtingu') || 
+                            text.includes('notkun') || 
+                            text.includes('status') || 
+                            text.includes('usage') ||
+                            text === 'status' ||
+                            text === 'usage') {
+                            panel.style.display = 'none';
+                            console.log('Hid panel:', text);
+                        }
+                    }
+                });
+                
+                // Also hide by data-side-panel attribute
+                const statusPanel = document.querySelector('[data-side-panel="status"]');
+                if (statusPanel) {
+                    statusPanel.style.display = 'none';
+                    console.log('Hid status panel by data attribute');
+                }
+                
+                // Create and inject our custom panel
+                if (projectAdId) {
+                    // Try to find where other panels are located
+                    const existingPanel = document.querySelector('.w-panel:not(#project-status-panel)');
+                    let targetContainer = null;
+                    
+                    if (existingPanel && existingPanel.parentElement) {
+                        targetContainer = existingPanel.parentElement;
+                        console.log('Found panel container via existing panel:', targetContainer.className);
+                    } else {
+                        // Fallback to form-side
+                        targetContainer = document.querySelector('.form-side');
+                        console.log('Using fallback container: .form-side');
+                    }
+                    
+                    if (targetContainer) {
+                        // Remove any existing custom panel to avoid duplicates
+                        const existingPanel = document.getElementById('project-status-panel');
+                        if (existingPanel) {
+                            existingPanel.remove();
+                        }
+                        
+                        // Create custom panel HTML with proper Wagtail structure
+                        const customPanel = document.createElement('section');
+                        customPanel.className = 'w-panel';
+                        customPanel.id = 'project-status-panel';
+                        customPanel.setAttribute('aria-labelledby', 'panel-verkefnistada-heading');
+                        
+                        // Check if project exists
+                        fetch('/admin/projectad/check-project/' + projectAdId + '/')
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.exists) {
+                                    customPanel.innerHTML = `
+                                        <div class="w-panel__header">
+                                            <h2 class="w-panel__heading" id="panel-verkefnistada-heading">
+                                                <svg class="icon icon-folder-open-inverse w-panel__icon" aria-hidden="true">
+                                                    <use href="#icon-folder-open-inverse"></use>
+                                                </svg>
+                                                Verkefnistaða
+                                            </h2>
+                                        </div>
+                                        <div class="w-panel__content">
+                                            <div class="w-field__wrapper" data-field-wrapper="">
+                                                <div class="w-field__input" data-field-input="">
+                                                    <p style="color: #007d40; font-weight: 600; margin-bottom: 12px;">
+                                                        ✓ Verkefni hefur verið búið til
+                                                    </p>
+                                                    <a href="${data.edit_url}" 
+                                                       class="button button-small button-secondary" 
+                                                       style="width: 100%; text-align: center;">
+                                                        Skoða verkefnasíðu
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    `;
+                                } else {
+                                    customPanel.innerHTML = `
+                                        <div class="w-panel__header">
+                                            <h2 class="w-panel__heading" id="panel-verkefnistada-heading">
+                                                <svg class="icon icon-folder-open-inverse w-panel__icon" aria-hidden="true">
+                                                    <use href="#icon-folder-open-inverse"></use>
+                                                </svg>
+                                                Verkefnistaða
+                                            </h2>
+                                        </div>
+                                        <div class="w-panel__content">
+                                            <div class="w-field__wrapper" data-field-wrapper="">
+                                                <div class="w-field__input" data-field-input="">
+                                                    <p style="color: #6c757d; margin: 0;">
+                                                        Verkefni hefur ekki verið búið til
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    `;
+                                }
+                                
+                                // Insert at the top of container
+                                targetContainer.insertBefore(customPanel, targetContainer.firstChild);
+                                console.log('Custom panel inserted in container:', targetContainer.className);
+                            })
+                            .catch(error => {
+                                console.error('Error checking project status:', error);
+                            });
+                    } else {
+                        console.warn('Could not find target container for panel');
+                    }
+                }
+            }, 200); // Small delay to ensure DOM is ready
+            
+            // Add publish button functionality
+            if (projectAdId) {
+                // Find the form actions div
+                const possibleSelectors = [
+                    '.object-detail__actions',
+                    '.actions', 
+                    'form .button-row',
+                    '.form-side__actions',
+                    '.footer-actions',
+                    'footer .actions',
+                    '[data-edit-form] footer'
+                ];
+                
+                let actionsDiv = null;
+                for (let selector of possibleSelectors) {
+                    actionsDiv = document.querySelector(selector);
+                    if (actionsDiv) {
+                        console.log('Found actions div with selector:', selector);
+                        break;
+                    }
+                }
+                
+                if (!actionsDiv) {
+                    const submitBtn = document.querySelector('button[type="submit"], input[type="submit"]');
+                    if (submitBtn) {
+                        actionsDiv = submitBtn.parentElement;
+                    }
+                }
+                
+                if (actionsDiv) {
+                    // Check if project page already exists
+                    fetch('/admin/projectad/check-project/' + projectAdId + '/')
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.exists) {
+                                // Create "Skoða verkefni" button
+                                const viewBtn = document.createElement('a');
+                                viewBtn.href = data.edit_url;
+                                viewBtn.className = 'button button-secondary';
+                                viewBtn.style.marginLeft = '10px';
+                                viewBtn.innerHTML = '✓ Skoða verkefni';
+                                viewBtn.title = 'Verkefnasíða hefur þegar verið búin til úr þessari auglýsingu';
+                                actionsDiv.appendChild(viewBtn);
+                            } else {
+                                // Create "Birta verkefni" button
+                                const publishBtn = document.createElement('a');
+                                publishBtn.href = '#';
+                                publishBtn.className = 'button button-primary';
+                                publishBtn.style.marginLeft = '10px';
+                                publishBtn.innerHTML = '📝 Birta verkefni';
+                                
+                                publishBtn.addEventListener('click', function(e) {
+                                    e.preventDefault();
+                                    
+                                    if (!confirm('Ertu viss um að þú viljir búa til verkefnasíðu úr þessari auglýsingu?')) {
+                                        return false;
+                                    }
+                                    
+                                    // Get all form elements
+                                    const allFormElements = document.querySelectorAll('input, textarea, select');
+                                    
+                                    // Filter for the actual data fields
+                                    const dataFields = Array.from(allFormElements).filter(element => {
+                                        const name = element.name;
+                                        return name && (
+                                            name.includes('title') || 
+                                            name.includes('description') || 
+                                            name.includes('company_name') || 
+                                            name.includes('contact_name') || 
+                                            name.includes('contact_email') || 
+                                            name.includes('other')
+                                        ) && name !== 'csrfmiddlewaretoken';
+                                    });
+                                    
+                                    // Create a new form for our publish action
+                                    const publishForm = document.createElement('form');
+                                    publishForm.method = 'POST';
+                                    publishForm.action = '/admin/projectad/publish/' + projectAdId + '/';
+                                    
+                                    // Copy the data fields
+                                    dataFields.forEach(element => {
+                                        const input = document.createElement('input');
+                                        input.type = 'hidden';
+                                        input.name = element.name;
+                                        input.value = element.value;
+                                        publishForm.appendChild(input);
+                                    });
+                                    
+                                    // Add CSRF token
+                                    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+                                    if (csrfToken) {
+                                        const csrfInput = document.createElement('input');
+                                        csrfInput.type = 'hidden';
+                                        csrfInput.name = 'csrfmiddlewaretoken';
+                                        csrfInput.value = csrfToken.value;
+                                        publishForm.appendChild(csrfInput);
+                                    }
+                                    
+                                    document.body.appendChild(publishForm);
+                                    publishForm.submit();
+                                });
+                                
+                                actionsDiv.appendChild(publishBtn);
+                            }
+                        });
+                }
             }
         }
     });
     </script>
+    """)
+
+# CSS to ensure proper styling and hide unwanted panels
+@hooks.register('insert_editor_css')
+def add_custom_projectad_css():
+    return mark_safe("""
+    <style>
+    /* Hide default side panels for ProjectAd pages using multiple selectors */
+    .model-projectad [data-side-panel="status"],
+    .model-projectad .w-panel:has(.w-panel__heading:contains("í birtingu")),
+    .model-projectad .w-panel:has(.w-panel__heading:contains("Notkun")),
+    body[class*="projectad"] [data-side-panel="status"],
+    body[class*="projectad"] .w-panel:has(.w-panel__heading:contains("Status")),
+    body[class*="projectad"] .w-panel:has(.w-panel__heading:contains("Usage")) {
+        display: none !important;
+    }
+    
+    /* Force our custom panel to appear in the right column if it's in the wrong place */
+    #project-status-panel {
+        margin-bottom: 1.5rem;
+    }
+    
+    /* If the panel ended up in the main content area, move it */
+    .w-field__input #project-status-panel {
+        position: fixed;
+        right: 20px;
+        top: 120px;
+        width: 300px;
+        z-index: 100;
+        background: white;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    /* Ensure proper panel styling */
+    #project-status-panel .w-panel__header {
+        background-color: #f5f5f5;
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid #e0e0e0;
+    }
+    
+    #project-status-panel .w-panel__heading {
+        margin: 0;
+        font-size: 0.875rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    #project-status-panel .w-panel__icon {
+        width: 1rem;
+        height: 1rem;
+    }
+    
+    #project-status-panel .w-panel__content {
+        padding: 1rem;
+    }
+    
+    #project-status-panel .button {
+        display: block;
+        text-decoration: none;
+    }
+    
+    /* Try to find and style the proper sidebar location */
+    .form-side #project-status-panel,
+    .edit-form__side #project-status-panel,
+    .col-lg-4 #project-status-panel {
+        position: static;
+        width: auto;
+        box-shadow: none;
+    }
+    </style>
     """)
