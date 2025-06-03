@@ -24,14 +24,14 @@ urlpatterns = [
     path("documents/", include(wagtaildocs_urls)),
     path("admin/hide-translation-notice/", hide_translation_notice),
     path("", include("advertise.urls")),
-    path("login/", login, name="login"),
-    path("signup/", signup, name="signup"),
-    path("auth/", auth_page, name="auth"),
 ]
 
 urlpatterns += i18n_patterns(
     path('search/', search_views.search, name='search'),
     path("i18n/", include("django.conf.urls.i18n")),
+    path("login/", login, name="login"),
+    path("signup/", signup, name="signup"),
+    path("auth/", auth_page, name="auth"),
     path("", include("wagtail.urls")),
 )
 

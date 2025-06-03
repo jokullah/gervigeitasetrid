@@ -45,7 +45,7 @@ def signup(request):
             user = User.objects.create_user(username=username, email=email, password=password1)
             # Log the user in
             auth_login(request, user)
-            return redirect('/')  # Redirect to home page after signup
+            return redirect(reverse('auth'))  # Use reverse to get the correct URL
         except IntegrityError:
             # If username already exists, add a number to it
             base_username = username
@@ -55,7 +55,7 @@ def signup(request):
                     username = f"{base_username}{counter}"
                     user = User.objects.create_user(username=username, email=email, password=password1)
                     auth_login(request, user)
-                    return redirect('/')
+                    return redirect(reverse('auth'))  # Use reverse to get the correct URL
                 except IntegrityError:
                     counter += 1
                     
