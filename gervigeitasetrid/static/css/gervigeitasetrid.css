@@ -81,6 +81,7 @@ main {
 .utility-bar {
   background: var(--Hvitur);
   border-bottom: 1px solid var(--Grar);
+  min-height: 40px;
 }
 
 .utility-bar>.inner {
@@ -90,7 +91,8 @@ main {
   display: flex;
   align-items: center;
   gap: 2rem;
-  flex-wrap: nowrap
+  flex-wrap: nowrap;
+  height: 100%;
 }
 
 /* -------------- LANGUAGE TOGGLE -------------- */
@@ -140,13 +142,18 @@ main {
   display: flex;
   gap: 1.5rem;
   margin-left: auto;
-  white-space: nowrap
+  white-space: nowrap;
+  align-items: center;
+  height: 100%;
 }
 
 .utility-links a {
   color: var(--Dokkgrar);
   font-weight: 600;
-  transition: color .15s
+  transition: color .15s;
+  display: flex;
+  align-items: center;
+  height: 100%;
 }
 
 .utility-links .cta {

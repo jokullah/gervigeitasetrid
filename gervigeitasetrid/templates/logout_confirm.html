@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% load static i18n %}
+
+{% block title %}{% trans "Útskrá" %} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="page-content">
+    <div class="main-content">
+        <h1>{% trans "Útskrá" %}</h1>
+        
+        <div style="text-align: center; max-width: 400px; margin: 2rem auto;">
+            <p style="margin-bottom: 2rem; color: #666;">{% trans "Ertu viss um að þú viljir skrá þig út?" %}</p>
+            
+            <div style="display: flex; gap: 1rem; justify-content: center;">
+                <form method="post" action="{% url 'logout' %}" style="margin: 0;">
+                    {% csrf_token %}
+                    <button type="submit" class="home-hero__cta" style="cursor: pointer; background-color: #D61F69;">
+                        {% trans "Já, skrá út" %}
+                    </button>
+                </form>
+                
+                <a href="/" class="home-hero__cta" style="background-color: #707070;">
+                    {% trans "Nei, hætta við" %}
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
