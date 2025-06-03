@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.urls import include, path
 from django.contrib import admin
+from django.shortcuts import render
 
 from wagtail.admin import urls as wagtailadmin_urls
 from wagtail import urls as wagtail_urls
@@ -11,7 +12,11 @@ from django.conf.urls.i18n import i18n_patterns
 from django.views.i18n import set_language
 
 from core.views import hide_translation_notice
+from .auth_views import login, signup
 
+# Simple view for the auth page
+def auth_page(request):
+    return render(request, 'auth.html')
 
 urlpatterns = [
     path("django-admin/", admin.site.urls),
@@ -19,6 +24,9 @@ urlpatterns = [
     path("documents/", include(wagtaildocs_urls)),
     path("admin/hide-translation-notice/", hide_translation_notice),
     path("", include("advertise.urls")),
+    path("login/", login, name="login"),
+    path("signup/", signup, name="signup"),
+    path("auth/", auth_page, name="auth"),
 ]
 
 urlpatterns += i18n_patterns(
