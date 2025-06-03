@@ -256,23 +256,28 @@ main {
   border-radius: 4px;
   font-weight: 700;
   text-transform: uppercase;
-  flex-shrink: 0;                 /* never squish in flex layout */
+  flex-shrink: 0;
+  /* never squish in flex layout */
   transition: background .15s, transform .15s;
 }
+
 .advertise-btn:hover {
   background: var(--Bleikur-til-aherslu);
   transform: translateY(-2px);
 }
 
 .nav-wrapper {
-  flex: 1;                 /* grows to fill */
+  flex: 1;
+  /* grows to fill */
   display: flex;
-  justify-content: center; /* keeps links centred within the space */
+  justify-content: center;
+  /* keeps links centred within the space */
 }
 
 /* tighten the spacing between logo – nav – CTA */
-.primary-bar > .inner {
-  gap: 2rem;               /* was 3rem – optional */
+.primary-bar>.inner {
+  gap: 2rem;
+  /* was 3rem – optional */
 }
 
 /* main nav now centres itself automatically, so we drop margin-left:auto */
@@ -652,4 +657,22 @@ h1+.rich-text,
     font-size: 1.1rem;
     padding: 0 1rem;
   }
+}
+
+/* User info in utility bar */
+.utility-bar .user-info {
+  display: flex;
+  align-items: center;
+  color: white;
+  font-size: 0.9em;
+  padding: 0 15px;
+  border-left: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.utility-bar .user-info svg {
+  color: white;
+}
+
+.utility-bar .user-info span {
+  white-space: nowrap;
 }

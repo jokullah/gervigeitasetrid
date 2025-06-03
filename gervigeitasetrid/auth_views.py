@@ -1,4 +1,4 @@
-from django.contrib.auth import authenticate, login as auth_login
+from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.contrib.auth.models import User
@@ -59,4 +59,8 @@ def signup(request):
                 except IntegrityError:
                     counter += 1
                     
-    return render(request, 'signup.html') 
+    return render(request, 'signup.html')
+
+def logout(request):
+    auth_logout(request)
+    return redirect('/') 
