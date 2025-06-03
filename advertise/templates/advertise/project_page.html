@@ -13,5 +13,13 @@
       <h2>{% trans "Aðrar upplýsingar" %}</h2>
       {{ page.other|richtext }}
     {% endif %}
+
+    {% if request.user.is_authenticated and 'Nemandi' in request.user.groups.all|stringformat:'s' %}
+      <div style="margin-top: 2rem;">
+        <a href="{% pageurl page.get_parent %}" class="home-hero__cta" style="display: inline-block; background-color: var(--Bleikur);">
+          {% trans "Sækja um verkefni" %}
+        </a>
+      </div>
+    {% endif %}
   </main>
 {% endblock %}
