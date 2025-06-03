@@ -1,25 +1,42 @@
 {% extends "base.html" %}
 {% load wagtailcore_tags i18n %}
 
+{% block body_class %}template-projectpage{% endblock %}
+
 {% block content %}
-  <main>
-    <h1>{{ page.title }}</h1>
+<div class="container">
+  <article class="project-detail">
+    <header class="project-detail__header">
+      <h1>{{ page.title }}</h1>
+      {% if page.company_name %}
+        <div class="project-detail__company">
+          <strong>{% trans "Fyrirtæki" %}:</strong> {{ page.company_name }}
+        </div>
+      {% endif %}
+    </header>
 
-    <p><strong>{{ page.company_name }}</strong></p>
-
-    {{ page.description|richtext }}
+    <div class="project-detail__section">
+      <div class="rich-text">
+        {{ page.description|richtext }}
+      </div>
+    </div>
 
     {% if page.other %}
-      <h2>{% trans "Aðrar upplýsingar" %}</h2>
-      {{ page.other|richtext }}
+      <div class="project-detail__section">
+        <h2>{% trans "Aðrar upplýsingar" %}</h2>
+        <div class="rich-text">
+          {{ page.other|richtext }}
+        </div>
+      </div>
     {% endif %}
 
     {% if request.user.is_authenticated and 'Nemandi' in request.user.groups.all|stringformat:'s' %}
-      <div style="margin-top: 2rem;">
-        <a href="{% pageurl page.get_parent %}" class="home-hero__cta" style="display: inline-block; background-color: var(--Bleikur);">
+      <div class="project-actions">
+        <a href="{% pageurl page.get_parent %}" class="home-hero__cta">
           {% trans "Sækja um verkefni" %}
         </a>
       </div>
     {% endif %}
-  </main>
+  </article>
+</div>
 {% endblock %}
