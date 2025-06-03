@@ -85,13 +85,19 @@
       </a>
 
       {# main menu #}
-      <nav class="main-nav">
-        {% for p in root_page.get_children.live.in_menu %}
-          {% with p|translate_page:cur_lang as tp %}
-            <a href="{% pageurl tp %}">{{ tp.title }}</a>
-          {% endwith %}
-        {% endfor %}
-      </nav>
+      <div class="nav-wrapper">
+        <nav class="main-nav">
+          {% for p in root_page.get_children.live.in_menu %}
+            {% with p|translate_page:cur_lang as tp %}
+              <a href="{% pageurl tp %}">{{ tp.title }}</a>
+            {% endwith %}
+          {% endfor %}
+        </nav>
+      </div>
+
+      <a href="{% url 'advertise-project' %}" class="advertise-btn">
+        {% trans "Auglýsa verkefni" %}
+      </a>
 
     </div>
   </div>

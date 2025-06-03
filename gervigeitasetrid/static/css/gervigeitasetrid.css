@@ -248,6 +248,41 @@ main {
   color: var(--HI-blar)
 }
 
+/* call-to-action button to the right of the menu */
+.advertise-btn {
+  background: var(--Bleikur);
+  color: var(--Hvitur);
+  padding: .7rem 1.6rem;
+  border-radius: 4px;
+  font-weight: 700;
+  text-transform: uppercase;
+  flex-shrink: 0;                 /* never squish in flex layout */
+  transition: background .15s, transform .15s;
+}
+.advertise-btn:hover {
+  background: var(--Bleikur-til-aherslu);
+  transform: translateY(-2px);
+}
+
+.nav-wrapper {
+  flex: 1;                 /* grows to fill */
+  display: flex;
+  justify-content: center; /* keeps links centred within the space */
+}
+
+/* tighten the spacing between logo – nav – CTA */
+.primary-bar > .inner {
+  gap: 2rem;               /* was 3rem – optional */
+}
+
+/* main nav now centres itself automatically, so we drop margin-left:auto */
+.main-nav {
+  display: flex;
+  gap: 3rem;
+  flex-wrap: nowrap;
+  font-size: 18px;
+}
+
 /* ===========================================================
    3. CARDS & COMPONENTS  (people, blog, forms, hero, …)
    =========================================================== */

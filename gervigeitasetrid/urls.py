@@ -18,6 +18,7 @@ urlpatterns = [
     path("admin/", include(wagtailadmin_urls)),
     path("documents/", include(wagtaildocs_urls)),
     path("admin/hide-translation-notice/", hide_translation_notice),
+    path("", include("advertise.urls")),
 ]
 
 urlpatterns += i18n_patterns(
