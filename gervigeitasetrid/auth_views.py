@@ -8,14 +8,26 @@ def login(request):
     if request.method == 'POST':
         email = request.POST.get('email')
         password = request.POST.get('password')
+        
+        # Basic validation
+        if not email:
+            return render(request, 'login.html', {'error': 'Vinsamlegast sláðu inn netfang'})
+            
+        if not password:
+            return render(request, 'login.html', {'error': 'Vinsamlegast sláðu inn lykilorð'})
+            
+        if email[-6:] != "@hi.is":
+            return render(request, 'login.html', {'error': 'Vinsamlegast notaðu @hi.is tölvupóstfang'})
+            
         try:
             user = User.objects.get(email=email)
             if user.check_password(password):
                 auth_login(request, user)
-                return redirect('/')  # Redirect to home page after login
+                return redirect('/')
+            else:
+                return render(request, 'login.html', {'error': 'Rangt lykilorð'})
         except User.DoesNotExist:
-            pass
-        return render(request, 'login.html', {'error': 'Invalid credentials'})
+            return render(request, 'login.html', {'error': 'Netfang er ekki skráð'})
     
     return render(request, 'login.html')
 

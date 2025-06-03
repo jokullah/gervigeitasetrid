@@ -8,6 +8,12 @@
     <div class="main-content">
         <h1>{% trans "Login" %}</h1>
         
+        {% if error %}
+        <div class="error-message" style="color: #D61F69; margin-bottom: 1rem; padding: 10px; background-color: #FFF2F7; border-radius: 4px;">
+            {{ error }}
+        </div>
+        {% endif %}
+        
         <form method="post" action="{% url 'login' %}" class="page-form">
             {% csrf_token %}
             <div class="form-group">
