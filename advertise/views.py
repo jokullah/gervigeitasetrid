@@ -16,7 +16,7 @@ from django.views.decorators.csrf import csrf_protect
 class AdvertiseView(FormView):
     template_name = "advertise/form.html"
     form_class    = ProjectAdForm
-    success_url   = reverse_lazy("advertise-thanks")
+    success_url   = reverse_lazy("advertise:advertise-thanks")  # Fixed: Added namespace
 
     def form_valid(self, form):
         instance = form.save()               # write to DB

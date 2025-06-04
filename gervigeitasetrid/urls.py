@@ -23,6 +23,7 @@ urlpatterns = [
     path("admin/", include(wagtailadmin_urls)),
     path("documents/", include(wagtaildocs_urls)),
     path("admin/hide-translation-notice/", hide_translation_notice),
+    path("", include("advertise.urls")),
 ]
 
 urlpatterns += i18n_patterns(
@@ -32,7 +33,6 @@ urlpatterns += i18n_patterns(
     path("signup/", signup, name="signup"),
     path("logout/", logout, name="logout"),
     path("auth/", auth_page, name="auth"),
-    path("", include("advertise.urls")),  # Move advertise URLs here
     path("", include("wagtail.urls")),
 )
 
