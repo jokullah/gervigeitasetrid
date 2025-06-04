@@ -88,6 +88,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "wagtail.contrib.settings.context_processors.settings",
                 "django.template.context_processors.i18n",
+                "core.context_processors.starfsmenn_person_pages",  # Add this line
             ],
         },
     },
