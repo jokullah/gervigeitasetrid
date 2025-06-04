@@ -9,15 +9,11 @@
 {% block content %}
 <div class="event-index">
     <div class="event-index-header">
-        {% if current_tag %}
-            <h2>{% trans "Viðburðir taggaðir með" %} "{{ current_tag }}"</h2>
-        {% else %}
-            <h2>{% trans "Viðburðir" %}</h2>
-        {% endif %}
+        <h2>{% trans "Viðburðir" %}</h2>
         
         <div class="pagination" role="navigation" aria-label="{% trans 'Síðufletting' %}">
             {% if events.has_previous %}
-                <a href="?page={{ events.previous_page_number }}{% if current_tag %}&tag={{ current_tag }}{% endif %}" 
+                <a href="?page={{ events.previous_page_number }}
                    aria-label="{% trans 'Fyrri síða' %}">&larr;</a>
             {% endif %}
             
@@ -25,13 +21,13 @@
                 {% if num == events.number %}
                     <span class="current" aria-current="page">{{ num }}</span>
                 {% else %}
-                    <a href="?page={{ num }}{% if current_tag %}&tag={{ current_tag }}{% endif %}" 
+                    <a href="?page={{ num }}
                        aria-label="{% trans 'Síða' %} {{ num }}">{{ num }}</a>
                 {% endif %}
             {% endfor %}
             
             {% if events.has_next %}
-                <a href="?page={{ events.next_page_number }}{% if current_tag %}&tag={{ current_tag }}{% endif %}"
+                <a href="?page={{ events.next_page_number }}
                    aria-label="{% trans 'Næsta síða' %}">&rarr;</a>
             {% endif %}
         </div>
@@ -85,35 +81,14 @@
                                 <span>{{ event.speaker }}</span>
                             {% endif %}
                         </div>
-                        
-                        {% if event.tags.all %}
-                            <div class="event-tags" role="list">
-                                {% for tag in event.tags.all %}
-                                    <a href="?tag={{ tag.name|urlencode }}" 
-                                       class="event-tag"
-                                       aria-label="{% trans 'Skoða alla viðburði með merkinu' %}: {{ tag.name }}"
-                                       role="listitem">
-                                        {{ tag.name }}
-                                    </a>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
                     </div>
                 </a>
             </article>
         {% empty %}
             <div class="no-events">
-                <p>{% trans "Engir viðburðir fundust" %}{% if current_tag %} {% trans "með þessu merki" %}{% endif %}.</p>
+                <p>{% trans "Engir viðburðir fundust" %}.</p>
             </div>
         {% endfor %}
     </div>
-
-    {% if current_tag %}
-        <a href="{% pageurl page %}" 
-           class="view-all-link"
-           aria-label="{% trans 'Skoða alla viðburði' %}">
-            {% trans "Sjá alla viðburði" %}
-        </a>
-    {% endif %}
 </div>
 {% endblock %}

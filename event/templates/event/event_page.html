@@ -6,16 +6,6 @@
     <header class="event-header">
         <h1>{{ page.title }}</h1>
         
-        {% if page.tags.all %}
-            <div class="event-tags">
-                {% for tag in page.tags.all %}
-                    <a href="{% pageurl page.get_parent %}?tag={{ tag.name|urlencode }}" 
-                       class="tag-button">
-                        {{ tag.name }}
-                    </a>
-                {% endfor %}
-            </div>
-        {% endif %}
     </header>
 
     <div class="event-main-content">
@@ -79,28 +69,6 @@
 .event-header h1 {
     font-size: 2.5rem;
     margin-bottom: 1rem;
-    color: #333;
-}
-
-.event-tags {
-    display: flex;
-    gap: 0.5rem;
-    justify-content: center;
-    flex-wrap: wrap;
-}
-
-.tag-button {
-    background: #f0f0f0;
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    color: #666;
-    text-decoration: none;
-    font-size: 0.9rem;
-    transition: all 0.2s;
-}
-
-.tag-button:hover {
-    background: #e0e0e0;
     color: #333;
 }
 
