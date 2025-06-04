@@ -85,7 +85,7 @@
             ✓ {% trans "Þú ert leiðbeinandi fyrir þetta verkefni" %}
           </span>
         </div>
-        <form method="post" action="/{{ LANGUAGE_CODE }}/unregister-from-project/{{ page.id }}/" style="display: inline;">
+        <form method="post" action="{% url 'advertise:unregister_from_project' page.id %}" style="display: inline;">
           {% csrf_token %}
           <button type="submit" class="home-hero__cta" style="cursor: pointer; background-color: #dc3545; border-color: #dc3545; border: none; font: inherit;" onclick="return confirm('{% trans "Ertu viss um að þú viljir draga þig úr þessu verkefni?" %}')">
             {% trans "Draga úr verkefni" %}
