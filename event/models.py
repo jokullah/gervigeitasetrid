@@ -10,14 +10,6 @@ from wagtail.snippets.models import register_snippet
 from modelcluster.fields import ParentalManyToManyField
 
 
-@register_snippet
-class EventTag(models.Model):
-    name = models.CharField(max_length=255)
-
-    def __str__(self):
-        return self.name
-
-
 class EventPage(Page):
 
     date = models.DateField()
@@ -91,9 +83,3 @@ class EventIndexPage(Page):
     parent_page_types = ['home.HomePage']
     subpage_types = ['event.EventPage']
 
-
-class EventTagIndexPage(Page):
-    name = models.CharField(max_length=255, blank=True)
-
-    parent_page_types = ['home.HomePage']
-    subpage_types = []
