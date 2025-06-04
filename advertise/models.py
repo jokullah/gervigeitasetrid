@@ -164,35 +164,24 @@ class ProjectPage(Page):
         try:
             from people.models import PersonPage
             
-            # Debug: Let's see what PersonPages exist
-            all_person_pages = PersonPage.objects.live()
-            print(f"DEBUG: Found {all_person_pages.count()} live PersonPages")
-            for pp in all_person_pages:
-                print(f"DEBUG: PersonPage email: '{pp.email}'")
-            
             # Create a list of leidbeinendur with their corresponding person pages
             leidbeinendur_with_pages = []
             for leidbeinandi in self.leidbeinendur.all():
-                print(f"DEBUG: Looking for PersonPage with email: '{leidbeinandi.email}'")
                 try:
-                    person_page = PersonPage.objects.live().get(email=leidbeinandi.email)
-                    print(f"DEBUG: Found matching PersonPage for {leidbeinandi.email}")
+                    person_page = PersonPage.objects.live().filter(email=leidbeinandi.email).first()
                     leidbeinendur_with_pages.append({
                         'user': leidbeinandi,
                         'person_page': person_page
                     })
                 except PersonPage.DoesNotExist:
-                    print(f"DEBUG: No PersonPage found for {leidbeinandi.email}")
                     leidbeinendur_with_pages.append({
                         'user': leidbeinandi,
                         'person_page': None
                     })
             
-            print(f"DEBUG: Final leidbeinendur_with_pages count: {len(leidbeinendur_with_pages)}")
             context['leidbeinendur_with_pages'] = leidbeinendur_with_pages
             
-        except ImportError as e:
-            print(f"DEBUG: Import error: {e}")
+        except ImportError:
             # If people app doesn't exist, just use the regular leidbeinendur
             context['leidbeinendur_with_pages'] = [
                 {'user': user, 'person_page': None} 
