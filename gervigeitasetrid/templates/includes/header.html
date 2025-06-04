@@ -49,14 +49,28 @@
       {% endwith %}
 
       {% if request.user.is_authenticated %}
-      <div class="user-info">
-        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
-          <circle cx="12" cy="8" r="5" stroke="currentColor" stroke-width="2" fill="none"/>
-          <path d="M3,21 C3,16 8,14 12,14 C16,14 21,16 21,21" stroke="currentColor" stroke-width="2" fill="none"/>
-        </svg>
-        <span>{{ request.user.email }}</span>
-      </div>
-      {% endif %}
+        <div class="user-info">
+          {% if user_is_starfsmenn and user_person_page %}
+            {% comment %} Starfsmenn user with PersonPage - clickable {% endcomment %}
+            <a href="{% pageurl user_person_page %}" style="color: inherit; text-decoration: none; display: flex; align-items: center;">
+              <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                <circle cx="12" cy="8" r="5" stroke="currentColor" stroke-width="2" fill="none"/>
+                <path d="M3,21 C3,16 8,14 12,14 C16,14 21,16 21,21" stroke="currentColor" stroke-width="2" fill="none"/>
+              </svg>
+              <span>{{ request.user.email }}</span>
+            </a>
+          {% else %}
+            {% comment %} Either not Starfsmenn, or Starfsmenn without PersonPage - non-clickable {% endcomment %}
+            <div style="display: flex; align-items: center;">
+              <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                <circle cx="12" cy="8" r="5" stroke="currentColor" stroke-width="2" fill="none"/>
+                <path d="M3,21 C3,16 8,14 12,14 C16,14 21,16 21,21" stroke="currentColor" stroke-width="2" fill="none"/>
+              </svg>
+              <span>{{ request.user.email }}</span>
+            </div>
+          {% endif %}
+        </div>
+        {% endif %}
 
       {# quick links #}
       <nav class="utility-links">
@@ -123,11 +137,25 @@
 
       {% if request.user.is_authenticated %}
       <div class="user-info">
-        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
-          <circle cx="12" cy="8" r="5" stroke="currentColor" stroke-width="2" fill="none"/>
-          <path d="M3,21 C3,16 8,14 12,14 C16,14 21,16 21,21" stroke="currentColor" stroke-width="2" fill="none"/>
-        </svg>
-        <span>{{ request.user.email }}</span>
+        {% if user_is_starfsmenn and user_person_page %}
+          {% comment %} Starfsmenn user with PersonPage - clickable {% endcomment %}
+          <a href="{% pageurl user_person_page %}" style="color: inherit; text-decoration: none; display: flex; align-items: center;">
+            <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+              <circle cx="12" cy="8" r="5" stroke="currentColor" stroke-width="2" fill="none"/>
+              <path d="M3,21 C3,16 8,14 12,14 C16,14 21,16 21,21" stroke="currentColor" stroke-width="2" fill="none"/>
+            </svg>
+            <span>{{ request.user.email }}</span>
+          </a>
+        {% else %}
+          {% comment %} Either not Starfsmenn, or Starfsmenn without PersonPage - non-clickable {% endcomment %}
+          <div style="display: flex; align-items: center;">
+            <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+              <circle cx="12" cy="8" r="5" stroke="currentColor" stroke-width="2" fill="none"/>
+              <path d="M3,21 C3,16 8,14 12,14 C16,14 21,16 21,21" stroke="currentColor" stroke-width="2" fill="none"/>
+            </svg>
+            <span>{{ request.user.email }}</span>
+          </div>
+        {% endif %}
       </div>
       {% endif %}
 
