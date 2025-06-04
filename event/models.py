@@ -4,7 +4,7 @@ from django.forms.widgets import TimeInput
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 from wagtail.models import Page, Locale
-from wagtail.admin.panels import FieldPanel, MultiFieldPanel
+from wagtail.admin.panels import FieldPanel, MultiFieldPanel, InlinePanel
 from wagtail.snippets.models import register_snippet
 
 from modelcluster.fields import ParentalManyToManyField
@@ -42,12 +42,11 @@ class EventPage(Page):
         FieldPanel('location'),
         FieldPanel('event_image'),
         FieldPanel('description'),
-
-
         MultiFieldPanel([
             FieldPanel('host'),
             FieldPanel('speaker'),
         ], heading="Public Lecture Fields"),
+	InlinePanel('tagged_items', label='Tags'),
     ]
     parent_page_types = ['event.EventIndexPage']
     subpage_types = []
