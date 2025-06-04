@@ -89,18 +89,6 @@
 
                     <div class="event-location">{{ event.location }}</div>
 
-                    {% if event.tags.all %}
-                      <div class="event-tags" role="list">
-                        {% for tag in event.tags.all %}
-                          <a href="{% pageurl event_index_page %}?tag={{ tag.name|urlencode }}"
-                             class="event-tag"
-                             aria-label="{% trans 'Skoða alla viðburði með merkinu' %}: {{ tag.name }}"
-                             role="listitem">
-                            {{ tag.name }}
-                          </a>
-                        {% endfor %}
-                      </div>
-                    {% endif %}
                   </div>
                 </a>
               </article>
