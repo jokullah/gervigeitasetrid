@@ -23,7 +23,7 @@ urlpatterns = [
     path("admin/", include(wagtailadmin_urls)),
     path("documents/", include(wagtaildocs_urls)),
     path("admin/hide-translation-notice/", hide_translation_notice),
-    path("", include("advertise.urls")),
+    # REMOVED: path("", include("advertise.urls")),  # This was causing the issue
 ]
 
 urlpatterns += i18n_patterns(
@@ -33,9 +33,9 @@ urlpatterns += i18n_patterns(
     path("signup/", signup, name="signup"),
     path("logout/", logout, name="logout"),
     path("auth/", auth_page, name="auth"),
-    path("", include("wagtail.urls")),
+    path("", include("advertise.urls")),  # MOVED: Now inside i18n_patterns
+    path("", include("wagtail.urls")),    # Keep this last
 )
-
 
 if settings.DEBUG:
     from django.conf.urls.static import static
