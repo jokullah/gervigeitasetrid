@@ -5,19 +5,4 @@
 
 {% block content %}
 
-    {% if request.GET.tag %}
-        <h4>{% trans "Síður taggaðar með:" %}"{{ request.GET.tag }}"</h4>
-    {% endif %}
-
-    {% for blogpage in blogpages %}
-
-          <p>
-              <strong><a href="{% pageurl blogpage %}">{{ blogpage.title }}</a></strong><br />
-              <small>Revised: {{ blogpage.latest_revision_created_at }}</small><br />
-          </p>
-
-    {% empty %}
-        {% trans "Engar síður fundust með þessu taggi" %}
-    {% endfor %}
-
 {% endblock %}
