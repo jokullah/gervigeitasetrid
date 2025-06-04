@@ -1,16 +1,43 @@
 {% extends "base.html" %}
 {% load wagtailcore_tags i18n %}
 
+{% block body_class %}template-projectindexpage{% endblock %}
+
 {% block content %}
-  <main>
+<div class="container">
+  <header class="page-header">
     <h1>{{ page.title }}</h1>
-    {{ page.intro|richtext }}
-    <ul>
-      {% for proj in projects %}
-        <li><a href="{% pageurl proj %}">{{ proj.title }}</a></li>
-      {% empty %}
-        <li>{% trans "Engin verkefni að svo stöddu." %}</li>
-      {% endfor %}
-    </ul>
-  </main>
+    {% if page.intro %}
+      <div class="page-intro">
+        {{ page.intro|richtext }}
+      </div>
+    {% endif %}
+  </header>
+
+  <div class="blog-grid">
+    {% for proj in projects %}
+      <article class="blog-card">
+        <a href="{% pageurl proj %}">
+          <div class="blog-card__content">
+            <h2 class="blog-card__title">{{ proj.title }}</h2>
+            {% if proj.company_name %}
+              <div class="blog-card__meta">
+                {{ proj.company_name }}
+              </div>
+            {% endif %}
+            <div class="blog-card__excerpt">
+              <div class="rich-text">
+                {{ proj.description|richtext|truncatewords_html:25 }}
+              </div>
+            </div>
+          </div>
+        </a>
+      </article>
+    {% empty %}
+      <div class="project-empty">
+        <p>{% trans "Engin verkefni að svo stöddu." %}</p>
+      </div>
+    {% endfor %}
+  </div>
+</div>
 {% endblock %}

@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags wagtailimages_tags i18n %}
+
+{% block content %}
+<div class="person-profile">
+    <div class="person-info">
+        <h1>{% trans "Breyta upplýsingum" %}</h1>
+        
+        <form method="POST" class="page-form" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="job_title">{% trans "Starfsheiti" %}</label>
+                <input type="text" id="job_title" name="job_title" value="{{ page.job_title }}">
+            </div>
+
+            <div class="form-group">
+                <label for="bio">{% trans "Um mig" %}</label>
+                <textarea id="bio" name="bio" rows="5">{{ page.bio|striptags }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="personal_website">{% trans "Vefsíða" %}</label>
+                <input type="url" id="personal_website" name="personal_website" value="{{ page.personal_website }}">
+            </div>
+
+            <div class="form-group">
+                <label for="image">{% trans "Mynd" %}</label>
+                {% if page.image %}
+                    <div class="current-image">
+                        {% image page.image fill-150x150 %}
+                    </div>
+                {% endif %}
+                <input type="file" id="image" name="image" accept="image/*">
+            </div>
+
+            <button type="submit" class="home-hero__cta button-primary">
+                {% trans "Vista breytingar" %}
+            </button>
+            
+            <a href="{% pageurl page %}" class="home-hero__cta button-secondary">
+                {% trans "Hætta við" %}
+            </a>
+        </form>
+    </div>
+</div>
+{% endblock %} 

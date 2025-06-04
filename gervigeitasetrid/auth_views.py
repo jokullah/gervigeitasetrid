@@ -1,7 +1,7 @@
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.shortcuts import render, redirect
 from django.urls import reverse
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.db import IntegrityError
 
 def login(request):
@@ -55,6 +55,11 @@ def signup(request):
             # Create new user with email as username
             username = email.split('@')[0]  # Use part before @ as username
             user = User.objects.create_user(username=username, email=email, password=password1)
+            
+            # Add user to "Nemandi" group
+            nemandi_group = Group.objects.get(name='Nemandi')
+            user.groups.add(nemandi_group)
+            
             # Log the user in
             auth_login(request, user)
             return redirect(reverse('auth'))  # Use reverse to get the correct URL
@@ -66,6 +71,11 @@ def signup(request):
                 try:
                     username = f"{base_username}{counter}"
                     user = User.objects.create_user(username=username, email=email, password=password1)
+                    
+                    # Add user to "Nemandi" group
+                    nemandi_group = Group.objects.get(name='Nemandi')
+                    user.groups.add(nemandi_group)
+                    
                     auth_login(request, user)
                     return redirect(reverse('auth'))  # Use reverse to get the correct URL
                 except IntegrityError:

@@ -10,6 +10,9 @@ from django.contrib import messages
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from .models import ProjectAd, ProjectPage, ProjectIndexPage
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_protect
 
 class AdvertiseView(FormView):
     template_name = "advertise/form.html"
@@ -49,3 +52,32 @@ class AdvertiseView(FormView):
 
 class AdvertiseThanksView(TemplateView):
     template_name = "advertise/thanks.html"
+
+
+@login_required
+@require_POST
+@csrf_protect
+def assign_to_project(request, page_id):
+    """
+    Assign the current user (must be in Starfsmenn group) to a project as leidbeinandi
+    """
+    # Check if user is in Starfsmenn group
+    if not request.user.groups.filter(name='Starfsmenn').exists():
+        messages.error(request, _("Þú hefur ekki heimild til að hengja þig við verkefni."))
+        return redirect('/')
+    
+    # Get the project page
+    project_page = get_object_or_404(ProjectPage, id=page_id)
+    
+    # Check if user is already assigned to this project
+    if request.user in project_page.leidbeinendur.all():
+        messages.warning(request, _("Þú ert nú þegar skráður sem leiðbeinandi fyrir þetta verkefni."))
+    else:
+        # Add current user as leidbeinandi
+        project_page.leidbeinendur.add(request.user)
+        project_page.save()
+        
+        messages.success(request, _("Þú hefur verið skráður sem leiðbeinandi fyrir þetta verkefni."))
+    
+    # Redirect back to the project page
+    return redirect(project_page.url)
