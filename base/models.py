@@ -8,6 +8,9 @@ from wagtail.contrib.settings.models import (
 from wagtail.snippets.models import register_snippet
 from django.db import models
 
+from modelcluster.fields import ParentalKey
+from modelcluster.models import ClusterableModel
+
 @register_setting
 class FooterText(BaseGenericSetting):
     body = RichTextField()
@@ -28,3 +31,16 @@ class Tag(models.Model):
 
 	def __str__(self):
 		return self.name
+
+class TaggedItem(models.Model):
+	tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
+	content_objects = ParentalKey(
+				'wagtailcore.Page',
+				related_name='tagged_items',
+				on_delete=models.CASCADE,
+				)
+
+	panels=[FieldPanel('tag')]
+
+	def __str__(self):
+		return self.tag.name
