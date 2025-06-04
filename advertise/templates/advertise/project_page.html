@@ -4,67 +4,92 @@
 {% block body_class %}template-projectpage{% endblock %}
 
 {% block content %}
-<div class="container">
-  <article class="project-detail">
-    <header class="project-detail__header">
-      <h1>{{ page.title }}</h1>
+<div class="project-detail">
+  <header class="project-header">
+    <h1>{{ page.title }}</h1>
+    
+    <div class="project-header-meta">
       {% if page.company_name %}
-        <div class="project-detail__company">
-          <strong>{% trans "Fyrirtæki" %}:</strong> {{ page.company_name }}
+        <div class="project-meta-item">
+          <span class="project-meta-label">{% trans "Fyrirtæki" %}:</span>
+          <span class="project-leader">{{ page.company_name }}</span>
         </div>
       {% endif %}
       
       {% if page.leidbeinendur.all %}
-        <div class="project-detail__supervisors">
-          <strong>{% trans "Leiðbeinendur" %}:</strong>
-          {% for leidbeinandi in page.leidbeinendur.all %}
-            {{ leidbeinandi.get_full_name|default:leidbeinandi.username }}{% if not forloop.last %}, {% endif %}
-          {% endfor %}
+        <div class="project-meta-item">
+          <span class="project-meta-label">{% trans "Leiðbeinendur" %}:</span>
+          <span class="project-leader">
+            {% for leidbeinandi in page.leidbeinendur.all %}
+              {{ leidbeinandi.get_full_name|default:leidbeinandi.username }}{% if not forloop.last %}, {% endif %}
+            {% endfor %}
+          </span>
         </div>
       {% else %}
-        <div class="project-detail__supervisors">
-          {% trans "Engir leiðbeinendur skráðir" %}
+        <div class="project-meta-item">
+          <span class="project-meta-label">{% trans "Leiðbeinendur" %}:</span>
+          <span>{% trans "Engir leiðbeinendur skráðir" %}</span>
         </div>
       {% endif %}
-    </header>
+    </div>
+  </header>
 
-    <div class="project-detail__section">
+  {% comment %}
+  <!-- Uncomment this section if you have a featured image field -->
+  {% if page.featured_image %}
+    <div class="project-featured-image">
+      <img src="{{ page.featured_image.url }}" alt="{{ page.title }}">
+    </div>
+  {% endif %}
+  {% endcomment %}
+
+  <div class="project-body-content">
+    <div class="rich-text">
+      {{ page.description|richtext }}
+    </div>
+  </div>
+
+  {% if page.other %}
+    <div class="project-body-content">
+      <h2>{% trans "Aðrar upplýsingar" %}</h2>
       <div class="rich-text">
-        {{ page.description|richtext }}
+        {{ page.other|richtext }}
       </div>
     </div>
+  {% endif %}
 
-    {% if page.other %}
-      <div class="project-detail__section">
-        <h2>{% trans "Aðrar upplýsingar" %}</h2>
-        <div class="rich-text">
-          {{ page.other|richtext }}
-        </div>
-      </div>
+  {% comment %}
+  <!-- Uncomment this section if you add tags/categories to your project model -->
+  {% if page.tags.all %}
+    <div class="project-tags">
+      {% for tag in page.tags.all %}
+        <span class="project-tag">{{ tag.name }}</span>
+      {% endfor %}
+    </div>
+  {% endif %}
+  {% endcomment %}
+
+  <div class="project-actions" style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid #e9ecef;">
+    {% if request.user.is_authenticated and 'Nemendi' in request.user.groups.all|stringformat:'s' %}
+      <a href="{% pageurl page.get_parent %}" class="home-hero__cta">
+        {% trans "Sækja um verkefni" %}
+      </a>
     {% endif %}
-
-    <div class="project-actions">
-      {% if request.user.is_authenticated and 'Nemendi' in request.user.groups.all|stringformat:'s' %}
-        <a href="{% pageurl page.get_parent %}" class="home-hero__cta">
-          {% trans "Sækja um verkefni" %}
-        </a>
+    
+    {% if request.user.is_authenticated and 'Starfsmenn' in request.user.groups.all|stringformat:'s' %}
+      {% if request.user not in page.leidbeinendur.all %}
+        <form method="post" action="{% url 'advertise:assign_to_project' page.id %}" style="display: inline;">
+          {% csrf_token %}
+          <button type="submit" class="home-hero__cta" style="cursor: pointer; border: none; font: inherit;" onclick="return confirm('{% trans "Ertu viss um að þú viljir hengja þig við þetta verkefni?" %}')">
+            {% trans "Hengja við verkefni" %}
+          </button>
+        </form>
+      {% else %}
+        <div class="project-assigned" style="display: inline-block; padding: 0.75rem 1.5rem; background: var(--Ljosgraenn); color: var(--Svartur); border-radius: 4px; font-weight: 600;">
+          <span class="assigned-indicator">✓ {% trans "Þú ert leiðbeinandi fyrir þetta verkefni" %}</span>
+        </div>
       {% endif %}
-      
-      {% if request.user.is_authenticated and 'Starfsmenn' in request.user.groups.all|stringformat:'s' %}
-        {% if request.user not in page.leidbeinendur.all %}
-          <form method="post" action="{% url 'advertise:assign_to_project' page.id %}">
-            {% csrf_token %}
-            <button type="submit" class="home-hero__cta" style="cursor: pointer;" onclick="return confirm('{% trans "Ertu viss um að þú viljir hengja þig við þetta verkefni?" %}')">
-              {% trans "Hengja við verkefni" %}
-            </button>
-          </form>
-        {% else %}
-          <div class="project-assigned">
-            <span class="assigned-indicator">{% trans "Þú ert leiðbeinandi fyrir þetta verkefni" %}</span>
-          </div>
-        {% endif %}
-      {% endif %}
-    </div>
-  </article>
+    {% endif %}
+  </div>
 </div>
 {% endblock %}

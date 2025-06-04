@@ -68,7 +68,7 @@
         {% if request.user.is_authenticated %}
           <form method="post" action="{% url 'logout' %}" style="display: inline;">
             {% csrf_token %}
-            <button type="submit" class="cta" onclick="return confirm('{% trans "Ertu viss um að þú viljir skrá þig út?" %}')" style="background: none; border: none; color: inherit; text-decoration: underline; cursor: pointer; font: inherit;">
+            <button type="submit" class="cta" onclick="return confirm('{% trans "Ertu viss um að þú viljir skrá þig út?" %}')">
               {% trans "Skrá út" %}
             </button>
           </form>
