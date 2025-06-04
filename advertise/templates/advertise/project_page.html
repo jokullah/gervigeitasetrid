@@ -21,6 +21,10 @@
             {{ leidbeinandi.get_full_name|default:leidbeinandi.username }}{% if not forloop.last %}, {% endif %}
           {% endfor %}
         </div>
+      {% else %}
+        <div class="project-detail__supervisors">
+          {% trans "Engir leiðbeinendur skráðir" %}
+        </div>
       {% endif %}
     </header>
 

@@ -149,7 +149,7 @@ class ProjectPage(Page):
                 FieldPanel("contact_name"),
                 FieldPanel("contact_email"),
             ],
-            heading=_("Company & contact"),
+            heading=_("Fyrirtæki og tengiliður"),
         ),
         FieldPanel("other"),
         FieldPanel("leidbeinendur"),
@@ -159,4 +159,4 @@ class ProjectPage(Page):
     search_fields = Page.search_fields
 
     class Meta:
-        verbose_name = _("Project")
+        verbose_name = _("Verkefni")

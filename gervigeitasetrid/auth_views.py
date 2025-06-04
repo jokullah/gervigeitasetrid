@@ -84,7 +84,5 @@ def signup(request):
     return render(request, 'signup.html')
 
 def logout(request):
-    if request.method == 'POST':
-        auth_logout(request)
-        return redirect('/')
-    return render(request, 'logout_confirm.html') 
+    auth_logout(request)
+    return redirect('/')
