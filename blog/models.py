@@ -7,9 +7,6 @@ from wagtail.search import index
 from wagtail.admin.panels import MultiFieldPanel, FieldPanel
 from wagtail.snippets.models import register_snippet
 
-from taggit.models import TaggedItemBase
-
-from modelcluster.contrib.taggit import ClusterTaggableManager
 from modelcluster.fields import ParentalKey, ParentalManyToManyField
 
 
@@ -108,11 +105,4 @@ class Author(models.Model):
 
     class Meta:
         verbose_name_plural = 'Authors'
-
-
-class BlogTagIndexPage(Page):
-    name = models.CharField(max_length=255, blank=True)
-
-    parent_page_types = ['home.HomePage']
-    subpage_types = []
     
