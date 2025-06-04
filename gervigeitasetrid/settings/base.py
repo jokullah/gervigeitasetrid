@@ -139,7 +139,7 @@ LANGUAGES = [
 
 WAGTAIL_CONTENT_LANGUAGES = [
     ("is", "Íslenska"),
-    ("en", "English"),          # plain “en” is now explicitly allowed
+    ("en", "English"),       
 ]
 
 TIME_ZONE = "UTC"

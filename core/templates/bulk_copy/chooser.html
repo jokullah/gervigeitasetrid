@@ -4,14 +4,14 @@
 {% block content %}
 <div class="bulk-copy-wrapper">
 
-  <h1 class="bulk-copy-title">{% trans "Copy pages between languages" %}</h1>
+  <h1 class="bulk-copy-title">{% trans "Afrita síður milli tungumála" %}</h1>
 
   {# --- IS → EN Section --- #}
   <section class="bulk-copy-section">
-    <h2>{% trans "From Icelandic to English" %}</h2>
+    <h2>{% trans "Frá íslensku yfir í ensku" %}</h2>
 
     {% if is_to_en %}
-      <p>{% trans "Only Icelandic pages without English translations are listed." %}</p>
+      <p>{% trans "Einungis íslenskar síður án enskra þýðinga eru sýndar." %}</p>
 
       <form method="post" class="bulk-copy-form">
         {% csrf_token %}
@@ -19,7 +19,7 @@
 
         <label class="bulk-copy-checkbox-label">
           <input type="checkbox" id="select-all-is">
-          <strong>{% trans "Select all" %}</strong>
+          <strong>{% trans "Velja allar" %}</strong>
         </label>
 
         <ul class="listing">
@@ -33,10 +33,10 @@
           {% endfor %}
         </ul>
 
-        <button type="submit" class="button button-primary">{% trans "Copy selected to English" %}</button>
+        <button type="submit" class="button button-primary">{% trans "Afrita valdar síður yfir á ensku" %}</button>
       </form>
     {% else %}
-      <p>{% trans "All Icelandic pages already have English versions." %}</p>
+      <p>{% trans "Allar íslenskar síður hafa þegar enskar þýðingar." %}</p>
     {% endif %}
   </section>
 
@@ -44,10 +44,10 @@
 
   {# --- EN → IS Section --- #}
   <section class="bulk-copy-section">
-    <h2>{% trans "From English to Icelandic" %}</h2>
+    <h2>{% trans "Frá ensku yfir í íslensku" %}</h2>
 
     {% if en_to_is %}
-      <p>{% trans "Only English pages without Icelandic translations are listed." %}</p>
+      <p>{% trans "Einungis enskar síður án íslenskra þýðinga eru sýndar." %}</p>
 
       <form method="post" class="bulk-copy-form">
         {% csrf_token %}
@@ -55,7 +55,7 @@
 
         <label class="bulk-copy-checkbox-label">
           <input type="checkbox" id="select-all-en">
-          <strong>{% trans "Select all" %}</strong>
+          <strong>{% trans "Velja allar" %}</strong>
         </label>
 
         <ul class="listing">
@@ -69,14 +69,14 @@
           {% endfor %}
         </ul>
 
-        <button type="submit" class="button button-primary">{% trans "Copy selected to Icelandic" %}</button>
+        <button type="submit" class="button button-primary">{% trans "Afrita valdar síður yfir á íslensku" %}</button>
       </form>
     {% else %}
-      <p>{% trans "All English pages already have Icelandic versions." %}</p>
+      <p>{% trans "Allar enskar síður hafa þegar íslenskar þýðingar." %}</p>
     {% endif %}
   </section>
 
-  <a href="{% url 'wagtailadmin_home' %}" class="button button-secondary">{% trans "Cancel" %}</a>
+  <a href="{% url 'wagtailadmin_home' %}" class="button button-secondary">{% trans "Hætta við" %}</a>
 
 </div>
 

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-27 16:39+0000\n"
+"POT-Creation-Date: 2025-06-04 11:22+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,13 +18,118 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: blog/templates/blog/blog_page.html:14
-msgid "Grein eftir:"
-msgstr "Article by:"
+#: advertise/models.py:10
+msgid "Titill"
+msgstr "Title"
 
-#: blog/templates/blog/blog_page.html:37
-msgid "Aftur á blogg"
-msgstr "Back to blog"
+#: advertise/models.py:11 advertise/models.py:107
+msgid "Lýsing"
+msgstr "Description:"
+
+#: advertise/models.py:12 advertise/models.py:108
+msgid "Fyrirtæki"
+msgstr "Company"
+
+#: advertise/models.py:13 advertise/models.py:109
+msgid "Tengiliður"
+msgstr "Contact"
+
+#: advertise/models.py:14 advertise/models.py:110
+msgid "Tengiliðapóstur"
+msgstr "Contact Email"
+
+#: advertise/models.py:15 advertise/models.py:111
+msgid "Annað"
+msgstr "Other"
+
+#: advertise/models.py:19
+msgid "Tungumál"
+msgstr "Language"
+
+#: advertise/models.py:22
+msgid "Icelandic"
+msgstr ""
+
+#: advertise/models.py:23
+msgid "English"
+msgstr ""
+
+#: advertise/models.py:26
+msgid "Tungumál auglýsingar þegar hún er birt"
+msgstr "Language of advertisemenet when it is published"
+
+#: advertise/models.py:35
+msgid "Linked project page"
+msgstr ""
+
+#: advertise/models.py:36
+msgid "Project page created from this advertisement"
+msgstr ""
+
+#: advertise/models.py:40
+msgid "Project advertisement"
+msgstr ""
+
+#: advertise/models.py:41
+msgid "Project advertisements"
+msgstr ""
+
+#: advertise/models.py:56
+msgid "✅ Created"
+msgstr ""
+
+#: advertise/models.py:58
+msgid "⏳ Not created"
+msgstr ""
+
+#: advertise/models.py:90
+msgid "Project index"
+msgstr ""
+
+#: advertise/models.py:125
+msgid "Company & contact"
+msgstr ""
+
+#: advertise/models.py:134
+msgid "Project"
+msgstr ""
+
+#: advertise/templates/advertise/form.html:5
+#: gervigeitasetrid/templates/includes/header.html:115
+msgid "Auglýsa verkefni"
+msgstr "Advertise Project"
+
+#: advertise/templates/advertise/form.html:10
+msgid "Senda inn"
+msgstr "Submit"
+
+#: advertise/templates/advertise/project_index_page.html:12
+msgid "Engin verkefni að svo stöddu."
+msgstr "No available projects at the moment."
+
+#: advertise/templates/advertise/project_page.html:13
+msgid "Aðrar upplýsingar"
+msgstr "More information"
+
+#: advertise/templates/advertise/thanks.html:5
+msgid "Takk fyrir!"
+msgstr "Thank you!"
+
+#: advertise/templates/advertise/thanks.html:6
+msgid "Verkefnið þitt verður skoðað innan skamms."
+msgstr "Your project ad will be processed soon."
+
+#: advertise/wagtail_hooks.py:17
+msgid "Verkefnaauglýsingar"
+msgstr "Project Advertisements"
+
+#: advertise/wagtail_hooks.py:40
+msgid "Hólf"
+msgstr "Stash"
+
+#: blog/templates/blog/blog_page.html:66
+msgid "Tags"
+msgstr ""
 
 #: blog/templates/blog/blog_tag_index_page.html:9
 msgid "Síður taggaðar með:"
@@ -34,25 +139,56 @@ msgstr "Sites with tag:"
 msgid "Engar síður fundust með þessu taggi"
 msgstr "No pages found with this tag"
 
-#: core/templates/bulk_copy/confirm.html:6
-msgid "Copy the entire Icelandic tree into English?"
-msgstr ""
+#: core/templates/bulk_copy/chooser.html:7
+msgid "Afrita síður milli tungumála"
+msgstr "Copy pages between languages"
 
-#: core/templates/bulk_copy/confirm.html:7
-msgid "Any page that already has an English translation will be skipped."
-msgstr ""
+#: core/templates/bulk_copy/chooser.html:11
+msgid "Frá íslensku yfir í ensku"
+msgstr "From Icelandic to English"
 
-#: core/templates/bulk_copy/confirm.html:12
-msgid "Run copy"
-msgstr ""
+#: core/templates/bulk_copy/chooser.html:14
+msgid "Einungis íslenskar síður án enskra þýðinga eru sýndar."
+msgstr "Only Icelandic pages without English translations are listed."
 
-#: core/templates/bulk_copy/confirm.html:16
-msgid "Cancel"
-msgstr ""
+#: core/templates/bulk_copy/chooser.html:22
+#: core/templates/bulk_copy/chooser.html:58
+msgid "Velja allar"
+msgstr "Select all"
 
-#: core/wagtail_hooks.py:19
-msgid "Clone IS → EN pages"
-msgstr ""
+#: core/templates/bulk_copy/chooser.html:36
+msgid "Afrita valdar síður yfir á ensku"
+msgstr "Copy selected pages to English"
+
+#: core/templates/bulk_copy/chooser.html:39
+msgid "Allar íslenskar síður hafa þegar enskar þýðingar."
+msgstr "All Icelandic pages already have English verrions."
+
+#: core/templates/bulk_copy/chooser.html:47
+msgid "Frá ensku yfir í íslensku"
+msgstr "From English to Icelandic"
+
+#: core/templates/bulk_copy/chooser.html:50
+#, fuzzy
+#| msgid "Einungis íslenskar síður án enskra þýðinga eru sýndar."
+msgid "Einungis enskar síður án íslenskra þýðinga eru sýndar."
+msgstr "Only Icelandic pages without English translations are listed."
+
+#: core/templates/bulk_copy/chooser.html:72
+msgid "Afrita valdar síður yfir á íslensku"
+msgstr "Copy selected pages to Icelandic"
+
+#: core/templates/bulk_copy/chooser.html:75
+msgid "Allar enskar síður hafa þegar íslenskar þýðingar."
+msgstr "All English pages already have Icelandic verrions."
+
+#: core/templates/bulk_copy/chooser.html:79
+msgid "Hætta við"
+msgstr "Cancel."
+
+#: core/wagtail_hooks.py:22
+msgid "Afrita ÍS ↔ EN síður"
+msgstr "Clone IS ↔ EN pages"
 
 #: env/lib/python3.12/site-packages/django/contrib/messages/apps.py:16
 msgid "Messages"
@@ -1364,46 +1500,124 @@ msgid "Viðburðir taggaðir með"
 msgstr "Events tagged with"
 
 #: event/templates/event/event_index_page.html:15
-#: home/templates/home/home_page.html:42
+#: home/templates/home/home_page.html:44
 msgid "Viðburðir"
 msgstr "Events"
 
-#: event/templates/event/event_index_page.html:104
-msgid "Sjá alla viðburði:"
-msgstr "See All Events"
+#: event/templates/event/event_index_page.html:18
+msgid "Síðufletting"
+msgstr ""
 
-#: event/templates/event/event_page.html:10
-#: event/templates/event/event_tag_index_page.html:6
-msgid "Tögg:"
-msgstr "Tags:"
+#: event/templates/event/event_index_page.html:21
+msgid "Fyrri síða"
+msgstr ""
 
-#: event/templates/event/event_page.html:26
-msgid "Dagsetning:"
-msgstr "Date:"
+#: event/templates/event/event_index_page.html:29
+msgid "Síða"
+msgstr ""
 
-#: event/templates/event/event_page.html:29
-msgid "Tími:"
+#: event/templates/event/event_index_page.html:35
+#, fuzzy
+#| msgid "Næsta"
+msgid "Næsta síða"
+msgstr "Next"
+
+#: event/templates/event/event_index_page.html:43
+#: home/templates/home/home_page.html:65
+#, fuzzy
+#| msgid "Viðburðir"
+msgid "Viðburður"
+msgstr "Events"
+
+#: event/templates/event/event_index_page.html:48
+#: home/templates/home/home_page.html:70
+msgid "Engin mynd tiltæk"
+msgstr ""
+
+#: event/templates/event/event_index_page.html:49
+#: home/templates/home/home_page.html:71
+msgid "No image available"
+msgstr ""
+
+#: event/templates/event/event_index_page.html:73
+#, fuzzy
+#| msgid "Tími:"
+msgid "Tími"
 msgstr "Time:"
 
-#: event/templates/event/event_page.html:32
-msgid "Staðsetning:"
+#: event/templates/event/event_index_page.html:77
+#, fuzzy
+#| msgid "Staðsetning:"
+msgid "Staðsetning"
 msgstr "Location:"
 
-#: event/templates/event/event_page.html:33
-msgid "Tegund:"
-msgstr "Type:"
-
-#: event/templates/event/event_page.html:36
-msgid "Gestgjafi:"
+#: event/templates/event/event_index_page.html:81
+#, fuzzy
+#| msgid "Gestgjafi:"
+msgid "Gestgjafi"
 msgstr "Host:"
 
-#: event/templates/event/event_page.html:37
-msgid "Kynnir:"
+#: event/templates/event/event_index_page.html:84
+#, fuzzy
+#| msgid "Kynnir:"
+msgid "Kynnir"
 msgstr "Speaker:"
 
-#: event/templates/event/event_page.html:43
-msgid "Lýsing:"
-msgstr "Description:"
+#: event/templates/event/event_index_page.html:94
+#: home/templates/home/home_page.html:97
+#, fuzzy
+#| msgid "Sjá alla viðburði"
+msgid "Skoða alla viðburði með merkinu"
+msgstr "See All Events"
+
+#: event/templates/event/event_index_page.html:106
+#, fuzzy
+#| msgid "Engir væntanlegir viðburðir."
+msgid "Engir viðburðir fundust"
+msgstr "No upcoming events."
+
+#: event/templates/event/event_index_page.html:106
+msgid "með þessu merki"
+msgstr ""
+
+#: event/templates/event/event_index_page.html:114
+#, fuzzy
+#| msgid "Sjá alla viðburði"
+msgid "Skoða alla viðburði"
+msgstr "See All Events"
+
+#: event/templates/event/event_index_page.html:115
+#: home/templates/home/home_page.html:116
+msgid "Sjá alla viðburði"
+msgstr "See All Events"
+
+#: gervigeitasetrid/templates/auth.html:4
+#, fuzzy
+#| msgid "Staðsetning:"
+msgid "Staðfesting"
+msgstr "Location:"
+
+#: gervigeitasetrid/templates/auth.html:9
+msgid "Staðfesting á nýjum aðgangi"
+msgstr ""
+
+#: gervigeitasetrid/templates/auth.html:13
+msgid ""
+"Takk fyrir að búa til aðgang. Vinsamlegast staðfestu netfangið þitt með því "
+"að smella á tengilinn sem við sendum þér í tölvupósti."
+msgstr ""
+
+#: gervigeitasetrid/templates/auth.html:17
+msgid "Ekki búin(n) að fá tölvupóst?"
+msgstr ""
+
+#: gervigeitasetrid/templates/auth.html:19
+msgid "Senda aftur"
+msgstr ""
+
+#: gervigeitasetrid/templates/auth.html:26
+msgid "Fara á innskráningarsíðu"
+msgstr ""
 
 #: gervigeitasetrid/templates/includes/footer.html:16
 msgid "HÁSKOLI ÍSLANDS"
@@ -1461,55 +1675,111 @@ msgstr "Electronic surveillance"
 msgid "Tilkynna áreitni"
 msgstr "Report harassment"
 
-#: gervigeitasetrid/templates/includes/header.html:53
+#: gervigeitasetrid/templates/includes/header.html:63
 msgid "Þjónusta"
 msgstr "Help Centre"
 
-#: gervigeitasetrid/templates/includes/header.html:56
+#: gervigeitasetrid/templates/includes/header.html:66
 msgid "Finna"
 msgstr "Find"
 
-#: gervigeitasetrid/templates/includes/header.html:56
+#: gervigeitasetrid/templates/includes/header.html:66
 msgid "starfsfólk"
 msgstr "staff"
 
-#: gervigeitasetrid/templates/includes/header.html:62
-#: gervigeitasetrid/templates/includes/header.html:64
-#: gervigeitasetrid/templates/includes/header.html:65
+#: gervigeitasetrid/templates/includes/header.html:69
+msgid "Skrá út"
+msgstr ""
+
+#: gervigeitasetrid/templates/includes/header.html:71
+#: gervigeitasetrid/templates/login.html:29
+#: gervigeitasetrid/templates/signup.html:40
+msgid "Innskrá"
+msgstr ""
+
+#: gervigeitasetrid/templates/includes/header.html:77
+#: gervigeitasetrid/templates/includes/header.html:79
+#: gervigeitasetrid/templates/includes/header.html:80
 #: search/templates/search/search.html:9 search/templates/search/search.html:15
 #: search/templates/search/search.html:21
 msgid "Leita"
 msgstr "Search"
 
-#: home/models.py:105
+#: gervigeitasetrid/templates/login.html:4
+#: gervigeitasetrid/templates/login.html:9
+msgid "Login"
+msgstr ""
+
+#: gervigeitasetrid/templates/login.html:20
+#: gervigeitasetrid/templates/signup.html:21
+msgid "Email"
+msgstr ""
+
+#: gervigeitasetrid/templates/login.html:25
+#: gervigeitasetrid/templates/signup.html:26
+msgid "Password"
+msgstr ""
+
+#: gervigeitasetrid/templates/login.html:32
+msgid "Ekki með aðgang?"
+msgstr ""
+
+#: gervigeitasetrid/templates/login.html:34
+#: gervigeitasetrid/templates/signup.html:9
+#: gervigeitasetrid/templates/signup.html:35
+msgid "Búa til aðgang"
+msgstr ""
+
+#: gervigeitasetrid/templates/logout_confirm.html:4
+#: gervigeitasetrid/templates/logout_confirm.html:9
+msgid "Útskrá"
+msgstr ""
+
+#: gervigeitasetrid/templates/logout_confirm.html:12
+msgid "Ertu viss um að þú viljir skrá þig út?"
+msgstr ""
+
+#: gervigeitasetrid/templates/logout_confirm.html:18
+msgid "Já, skrá út"
+msgstr ""
+
+#: gervigeitasetrid/templates/logout_confirm.html:23
+msgid "Nei, hætta við"
+msgstr ""
+
+#: gervigeitasetrid/templates/signup.html:4
+msgid "Sign Up"
+msgstr ""
+
+#: gervigeitasetrid/templates/signup.html:31
+msgid "Staðfesta lykilorð"
+msgstr ""
+
+#: gervigeitasetrid/templates/signup.html:38
+msgid "Nú þegar með aðgang?"
+msgstr ""
+
+#: home/models.py:107
 msgid "About image"
 msgstr ""
 
-#: home/models.py:106
+#: home/models.py:108
 msgid "An image to introduce your organization"
 msgstr ""
 
-#: home/models.py:110
+#: home/models.py:112
 msgid "Body text"
 msgstr ""
 
-#: home/models.py:111
+#: home/models.py:113
 msgid "Main content for the About Us page"
 msgstr ""
 
-#: home/templates/home/home_page.html:68
-msgid "No image available"
-msgstr ""
-
-#: home/templates/home/home_page.html:102
+#: home/templates/home/home_page.html:108
 msgid "Engir væntanlegir viðburðir."
 msgstr "No upcoming events."
 
-#: home/templates/home/home_page.html:110
-msgid "Sjá alla viðburði"
-msgstr "See All Events"
-
-#: home/templates/home/home_page.html:122
+#: home/templates/home/home_page.html:128
 msgid "Fréttir"
 msgstr "News"
 
@@ -1575,3 +1845,21 @@ msgstr "Next"
 #: search/templates/search/search.html:60
 msgid "Engin leitarniðurstaða fannst"
 msgstr "No search result"
+
+#~ msgid "Grein eftir:"
+#~ msgstr "Article by:"
+
+#~ msgid "Aftur á blogg"
+#~ msgstr "Back to blog"
+
+#~ msgid "Sjá alla viðburði:"
+#~ msgstr "See All Events"
+
+#~ msgid "Tögg:"
+#~ msgstr "Tags:"
+
+#~ msgid "Dagsetning:"
+#~ msgstr "Date:"
+
+#~ msgid "Tegund:"
+#~ msgstr "Type:"

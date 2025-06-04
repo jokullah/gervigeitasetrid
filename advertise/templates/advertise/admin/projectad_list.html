@@ -1,0 +1,169 @@
+{% extends "wagtailadmin/generic/index.html" %}
+{% load i18n %}
+
+{% block extra_css %}
+    {{ block.super }}
+    <style>
+        .new-ad-badge {
+            background: #ff6b6b;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: bold;
+            margin-left: 8px;
+            display: inline-block;
+            vertical-align: middle;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.05); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        
+        .title-wrapper {
+            display: flex;
+            align-items: center;
+        }
+    </style>
+{% endblock %}
+
+{% block extra_js %}
+    {{ block.super }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('ProjectAd list page loaded');
+            
+            // Get new ad IDs from Django template
+            const newAdIds = [
+                {% for object in object_list %}
+                    {% if object.is_new %}{{ object.id }},{% endif %}
+                {% endfor %}
+            ];
+            
+            console.log('New ad IDs from template:', newAdIds);
+            
+            // Add NEW badges to the appropriate ads
+            if (newAdIds.length > 0) {
+                // Find the actual project ad table rows (not keyboard shortcut rows)
+                const projectRows = Array.from(document.querySelectorAll('tbody tr')).filter(row => {
+                    return row.querySelector('td.title a[href*="/edit/"]');
+                });
+                
+                console.log('Found', projectRows.length, 'project ad rows');
+                
+                projectRows.forEach((row, index) => {
+                    const link = row.querySelector('td.title a[href*="/edit/"]');
+                    if (link) {
+                        // Extract ID from the link
+                        const match = link.href.match(/\/edit\/(\d+)\//);
+                        if (match) {
+                            const adId = parseInt(match[1]);
+                            console.log('Row', index, '- ID:', adId, '- Title:', link.textContent.trim());
+                            
+                            if (newAdIds.includes(adId)) {
+                                console.log('Adding NEW badge to ad ID:', adId);
+                                
+                                // Find the title wrapper div
+                                const titleWrapper = link.parentElement;
+                                
+                                // Remove any existing badges first
+                                const existingBadge = titleWrapper.querySelector('.new-ad-badge');
+                                if (existingBadge) {
+                                    existingBadge.remove();
+                                }
+                                
+                                // Create NEW badge
+                                const newBadge = document.createElement('span');
+                                newBadge.className = 'new-ad-badge';
+                                newBadge.innerHTML = 'NÝTT';
+                                
+                                // Add after the link in the title wrapper
+                                titleWrapper.appendChild(newBadge);
+                            }
+                        }
+                    }
+                });
+                
+                // Mark all new ads as viewed immediately after showing badges
+                fetch('/admin/projectad/mark-all-viewed/', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ad_ids: newAdIds})
+                }).then(response => response.json())
+                  .then(data => {
+                      if (data.success) {
+                          console.log('Marked', data.count, 'ads as viewed');
+                      }
+                  }).catch(err => console.log('Error marking ads as viewed:', err));
+            }
+        });
+    </script>
+{% endblock %}
+
+{% block results %}
+    {% if object_list %}
+        <table class="listing">
+            <thead>
+                <tr>
+                    {% for column in view.columns %}
+                        <th{% if column.sort_key %} class="sortable"{% endif %}>
+                            {% if column.sort_key %}
+                                <a href="{% url view.index_url_name %}?{% if request.GET.ordering == column.sort_key %}-{% endif %}{{ column.sort_key }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" 
+                                   title="{% trans 'Sort by' %} '{{ column.label }}'"
+                                   class="icon {% if request.GET.ordering == column.sort_key %}icon-arrow-up-after{% elif request.GET.ordering == '-'|add:column.sort_key %}icon-arrow-down-after{% else %}icon-arrow-down-after{% endif %} label">
+                                    {{ column.label }}
+                                </a>
+                            {% else %}
+                                {{ column.label }}
+                            {% endif %}
+                        </th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for object in object_list %}
+                    <tr>
+                        <td class="title">
+                            <div class="title-wrapper">
+                                <a href="{% url view.edit_url_name object.pk %}">
+                                    {{ object.title }}
+                                </a>
+                                {% if object.is_new %}
+                                    <span class="new-ad-badge">NEW</span>
+                                {% endif %}
+                            </div>
+                            
+                            <ul class="actions">
+                                <li>
+                                    <div data-controller="w-dropdown" class="w-dropdown">
+                                        <button type="button" class="w-dropdown__toggle w-dropdown__toggle--icon" 
+                                                data-w-dropdown-target="toggle" 
+                                                aria-label="{% trans 'More options for' %} '{{ object.title }} ({{ object.company_name }})'" 
+                                                aria-expanded="false">
+                                            <svg class="icon icon-dots-horizontal w-dropdown__toggle-icon" aria-hidden="true">
+                                                <use href="#icon-dots-horizontal"></use>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </li>
+                            </ul>
+                        </td>
+                        <td>{{ object.company_name }}</td>
+                        <td>{{ object.contact_email }}</td>
+                        <td>{{ object.locale_display }}</td>
+                        <td>{{ object.status_display }}</td>
+                        <td>{{ object.submitted_at|date:"F j, Y, g:i A" }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>{% trans "No project advertisements found." %}</p>
+    {% endif %}
+{% endblock %}

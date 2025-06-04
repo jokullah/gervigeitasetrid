@@ -1,0 +1,159 @@
+{% extends "wagtailadmin/generic/edit.html" %}
+{% load i18n wagtailadmin_tags %}
+
+{% comment %}
+Save as: advertise/templates/advertise/admin/projectad_edit.html
+Clean implementation - remove all unwanted sidebar sections
+{% endcomment %}
+
+{% block extra_js %}
+    {{ block.super }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🏛️ Emperor mode activated - cleaning up interface...');
+            
+            // STEP 1: Remove irrelevant sidebar sections
+            // Remove "Í birtingu", "Live", "Usage" sections that don't apply to project ads
+            const sectionsToRemove = ['Í birtingu', 'Live', 'Usage', 'Used 0 times'];
+            
+            const allElements = document.querySelectorAll('*');
+            allElements.forEach(el => {
+                const text = el.textContent?.trim();
+                
+                // Check if this element contains any of the text we want to remove
+                if (text && sectionsToRemove.some(section => text.includes(section))) {
+                    // Find the container div (walk up the DOM tree)
+                    let container = el;
+                    let attempts = 0;
+                    
+                    // Walk up to find a container with the right classes
+                    while (container && attempts < 8) {
+                        if (container.classList && (
+                            container.classList.contains('w-divide-y') ||
+                            container.classList.contains('w-bg-surface-page') ||
+                            container.classList.contains('w-border-b')
+                        )) {
+                            console.log(`🗑️ Removing section containing: "${text}"`);
+                            container.style.display = 'none';
+                            break;
+                        }
+                        container = container.parentElement;
+                        attempts++;
+                    }
+                }
+            });
+            
+            // Additional cleanup for any remaining status elements
+            const statusElements = document.querySelectorAll('[data-side-panel="status"] > div');
+            statusElements.forEach(el => {
+                const text = el.textContent;
+                if (text && (text.includes('Live') || text.includes('Usage') || text.includes('Used') || text.includes('View history'))) {
+                    console.log('🗑️ Removing status element:', text.substring(0, 30) + '...');
+                    el.style.display = 'none';
+                }
+            });
+            
+            // STEP 2: Add our custom panel (without banners)
+            const sidebarContainer = document.querySelector('.form-side__panel[data-side-panel="status"]');
+            
+            if (sidebarContainer) {
+                // Extract project ID
+                const match = window.location.pathname.match(/\/admin\/projectad\/edit\/(\d+)\//);
+                const projectAdId = match ? match[1] : null;
+                
+                if (projectAdId) {
+                    // Fetch project data
+                    fetch('/admin/projectad/check-project/' + projectAdId + '/')
+                        .then(response => response.json())
+                        .then(data => {
+                            // Create our custom panel
+                            const customPanel = document.createElement('div');
+                            customPanel.className = 'w-divide-y w-divide-border-furniture w-py-6 w-pl-2 lg:w-pl-8';
+                            customPanel.innerHTML = `
+                                <div class="w-pt-5 w-space-y-1">
+                                    <div class="w-label-3">
+                                        <strong>Verkefnaauglýsing</strong>
+                                    </div>
+                                    <div class="w-help-text">
+                                        <div style="margin-bottom: 8px;">
+                                            <strong>Verkefnasíða:</strong> 
+                                            ${data.exists ? 
+                                                '<span style="color: #28a745;">✅ Búin til</span>' : 
+                                                '<span style="color: #6c757d;">⏳ Ekki búin til</span>'
+                                            }
+                                        </div>
+                                        ${data.exists ? 
+                                            '<div style="margin-top: 12px;"><a href="' + data.edit_url + '" class="w-link" style="color: #007cba; text-decoration: underline;">→ Breyta verkefnasíðu</a></div>' : 
+                                            '<div style="margin-top: 12px; color: #6c757d; font-size: 12px;">Notaðu "Birta verkefni" hnappinn til að búa til síðu</div>'
+                                        }
+                                    </div>
+                                </div>
+                            `;
+                            
+                            // Insert at the top of the sidebar for prominence
+                            const firstChild = sidebarContainer.firstElementChild;
+                            if (firstChild) {
+                                sidebarContainer.insertBefore(customPanel, firstChild);
+                            } else {
+                                sidebarContainer.appendChild(customPanel);
+                            }
+                            
+                            console.log('✅ Clean custom panel added to sidebar');
+                        })
+                        .catch(error => {
+                            console.log('⚠️ Could not fetch project data, adding basic panel');
+                            
+                            // Simple fallback panel
+                            const fallbackPanel = document.createElement('div');
+                            fallbackPanel.className = 'w-divide-y w-divide-border-furniture w-py-6 w-pl-2 lg:w-pl-8';
+                            fallbackPanel.innerHTML = `
+                                <div class="w-pt-5 w-space-y-1">
+                                    <div class="w-label-3">
+                                        <strong>Verkefnaauglýsing</strong>
+                                    </div>
+                                    <div class="w-help-text">
+                                        <div>Auglýsing í vinnslu</div>
+                                    </div>
+                                </div>
+                            `;
+                            
+                            sidebarContainer.appendChild(fallbackPanel);
+                        });
+                }
+            }
+            
+            console.log('🏛️ Emperor interface cleanup complete');
+        });
+    </script>
+{% endblock %}
+
+{% block extra_css %}
+    {{ block.super }}
+    <style>
+        /* Clean styling for our custom sidebar content */
+        .form-side__panel .w-label-3 strong {
+            color: #333;
+            font-size: 14px;
+        }
+        
+        .form-side__panel .w-help-text {
+            color: #666;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+        
+        .form-side__panel .w-link:hover {
+            color: #005a87 !important;
+        }
+        
+        /* Hide any remaining publishing-related elements if needed */
+        [data-side-panel="status"] .w-divide-y:has-text("Í birtingu") {
+            display: none !important;
+        }
+    </style>
+{% endblock %}
+
+{% comment %}
+No content or footer_actions blocks = no banners!
+Just clean, minimal template that extends the base.
+{% endcomment %}

@@ -19,7 +19,7 @@ def register_bulk_copy_urls():
 @hooks.register("register_settings_menu_item")
 def register_bulk_copy_menu_item():
     return MenuItem(
-        gettext_lazy("Clone IS ↔ EN pages"),
+        gettext_lazy("Afrita ÍS ↔ EN síður"),
         reverse("bulk_copy:bulk_copy_is_en"),
         icon_name="copy",
         order=1000,
