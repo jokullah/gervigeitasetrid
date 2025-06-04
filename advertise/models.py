@@ -4,6 +4,8 @@ from wagtail.fields import RichTextField
 from wagtail.admin.panels import FieldPanel, MultiFieldPanel
 from django.utils.translation import gettext_lazy as _
 from wagtail.search.index import SearchField
+from django.contrib.auth.models import User
+
 
 class ProjectAd(models.Model):
     title          = models.CharField("Titill",   max_length=200)
@@ -76,6 +78,17 @@ class ProjectPage(Page):
     contact_email = models.EmailField(_("Tengiliðapóstur"))
     other         = RichTextField(_("Annað"), blank=True)
 
+
+    # New field for the instructor/supervisor
+    # New field for the instructors/supervisors - many-to-many relationship
+    leidbeinendur = models.ManyToManyField(
+        User,
+        blank=True,
+        verbose_name=_("Leiðbeinendur"),
+        help_text=_("Starfsmenn sem hafa tekið að sér þetta verkefni"),
+        limit_choices_to={'groups__name': 'Starfsmenn'}
+    )
+
     # Only allowed beneath ProjectIndexPage
     parent_page_types = ["advertise.ProjectIndexPage"]
     subpage_types = []          # no children below a project page
@@ -91,6 +104,7 @@ class ProjectPage(Page):
             heading=_("Company & contact"),
         ),
         FieldPanel("other"),
+        FieldPanel("leidbeinendur"),
     ]
 
     # Optional: makes fields searchable in Wagtail admin

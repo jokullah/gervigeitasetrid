@@ -23,7 +23,6 @@ urlpatterns = [
     path("admin/", include(wagtailadmin_urls)),
     path("documents/", include(wagtaildocs_urls)),
     path("admin/hide-translation-notice/", hide_translation_notice),
-    path("", include("advertise.urls")),
 ]
 
 urlpatterns += i18n_patterns(
@@ -33,6 +32,7 @@ urlpatterns += i18n_patterns(
     path("signup/", signup, name="signup"),
     path("logout/", logout, name="logout"),
     path("auth/", auth_page, name="auth"),
+    path("", include("advertise.urls")),  # Move advertise URLs here
     path("", include("wagtail.urls")),
 )
 
@@ -44,13 +44,3 @@ if settings.DEBUG:
     # Serve static and media files from development server
     urlpatterns += staticfiles_urlpatterns()
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
-urlpatterns = urlpatterns + [
-    # For anything not caught by a more specific rule above, hand over to
-    # Wagtail's page serving mechanism. This should be the last pattern in
-    # the list:
-    path("", include(wagtail_urls)),
-    # Alternatively, if you want Wagtail pages to be served from a subpath
-    # of your site, rather than the site root:
-    #    path("pages/", include(wagtail_urls)),
-]
