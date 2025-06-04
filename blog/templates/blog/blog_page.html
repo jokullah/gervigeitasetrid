@@ -59,6 +59,11 @@
             {% endfor %}
         </div>
     {% endif %}
+	<ul>
+		{% for tag in page.tagged_items.all %}
+			<li>{{ tag.tag.name }}</li>
+		{% endfor %}
+	</ul>
 
 </article>
 {% endblock %}
