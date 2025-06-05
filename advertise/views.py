@@ -3,16 +3,17 @@ from django.views.generic import FormView, TemplateView
 from django.core.mail import send_mail
 from django.conf import settings
 from django.utils import translation  # ADD THIS IMPORT
-from .forms import ProjectAdForm
+from .forms import ProjectAdForm, ProjectApplicationForm  # Add ProjectApplicationForm import
 from wagtail.models import Page
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render  # Add render import
 from django.contrib import messages
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-from .models import ProjectAd, ProjectPage, ProjectIndexPage
+from .models import ProjectAd, ProjectPage, ProjectIndexPage, ProjectApplication  # Add ProjectApplication import
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_protect
+from django.http import HttpResponseForbidden  # Add this import
 
 class AdvertiseView(FormView):
     template_name = "advertise/form.html"
@@ -65,6 +66,47 @@ class AdvertiseView(FormView):
 
 class AdvertiseThanksView(TemplateView):
     template_name = "advertise/thanks.html"
+
+
+@login_required
+def apply_to_project(request, page_id):
+    """View for students to apply to a project"""
+    project_page = get_object_or_404(ProjectPage, id=page_id)
+    
+    # Check if user is a student
+    if not request.user.groups.filter(name='Nemandi').exists():
+        return HttpResponseForbidden(_("Aðeins nemendur geta sótt um verkefni"))
+    
+    # Check if user has already applied
+    existing_application = ProjectApplication.objects.filter(
+        project_page=project_page,
+        applicant=request.user
+    ).first()
+    
+    if existing_application:
+        messages.info(request, _("Þú hefur þegar sótt um þetta verkefni"))
+        return redirect(project_page.url)
+    
+    if request.method == 'POST':
+        form = ProjectApplicationForm(request.POST)
+        if form.is_valid():
+            application = form.save(commit=False)
+            application.project_page = project_page
+            application.applicant = request.user
+            application.save()
+            
+            messages.success(request, _("Umsókn þín hefur verið send!"))
+            return redirect(project_page.url)
+    else:
+        form = ProjectApplicationForm()
+    
+    context = {
+        'form': form,
+        'project_page': project_page,
+        'page': project_page,  # For template compatibility
+    }
+    
+    return render(request, 'advertise/apply_to_project.html', context)
 
 
 @login_required

@@ -35,6 +35,11 @@ class ProjectPageForm(WagtailAdminPageForm):
             groups__name='Starfsmenn'
         ).order_by('first_name', 'last_name')
         
+        # Get the students queryset
+        student_queryset = User.objects.filter(
+            groups__name='Nemandi'
+        ).order_by('first_name', 'last_name')
+        
         # Force checkbox widgets for advisor fields
         if 'requested_advisors' in self.fields:
             self.fields['requested_advisors'].widget = forms.CheckboxSelectMultiple(
@@ -65,7 +70,22 @@ class ProjectPageForm(WagtailAdminPageForm):
                 (user.pk, user.get_full_name() if user.get_full_name().strip() else user.username)
                 for user in staff_queryset
             ]
-
+        
+        # Apply checkbox styling to selected_students field
+        if 'selected_students' in self.fields:
+            self.fields['selected_students'].widget = forms.CheckboxSelectMultiple(
+                attrs={
+                    'class': 'projectpage-advisor-checkboxes projectpage-selected-students',
+                    'data-field': 'selected_students'
+                }
+            )
+            self.fields['selected_students'].queryset = student_queryset
+            
+            # Override the choices to display full names
+            self.fields['selected_students'].choices = [
+                (user.pk, user.get_full_name() if user.get_full_name().strip() else user.username)
+                for user in student_queryset
+            ]
 
 
 class ProjectAd(models.Model):
@@ -256,6 +276,47 @@ class ProjectIndexPage(Page):
         )
         return context
 
+
+class ProjectApplication(models.Model):
+    project_page = models.ForeignKey(
+        'advertise.ProjectPage', 
+        on_delete=models.CASCADE, 
+        related_name='applications',
+        verbose_name=_("Verkefni")
+    )
+    applicant = models.ForeignKey(
+        User, 
+        on_delete=models.CASCADE, 
+        limit_choices_to={'groups__name': 'Nemandi'},
+        verbose_name=_("Umsækjandi")
+    )
+    applied_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Umsókn send"))
+    status = models.CharField(
+        _("Staða"),
+        max_length=20,
+        choices=[
+            ('pending', _('Í bið')),
+            ('accepted', _('Samþykkt')),
+            ('rejected', _('Hafnað')),
+        ],
+        default='pending'
+    )
+    message = models.TextField(
+        _("Skilaboð frá nemanda"), 
+        blank=True, 
+        help_text=_("Valfrjáls skilaboð frá umsækjanda")
+    )
+    
+    class Meta:
+        unique_together = ('project_page', 'applicant')  # Prevent duplicate applications
+        verbose_name = _("Verkefnisumsókn")
+        verbose_name_plural = _("Verkefnisumsóknir")
+        ordering = ['-applied_at']
+    
+    def __str__(self):
+        return f"{self.applicant.get_full_name() or self.applicant.username} → {self.project_page.title}"
+
+
 class ProjectPage(Page):
     """
     A public-facing project entry that visitors will read.
@@ -289,6 +350,16 @@ class ProjectPage(Page):
         limit_choices_to={'groups__name': 'Starfsmenn'}
     )
 
+    # NEW: Selected students field
+    selected_students = models.ManyToManyField(
+        User,
+        blank=True,
+        verbose_name=_("Valdir nemendur"),
+        help_text=_("Nemendur sem hafa verið valdir fyrir þetta verkefni"),
+        limit_choices_to={'groups__name': 'Nemandi'},
+        related_name='assigned_projects'
+    )
+
     # Only allowed beneath ProjectIndexPage
     parent_page_types = ["advertise.ProjectIndexPage"]
     subpage_types = []          # no children below a project page
@@ -315,6 +386,7 @@ class ProjectPage(Page):
         FieldPanel("other"),
         FieldPanel("requested_advisors"),
         FieldPanel("leidbeinendur"),
+        FieldPanel("selected_students"),
     ]
 
     # Optional: makes fields searchable in Wagtail admin
@@ -323,6 +395,14 @@ class ProjectPage(Page):
     def get_context(self, request, *args, **kwargs):
         """Ensure request context is available in template and add people pages"""
         context = super().get_context(request, *args, **kwargs)
+        
+        # Check if user has already applied
+        if request.user.is_authenticated:
+            try:
+                user_application = self.applications.get(applicant=request.user)
+                context['user_application'] = user_application
+            except ProjectApplication.DoesNotExist:
+                context['user_application'] = None
         
         # Import here to avoid circular imports
         try:
@@ -362,8 +442,25 @@ class ProjectPage(Page):
             
             context['requested_advisors_with_pages'] = requested_advisors_with_pages
             
+            # Create a list for selected students with their corresponding person pages
+            selected_students_with_pages = []
+            for student in self.selected_students.all():
+                try:
+                    person_page = PersonPage.objects.live().filter(email=student.email).first()
+                    selected_students_with_pages.append({
+                        'user': student,
+                        'person_page': person_page
+                    })
+                except PersonPage.DoesNotExist:
+                    selected_students_with_pages.append({
+                        'user': student,
+                        'person_page': None
+                    })
+            
+            context['selected_students_with_pages'] = selected_students_with_pages
+            
         except ImportError:
-            # If people app doesn't exist, just use the regular leidbeinendur
+            # If people app doesn't exist, just use the regular data
             context['leidbeinendur_with_pages'] = [
                 {'user': user, 'person_page': None} 
                 for user in self.leidbeinendur.all()
@@ -371,6 +468,10 @@ class ProjectPage(Page):
             context['requested_advisors_with_pages'] = [
                 {'user': user, 'person_page': None} 
                 for user in self.requested_advisors.all()
+            ]
+            context['selected_students_with_pages'] = [
+                {'user': user, 'person_page': None} 
+                for user in self.selected_students.all()
             ]
         
         return context
