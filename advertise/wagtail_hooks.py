@@ -11,29 +11,91 @@ from wagtail.models import Locale
 from .models import ProjectAd, ProjectPage, ProjectIndexPage
 from wagtail.admin.ui.tables import Column
 from django.utils.html import format_html
+from django import forms
+from django.contrib.auth.models import User
 
 
 class ProjectAdViewSet(ModelViewSet):
     model = ProjectAd
     menu_label = _("Verkefnaauglýsingar")
     icon = "form"
+    
+    # Use form_fields approach instead of custom form class
     form_fields = [
         "title",
         "description",
         "company_name",
         "contact_name",
         "contact_email",
+        "is_funded",
+        "funding_amount",
+        "requested_advisors",
         "other",
         "locale",
     ]
     
-    # Back to simple list_display
-    list_display = ("title", "company_name", "contact_email", "locale_display", "status_display", "submitted_at")
-    list_filter = ("company_name", "locale", "viewed_at")
+    # Updated list_display with funding info
+    list_display = ("title", "company_name", "contact_email", "funding_display", "locale_display", "status_display", "submitted_at")
+    list_filter = ("company_name", "locale", "viewed_at", "is_funded")
     search_fields = ("title", "company_name", "contact_name")
     
     edit_template_name = 'advertise/admin/projectad_edit.html'
-    index_template_name = 'advertise/admin/projectad_list.html'  # Add this line
+    index_template_name = 'advertise/admin/projectad_list.html'
+    
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('project_page')
+    
+    def get_form_class(self, for_update=False):
+        """Override to customize the form with better widgets"""
+        form_class = super().get_form_class(for_update)
+        
+        # Customize the form after it's created
+        class CustomizedForm(form_class):
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+                
+                # Improve requested_advisors widget
+                if 'requested_advisors' in self.fields:
+                    self.fields['requested_advisors'].widget = forms.CheckboxSelectMultiple()
+                    self.fields['requested_advisors'].queryset = User.objects.filter(
+                        groups__name='Starfsmenn'
+                    ).order_by('first_name', 'last_name')
+                    
+                    # Customize display
+                    self.fields['requested_advisors'].label_from_instance = lambda obj: (
+                        f"{obj.get_full_name()} ({obj.email})" if obj.get_full_name() else f"{obj.username} ({obj.email})"
+                    )
+                
+                # Improve other widgets
+                if 'description' in self.fields:
+                    self.fields['description'].widget = forms.Textarea(attrs={"rows": 5})
+                
+                if 'other' in self.fields:
+                    self.fields['other'].widget = forms.Textarea(attrs={"rows": 4})
+                
+                if 'funding_amount' in self.fields:
+                    self.fields['funding_amount'].widget = forms.NumberInput(attrs={
+                        "placeholder": _("t.d. 500000"),
+                        "step": "1000",
+                        "min": "0"
+                    })
+                    self.fields['funding_amount'].required = False
+            
+            def clean(self):
+                cleaned_data = super().clean()
+                is_funded = cleaned_data.get('is_funded')
+                funding_amount = cleaned_data.get('funding_amount')
+                
+                # If project is not funded, clear the funding amount
+                if not is_funded:
+                    cleaned_data['funding_amount'] = None
+                    
+                return cleaned_data
+        
+        return CustomizedForm
+    
+    edit_template_name = 'advertise/admin/projectad_edit.html'
+    index_template_name = 'advertise/admin/projectad_list.html'
     
     def get_queryset(self, request):
         return super().get_queryset(request).select_related('project_page')
@@ -75,6 +137,9 @@ class ProjectAdEditView(UpdateView):
         "company_name",
         "contact_name",
         "contact_email",
+        "is_funded",
+        "funding_amount",
+        "requested_advisors",
         "other",
         "locale",
     ]
@@ -89,7 +154,7 @@ class ProjectAdEditView(UpdateView):
         return obj
     
     def get_success_url(self):
-        return reverse('wagtailadmin_projectad_modeladmin:index')
+        return reverse('wagtailadmin_projectad:index')
 
 
 # Custom view to handle saving submission and creating project page
@@ -112,6 +177,10 @@ class PublishProjectAdView(View):
             if project_ad.is_new:
                 project_ad.mark_as_viewed()
                 print(f"DEBUG: Marked ad as viewed during publish")
+            
+            # Store the original requested advisors before updating
+            original_advisors = list(project_ad.requested_advisors.all())
+            print(f"DEBUG: Original advisors: {[a.get_full_name() for a in original_advisors]}")
             
             # Update the ProjectAd with any form data
             updated_fields = []
@@ -138,20 +207,52 @@ class PublishProjectAdView(View):
                 elif key == 'locale' or key.endswith('-locale'):
                     project_ad.locale = value
                     updated_fields.append(f"locale: '{value}'")
+                elif key == 'is_funded' or key.endswith('-is_funded'):
+                    project_ad.is_funded = value == 'on' or value == 'True'
+                    updated_fields.append(f"is_funded: '{project_ad.is_funded}'")
+                elif key == 'funding_amount' or key.endswith('-funding_amount'):
+                    if value and value.strip():
+                        try:
+                            project_ad.funding_amount = int(value)
+                            updated_fields.append(f"funding_amount: '{value}'")
+                        except ValueError:
+                            pass
+                    else:
+                        project_ad.funding_amount = None
             
             print(f"DEBUG: Updated fields: {updated_fields}")
+            
+            # Handle requested_advisors many-to-many field
+            advisor_ids = request.POST.getlist('requested_advisors')
+            print(f"DEBUG: Advisor IDs from form: {advisor_ids}")
+            print(f"DEBUG: All POST keys: {list(request.POST.keys())}")
+            print(f"DEBUG: All POST items with 'advisor': {[(k, v) for k, v in request.POST.items() if 'advisor' in k.lower()]}")
             
             project_ad.save()
             print(f"DEBUG: ProjectAd updated and saved")
             
+            # Update the many-to-many field for advisors
+            project_ad.requested_advisors.clear()
+            for advisor_id in advisor_ids:
+                try:
+                    from django.contrib.auth.models import User
+                    advisor = User.objects.get(id=advisor_id)
+                    project_ad.requested_advisors.add(advisor)
+                    print(f"DEBUG: Added advisor: {advisor.get_full_name()} ({advisor.email})")
+                except User.DoesNotExist:
+                    print(f"DEBUG: Advisor with ID {advisor_id} not found")
+                except Exception as e:
+                    print(f"DEBUG: Error adding advisor {advisor_id}: {e}")
+            
             # Check if a project page already exists for this ad
-            if project_ad.project_page:
-                print(f"DEBUG: Found existing project page: {project_ad.project_page}")
+            existing_page = project_ad.get_project_page()
+            if existing_page:
+                print(f"DEBUG: Found existing project page: {existing_page}")
                 messages.info(
                     request,
                     f"Project page already exists for '{project_ad.title}'. Redirecting to edit page."
                 )
-                edit_url = reverse('wagtailadmin_pages:edit', args=[project_ad.project_page.id])
+                edit_url = reverse('wagtailadmin_pages:edit', args=[existing_page.id])
                 return HttpResponseRedirect(edit_url)
             
             # Get the correct Wagtail locale object
@@ -169,15 +270,16 @@ class PublishProjectAdView(View):
                     # Fallback to any ProjectIndexPage
                     project_index = ProjectIndexPage.objects.first()
                     print(f"DEBUG: No ProjectIndexPage found for locale {wagtail_locale}, using fallback")
-            except:
+            except Exception as e:
                 project_index = ProjectIndexPage.objects.first()
+                print(f"DEBUG: Exception finding ProjectIndexPage: {e}")
             
             if not project_index:
                 messages.error(
                     request,
                     "No Project Index Page found. Please create one first in Pages → Add child page."
                 )
-                return HttpResponseRedirect(reverse('wagtailadmin_projectad_modeladmin:edit', args=[pk]))
+                return HttpResponseRedirect(reverse('wagtailadmin_projectad:edit', args=[pk]))
             
             print(f"DEBUG: Found ProjectIndexPage: {project_index} (locale: {project_index.locale})")
             
@@ -189,6 +291,8 @@ class PublishProjectAdView(View):
                 contact_name=project_ad.contact_name,
                 contact_email=project_ad.contact_email,
                 other=project_ad.other or "",
+                is_funded=project_ad.is_funded,
+                funding_amount=project_ad.funding_amount,
                 live=False,  # Start as draft/unpublished
                 show_in_menus=False,
                 locale=wagtail_locale,  # Set the correct locale
@@ -199,6 +303,13 @@ class PublishProjectAdView(View):
             # Add as child of ProjectIndexPage
             project_index.add_child(instance=project_page)
             print(f"DEBUG: Added as child, ProjectPage ID: {project_page.id}")
+            
+            # Copy the requested advisors (many-to-many relationship)
+            for advisor in project_ad.requested_advisors.all():
+                project_page.requested_advisors.add(advisor)
+                print(f"DEBUG: Added advisor {advisor.get_full_name()} to project page")
+            
+            print(f"DEBUG: Copied {project_ad.requested_advisors.count()} requested advisors")
             
             # Link the ProjectAd to the newly created ProjectPage
             project_ad.project_page = project_page
@@ -223,7 +334,7 @@ class PublishProjectAdView(View):
                 request,
                 f"Error creating project page: {str(e)}"
             )
-            return HttpResponseRedirect(reverse('wagtailadmin_projectad_modeladmin:edit', args=[pk]))
+            return HttpResponseRedirect(reverse('wagtailadmin_projectad:edit', args=[pk]))
 
 
 # View to check if a project page exists for this ad
@@ -237,17 +348,38 @@ class CheckProjectPageView(View):
                 project_ad.mark_as_viewed()
                 print(f"DEBUG: Marked ad '{project_ad.title}' as viewed during check")
             
-            # Check if project page exists
+            print(f"DEBUG: CheckProjectPageView - project_ad.project_page: {project_ad.project_page}")
             if project_ad.project_page:
+                print(f"DEBUG: CheckProjectPageView - project_page.live: {project_ad.project_page.live}")
+                print(f"DEBUG: CheckProjectPageView - project_page.id: {project_ad.project_page.id}")
+            
+            # Use our enhanced get_project_page method
+            found_page = project_ad.get_project_page()
+            print(f"DEBUG: CheckProjectPageView - get_project_page() returned: {found_page}")
+            
+            if found_page:
+                # Check if this is the original page or a translation/repair
+                is_original = (project_ad.project_page and 
+                             project_ad.project_page.id == found_page.id)
+                
+                print(f"DEBUG: CheckProjectPageView - is_original: {is_original}")
+                print(f"DEBUG: CheckProjectPageView - found_page.locale: {found_page.locale.language_code}")
+                
                 return JsonResponse({
                     'exists': True,
-                    'project_id': project_ad.project_page.id,
-                    'edit_url': reverse('wagtailadmin_pages:edit', args=[project_ad.project_page.id])
+                    'project_id': found_page.id,
+                    'edit_url': reverse('wagtailadmin_pages:edit', args=[found_page.id]),
+                    'is_original': is_original,
+                    'locale': found_page.locale.language_code
                 })
             else:
+                print(f"DEBUG: CheckProjectPageView - No project page found")
                 return JsonResponse({'exists': False})
                 
         except Exception as e:
+            print(f"DEBUG: Error in CheckProjectPageView: {e}")
+            import traceback
+            traceback.print_exc()
             return JsonResponse({'error': str(e)}, status=500)
 
 
@@ -286,6 +418,17 @@ class MarkAllViewedView(View):
             else:
                 return JsonResponse({'success': True, 'count': 0})
                 
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+
+
+# New endpoint to get list of new ad IDs
+class GetNewAdsView(View):
+    def get(self, request):
+        """Return IDs of all new (unviewed) ads"""
+        try:
+            new_ad_ids = list(ProjectAd.objects.filter(viewed_at__isnull=True).values_list('id', flat=True))
+            return JsonResponse({'new_ad_ids': new_ad_ids})
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
 
@@ -334,6 +477,125 @@ def add_custom_projectad_js():
                   }).catch(err => console.log('Error marking as viewed:', err));
             }
             
+            // Improve checkbox styling for advisors
+            const advisorFieldset = document.querySelector('fieldset:has(input[name="requested_advisors"])');
+            if (advisorFieldset) {
+                advisorFieldset.style.cssText = `
+                    max-height: 300px;
+                    overflow-y: auto;
+                    border: 1px solid #ddd;
+                    padding: 15px;
+                    border-radius: 5px;
+                    background: #f9f9f9;
+                `;
+                
+                // Style individual checkboxes
+                const checkboxes = advisorFieldset.querySelectorAll('input[type="checkbox"]');
+                checkboxes.forEach(checkbox => {
+                    const label = checkbox.closest('label');
+                    if (label) {
+                        label.style.cssText = `
+                            display: block;
+                            padding: 8px 12px;
+                            margin: 4px 0;
+                            background: white;
+                            border-radius: 4px;
+                            border: 1px solid #e1e5e9;
+                            cursor: pointer;
+                            transition: all 0.2s ease;
+                        `;
+                        
+                        // Add hover effects
+                        label.addEventListener('mouseenter', function() {
+                            this.style.backgroundColor = '#f0f7ff';
+                            this.style.borderColor = '#0079bf';
+                        });
+                        
+                        label.addEventListener('mouseleave', function() {
+                            if (!checkbox.checked) {
+                                this.style.backgroundColor = 'white';
+                                this.style.borderColor = '#e1e5e9';
+                            }
+                        });
+                        
+                        // Style selected items
+                        checkbox.addEventListener('change', function() {
+                            if (this.checked) {
+                                label.style.backgroundColor = '#e6f3ff';
+                                label.style.borderColor = '#0079bf';
+                                label.style.fontWeight = '600';
+                            } else {
+                                label.style.backgroundColor = 'white';
+                                label.style.borderColor = '#e1e5e9';
+                                label.style.fontWeight = 'normal';
+                            }
+                        });
+                        
+                        // Initialize checked state styling
+                        if (checkbox.checked) {
+                            label.style.backgroundColor = '#e6f3ff';
+                            label.style.borderColor = '#0079bf';
+                            label.style.fontWeight = '600';
+                        }
+                    }
+                });
+                
+                // Add a "Select All" / "Clear All" helper
+                const selectAllContainer = document.createElement('div');
+                selectAllContainer.style.cssText = `
+                    margin-bottom: 10px;
+                    padding: 8px;
+                    background: #fff;
+                    border-radius: 4px;
+                    border: 1px solid #ddd;
+                `;
+                
+                const selectAllBtn = document.createElement('button');
+                selectAllBtn.type = 'button';
+                selectAllBtn.textContent = 'Velja alla';
+                selectAllBtn.style.cssText = `
+                    margin-right: 10px;
+                    padding: 4px 8px;
+                    background: #0079bf;
+                    color: white;
+                    border: none;
+                    border-radius: 3px;
+                    cursor: pointer;
+                    font-size: 12px;
+                `;
+                
+                const clearAllBtn = document.createElement('button');
+                clearAllBtn.type = 'button';
+                clearAllBtn.textContent = 'Hreinsa allt';
+                clearAllBtn.style.cssText = `
+                    padding: 4px 8px;
+                    background: #666;
+                    color: white;
+                    border: none;
+                    border-radius: 3px;
+                    cursor: pointer;
+                    font-size: 12px;
+                `;
+                
+                selectAllBtn.addEventListener('click', function() {
+                    checkboxes.forEach(cb => {
+                        cb.checked = true;
+                        cb.dispatchEvent(new Event('change'));
+                    });
+                });
+                
+                clearAllBtn.addEventListener('click', function() {
+                    checkboxes.forEach(cb => {
+                        cb.checked = false;
+                        cb.dispatchEvent(new Event('change'));
+                    });
+                });
+                
+                selectAllContainer.appendChild(selectAllBtn);
+                selectAllContainer.appendChild(clearAllBtn);
+                advisorFieldset.insertBefore(selectAllContainer, advisorFieldset.firstChild);
+            }
+            
             // Add publish button functionality
             if (projectAdId) {
                 // Find the form actions div
@@ -374,8 +636,18 @@ def add_custom_projectad_js():
                                 viewBtn.href = data.edit_url;
                                 viewBtn.className = 'button button-secondary';
                                 viewBtn.style.marginLeft = '10px';
-                                viewBtn.innerHTML = '✓ Skoða verkefni';
-                                viewBtn.title = 'Verkefnasíða hefur þegar verið búin til úr þessari auglýsingu';
+                                
+                                if (data.is_original === false) {
+                                    // This is a translation, not the original
+                                    viewBtn.innerHTML = '✓ Skoða verkefni (' + (data.locale || 'önnur útgáfa') + ')';
+                                    viewBtn.title = 'Upprunalega verkefnasíðan var eytt, en þýðing er enn til. Smelltu til að fara í þýðinguna.';
+                                    viewBtn.style.background = '#f39c12'; // Orange color to indicate it's a translation
+                                    viewBtn.style.color = 'white';
+                                } else {
+                                    viewBtn.innerHTML = '✓ Skoða verkefni';
+                                    viewBtn.title = 'Verkefnasíða hefur þegar verið búin til úr þessari auglýsingu';
+                                }
+                                
                                 actionsDiv.appendChild(viewBtn);
                             } else {
                                 // Create "Birta verkefni" button
@@ -395,7 +667,12 @@ def add_custom_projectad_js():
                                     // Get all form elements
                                     const allFormElements = document.querySelectorAll('input, textarea, select');
                                     
-                                    // Filter for the actual data fields
+                                    // Create a new form for our publish action
+                                    const publishForm = document.createElement('form');
+                                    publishForm.method = 'POST';
+                                    publishForm.action = '/admin/projectad/publish/' + projectAdId + '/';
+                                    
+                                    // Handle regular fields
                                     const dataFields = Array.from(allFormElements).filter(element => {
                                         const name = element.name;
                                         return name && (
@@ -404,22 +681,36 @@ def add_custom_projectad_js():
                                             name.includes('company_name') || 
                                             name.includes('contact_name') || 
                                             name.includes('contact_email') || 
+                                            name.includes('is_funded') ||
+                                            name.includes('funding_amount') ||
                                             name.includes('other') ||
                                             name.includes('locale')
-                                        ) && name !== 'csrfmiddlewaretoken';
+                                        ) && name !== 'csrfmiddlewaretoken' && name !== 'requested_advisors';
                                     });
                                     
-                                    // Create a new form for our publish action
-                                    const publishForm = document.createElement('form');
-                                    publishForm.method = 'POST';
-                                    publishForm.action = '/admin/projectad/publish/' + projectAdId + '/';
-                                    
-                                    // Copy the data fields
+                                    // Copy the regular data fields
                                     dataFields.forEach(element => {
                                         const input = document.createElement('input');
                                         input.type = 'hidden';
                                         input.name = element.name;
-                                        input.value = element.value;
+                                        
+                                        // Handle different input types
+                                        if (element.type === 'checkbox') {
+                                            input.value = element.checked ? 'on' : '';
+                                        } else {
+                                            input.value = element.value;
+                                        }
+                                        
+                                        publishForm.appendChild(input);
+                                    });
+                                    
+                                    // Handle requested_advisors checkboxes separately
+                                    const advisorCheckboxes = document.querySelectorAll('input[name="requested_advisors"]:checked');
+                                    advisorCheckboxes.forEach(checkbox => {
+                                        const input = document.createElement('input');
+                                        input.type = 'hidden';
+                                        input.name = 'requested_advisors';
+                                        input.value = checkbox.value;
                                         publishForm.appendChild(input);
                                     });
                                     
@@ -540,17 +831,6 @@ def add_custom_projectad_js():
     }
     </script>
     """)
-
-
-# New endpoint to get list of new ad IDs
-class GetNewAdsView(View):
-    def get(self, request):
-        """Return IDs of all new (unviewed) ads"""
-        try:
-            new_ad_ids = list(ProjectAd.objects.filter(viewed_at__isnull=True).values_list('id', flat=True))
-            return JsonResponse({'new_ad_ids': new_ad_ids})
-        except Exception as e:
-            return JsonResponse({'error': str(e)}, status=500)
 
 
 from wagtail.admin.ui.components import Component

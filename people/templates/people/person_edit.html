@@ -26,22 +26,55 @@
 
             <div class="form-group">
                 <label for="image">{% trans "Mynd" %}</label>
-                {% if page.image %}
-                    <div class="current-image">
-                        {% image page.image fill-150x150 %}
-                    </div>
-                {% endif %}
+                <div class="current-image" id="image-preview">
+                    {% if page.image %}
+                        {% image page.image fill-150x150 as current_image %}
+                        <img src="{{ current_image.url }}" alt="Current image" style="max-width: 150px; max-height: 150px; object-fit: cover;">
+                    {% else %}
+                        <div style="width: 150px; height: 150px; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center; color: #999;">
+                            {% trans "Engin mynd" %}
+                        </div>
+                    {% endif %}
+                </div>
                 <input type="file" id="image" name="image" accept="image/*">
             </div>
 
-            <button type="submit" class="home-hero__cta button-primary">
+            <button type="submit" class="button-primary">
                 {% trans "Vista breytingar" %}
             </button>
             
-            <a href="{% pageurl page %}" class="home-hero__cta button-secondary">
+            <a href="{% pageurl page %}" class="button-secondary">
                 {% trans "Hætta við" %}
             </a>
         </form>
     </div>
 </div>
-{% endblock %} 
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const imageInput = document.getElementById('image');
+    const imagePreview = document.getElementById('image-preview');
+    
+    imageInput.addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        
+        if (file) {
+            // Check if it's an image
+            if (!file.type.startsWith('image/')) {
+                alert('{% trans "Vinsamlegast veljið mynd" %}');
+                return;
+            }
+            
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                // Replace the current preview with the new image
+                imagePreview.innerHTML = '<img src="' + e.target.result + '" alt="New image preview" style="max-width: 150px; max-height: 150px; object-fit: cover;">';
+            };
+            
+            reader.readAsDataURL(file);
+        }
+    });
+});
+</script>
+{% endblock %}

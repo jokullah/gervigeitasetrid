@@ -16,6 +16,19 @@
         </div>
       {% endif %}
       
+      {% comment %} Show funding info to everyone {% endcomment %}
+      {% if page.is_funded %}
+        <div class="project-meta-item">
+          <span class="project-meta-label">{% trans "Fjármögnun" %}:</span>
+          <span class="project-funded">
+            {% trans "Fjármagnað verkefni" %}
+            {% if page.funding_amount %}
+              ({{ page.funding_amount|floatformat:0 }} ISK)
+            {% endif %}
+          </span>
+        </div>
+      {% endif %}
+      
       {% if page.leidbeinendur.all %}
         <div class="project-meta-item">
           <span class="project-meta-label">{% trans "Leiðbeinendur" %}:</span>
@@ -36,6 +49,33 @@
           <span class="project-meta-label">{% trans "Leiðbeinendur" %}:</span>
           <span>{% trans "Engir leiðbeinendur skráðir" %}</span>
         </div>
+      {% endif %}
+      
+      {% comment %} Show requested advisors ONLY to staff members {% endcomment %}
+      {% if request.user.is_authenticated and 'Starfsmenn' in request.user.groups.all|stringformat:'s' %}
+        {% if page.requested_advisors.all %}
+          <div class="project-meta-item" style="background: var(--Ljosblar); padding: 0.75rem; border-radius: 6px; margin-top: 1rem;">
+            <span class="project-meta-label" style="color: var(--HI-blar); font-weight: 600;">
+              🎯 {% trans "Fyrirtækið óskaði eftir" %}:
+            </span>
+            <div style="margin-top: 0.5rem;">
+              {% for item in requested_advisors_with_pages %}
+                <span class="requested-advisor" style="display: inline-block; background: var(--Hvitur); padding: 0.25rem 0.75rem; border-radius: 20px; margin: 0.25rem 0.25rem 0.25rem 0; border: 1px solid var(--HI-blar);">
+                  {% if item.person_page %}
+                    <a href="{% pageurl item.person_page %}" style="color: var(--HI-blar); text-decoration: none;">
+                      {{ item.user.get_full_name|default:item.user.username }}
+                    </a>
+                  {% else %}
+                    {{ item.user.get_full_name|default:item.user.username }}
+                  {% endif %}
+                </span>
+              {% endfor %}
+            </div>
+            <small style="color: var(--Dokkgrar); font-style: italic; display: block; margin-top: 0.5rem;">
+              {% trans "Þessar upplýsingar sjást aðeins starfsmönnum" %}
+            </small>
+          </div>
+        {% endif %}
       {% endif %}
     </div>
   </header>

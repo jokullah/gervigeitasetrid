@@ -27,21 +27,33 @@ class AdvertiseView(FormView):
         current_language = translation.get_language()
         instance.locale = current_language
         
-        # Now save with the correct locale
+        # Now save the instance first (required before saving many-to-many)
         instance.save()
+        
+        # IMPORTANT: Save the many-to-many data (including requested_advisors)
+        form.save_m2m()
         
         # Debug logging
         print(f"DEBUG: Form submitted from {self.request.path}")
         print(f"DEBUG: Current language: {current_language}")
         print(f"DEBUG: Saved ProjectAd with locale: {instance.locale}")
+        print(f"DEBUG: Requested advisors count: {instance.requested_advisors.count()}")
+        for advisor in instance.requested_advisors.all():
+            print(f"DEBUG: - {advisor.get_full_name()} ({advisor.email})")
         
         # Send notification email
+        advisors_list = ", ".join([
+            advisor.get_full_name() or advisor.username 
+            for advisor in instance.requested_advisors.all()
+        ])
+        
         send_mail(
             subject=f"Ný verkefnaauglýsing: {instance.title}",
             message=(
                 f"Fyrirtæki: {instance.company_name}\n"
                 f"Tengiliður: {instance.contact_name} <{instance.contact_email}>\n"
-                f"Tungumál: {instance.get_locale_display()}\n\n"  # Add locale to email
+                f"Tungumál: {instance.get_locale_display()}\n"
+                f"Óskir um leiðbeinendur: {advisors_list}\n\n"
                 f"Lýsing:\n{instance.description}"
             ),
             from_email=settings.DEFAULT_FROM_EMAIL,

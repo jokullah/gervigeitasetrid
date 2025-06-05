@@ -6,8 +6,228 @@
 
   <form method="post" class="page-form" novalidate>
     {% csrf_token %}
-    {{ form.as_p }}
+    
+    <div class="form-section">
+      <h2>{% trans "Grunnupplýsingar" %}</h2>
+      
+      {{ form.title.label_tag }}
+      {{ form.title }}
+      {% if form.title.errors %}
+        <div class="form-errors">{{ form.title.errors }}</div>
+      {% endif %}
+      
+      {{ form.description.label_tag }}
+      {{ form.description }}
+      {% if form.description.errors %}
+        <div class="form-errors">{{ form.description.errors }}</div>
+      {% endif %}
+      
+      {{ form.company_name.label_tag }}
+      {{ form.company_name }}
+      {% if form.company_name.errors %}
+        <div class="form-errors">{{ form.company_name.errors }}</div>
+      {% endif %}
+      
+      {{ form.contact_name.label_tag }}
+      {{ form.contact_name }}
+      {% if form.contact_name.errors %}
+        <div class="form-errors">{{ form.contact_name.errors }}</div>
+      {% endif %}
+      
+      {{ form.contact_email.label_tag }}
+      {{ form.contact_email }}
+      {% if form.contact_email.errors %}
+        <div class="form-errors">{{ form.contact_email.errors }}</div>
+      {% endif %}
+    </div>
+    
+    <div class="form-section">
+      <h2>{% trans "Fjármögnun" %}</h2>
+      
+      <div class="checkbox-field">
+        {{ form.is_funded }}
+        {{ form.is_funded.label_tag }}
+        {% if form.is_funded.help_text %}
+          <small class="form-help">{{ form.is_funded.help_text }}</small>
+        {% endif %}
+        {% if form.is_funded.errors %}
+          <div class="form-errors">{{ form.is_funded.errors }}</div>
+        {% endif %}
+      </div>
+      
+      <div class="funding-amount-field" id="funding-amount-field" style="display: none;">
+        {{ form.funding_amount.label_tag }}
+        {{ form.funding_amount }}
+        {% if form.funding_amount.help_text %}
+          <small class="form-help">{{ form.funding_amount.help_text }}</small>
+        {% endif %}
+        {% if form.funding_amount.errors %}
+          <div class="form-errors">{{ form.funding_amount.errors }}</div>
+        {% endif %}
+      </div>
+    </div>
+    
+    <div class="form-section">
+      <h2>{% trans "Óskir um leiðbeinendur" %}</h2>
+      
+      {{ form.requested_advisors.label_tag }}
+      {% if form.requested_advisors.help_text %}
+        <small class="form-help">{{ form.requested_advisors.help_text }}</small>
+      {% endif %}
+      <div class="select-multiple-wrapper">
+        {{ form.requested_advisors }}
+        <small class="form-help multi-select-help">
+          💡 {% trans "Ábending: Haldið niðri Ctrl (PC) eða Cmd (Mac) og smellið til að velja marga starfsmenn. Smellið aftur á valinn starfsmann til að afvelja." %}
+        </small>
+      </div>
+      {% if form.requested_advisors.errors %}
+        <div class="form-errors">{{ form.requested_advisors.errors }}</div>
+      {% endif %}
+    </div>
+    
+    <div class="form-section">
+      <h2>{% trans "Viðbótarupplýsingar" %}</h2>
+      
+      {{ form.other.label_tag }}
+      {{ form.other }}
+      {% if form.other.help_text %}
+        <small class="form-help">{{ form.other.help_text }}</small>
+      {% endif %}
+      {% if form.other.errors %}
+        <div class="form-errors">{{ form.other.errors }}</div>
+      {% endif %}
+    </div>
+    
     <button type="submit" class="form-submit">{% trans "Senda inn" %}</button>
   </form>
 </main>
+
+<style>
+.form-section {
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--Grar);
+}
+
+.form-section:last-of-type {
+  border-bottom: none;
+}
+
+.form-section h2 {
+  color: var(--HI-blar);
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.checkbox-field {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.checkbox-field input[type="checkbox"] {
+  margin-top: 0.25rem;
+  width: auto !important;
+  min-height: auto !important;
+}
+
+.checkbox-field label {
+  margin: 0;
+  font-weight: 600;
+}
+
+.form-help {
+  display: block;
+  color: var(--Dokkgrar);
+  font-style: italic;
+  margin-top: 0.25rem;
+}
+
+.form-errors {
+  color: #dc3545;
+  font-size: 0.9rem;
+  margin-top: 0.25rem;
+}
+
+.select-multiple-wrapper {
+  border: 1px solid var(--Grar);
+  border-radius: 6px;
+  padding: 1rem;
+  background: var(--Ljosgrar);
+}
+
+.select-multiple-wrapper select {
+  width: 100% !important;
+  min-height: 200px !important;
+  border: 1px solid var(--Grar);
+  border-radius: 4px;
+  padding: 0.5rem;
+  background: var(--Hvitur);
+  font-family: inherit;
+}
+
+.select-multiple-wrapper select option {
+  padding: 0.5rem;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.select-multiple-wrapper select option:selected {
+  background: var(--HI-blar);
+  color: var(--Hvitur);
+}
+
+.multi-select-help {
+  display: block;
+  margin-top: 0.75rem;
+  padding: 0.5rem;
+  background: var(--Hvitur);
+  border-radius: 4px;
+  border-left: 3px solid var(--HI-blar);
+}
+
+.form-submit {
+  background: var(--Bleikur);
+  color: var(--Hvitur);
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-top: 2rem;
+}
+
+.form-submit:hover {
+  background: var(--Bleikur-til-aherslu);
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const isFundedCheckbox = document.getElementById('id_is_funded');
+  const fundingAmountField = document.getElementById('funding-amount-field');
+  
+  function toggleFundingAmount() {
+    if (isFundedCheckbox.checked) {
+      fundingAmountField.style.display = 'block';
+    } else {
+      fundingAmountField.style.display = 'none';
+      // Clear the amount if not funded
+      const amountInput = fundingAmountField.querySelector('input');
+      if (amountInput) {
+        amountInput.value = '';
+      }
+    }
+  }
+  
+  // Initialize on page load
+  toggleFundingAmount();
+  
+  // Listen for changes
+  isFundedCheckbox.addEventListener('change', toggleFundingAmount);
+});
+</script>
 {% endblock %}

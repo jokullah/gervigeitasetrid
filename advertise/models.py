@@ -5,6 +5,66 @@ from wagtail.admin.panels import FieldPanel, MultiFieldPanel
 from django.utils.translation import gettext_lazy as _
 from wagtail.search.index import SearchField
 from django.contrib.auth.models import User
+from django import forms
+from wagtail.admin.forms import WagtailAdminPageForm
+from django.contrib.auth.models import User
+from django.utils.safestring import mark_safe
+
+
+class ProjectPageForm(WagtailAdminPageForm):
+    """Custom form ONLY for ProjectPage with enhanced advisor field styling"""
+    
+    class Media:
+        css = {
+            'all': ('advertise/css/projectpage_clean.css',)
+        }
+        js = ('advertise/js/projectpage_clean.js',)
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        # Only apply if this is actually a ProjectPage form
+        # Check if the instance is a ProjectPage
+        instance = kwargs.get('instance')
+        if instance and hasattr(instance, '__class__'):
+            if 'ProjectPage' not in instance.__class__.__name__:
+                return  # Don't apply customizations to other page types
+        
+        # Get the staff members queryset
+        staff_queryset = User.objects.filter(
+            groups__name='Starfsmenn'
+        ).order_by('first_name', 'last_name')
+        
+        # Force checkbox widgets for advisor fields
+        if 'requested_advisors' in self.fields:
+            self.fields['requested_advisors'].widget = forms.CheckboxSelectMultiple(
+                attrs={
+                    'class': 'projectpage-advisor-checkboxes projectpage-requested-advisors',
+                    'data-field': 'requested_advisors'
+                }
+            )
+            self.fields['requested_advisors'].queryset = staff_queryset
+            
+            # Override the choices to display full names
+            self.fields['requested_advisors'].choices = [
+                (user.pk, user.get_full_name() if user.get_full_name().strip() else user.username)
+                for user in staff_queryset
+            ]
+            
+        if 'leidbeinendur' in self.fields:
+            self.fields['leidbeinendur'].widget = forms.CheckboxSelectMultiple(
+                attrs={
+                    'class': 'projectpage-advisor-checkboxes projectpage-leidbeinendur-advisors',
+                    'data-field': 'leidbeinendur'
+                }
+            )
+            self.fields['leidbeinendur'].queryset = staff_queryset
+            
+            # Override the choices to display full names
+            self.fields['leidbeinendur'].choices = [
+                (user.pk, user.get_full_name() if user.get_full_name().strip() else user.username)
+                for user in staff_queryset
+            ]
 
 
 
@@ -17,7 +77,21 @@ class ProjectAd(models.Model):
     other          = models.TextField(_("Annað"), blank=True) 
     submitted_at   = models.DateTimeField(auto_now_add=True)
     
-    # NEW: Track if admin has viewed this ad
+    # NEW: Funding fields
+    is_funded      = models.BooleanField(_("Fjármagnað verkefni"), default=False, help_text=_("Krossa við ef verkefnið er fjármagnað"))
+    funding_amount = models.PositiveIntegerField(_("Fjárhæð (ISK)"), null=True, blank=True, help_text=_("Heildarfjárhæð verkefnisins í íslenskum krónum"))
+    
+    # NEW: Requested advisors
+    requested_advisors = models.ManyToManyField(
+        User,
+        blank=True,
+        verbose_name=_("Óskir um leiðbeinendur"),
+        help_text=_("Veljið starfsmenn sem þið viljið helst fá sem leiðbeinendur"),
+        limit_choices_to={'groups__name': 'Starfsmenn'},
+        related_name='requested_projects'
+    )
+    
+    # Track if admin has viewed this ad
     viewed_at      = models.DateTimeField(null=True, blank=True, verbose_name=_("Viewed at"))
     
     locale = models.CharField(
@@ -55,13 +129,68 @@ class ProjectAd(models.Model):
     
     @property
     def has_project_page(self):
-        """Check if this ad has been converted to a project page"""
-        return self.project_page is not None
+        """Check if this ad has been converted to a project page (including translations)"""
+        return self.get_project_page() is not None
+    
+    def get_project_page(self):
+        """Get the project page for this ad, checking translations if original is deleted"""
+        print(f"DEBUG: get_project_page() called for ad '{self.title}'")
+        print(f"DEBUG: self.project_page: {self.project_page}")
+        
+        # First check direct link - accept both live AND draft pages
+        if self.project_page:
+            print(f"DEBUG: Direct project_page exists, checking if live: {self.project_page.live}")
+            # Accept the page whether it's live or draft
+            print(f"DEBUG: Direct project_page exists, returning it (live or draft)")
+            return self.project_page
+        
+        # Look for translations if original page exists
+        if self.project_page:
+            print(f"DEBUG: Direct project_page exists, checking translations")
+            try:
+                translations = self.project_page.get_translations()
+                print(f"DEBUG: Found {len(translations)} translations")
+                # Find any translation (live or draft)
+                for translation in translations:
+                    print(f"DEBUG: Checking translation {translation.id}, live: {translation.live}")
+                    # Return first translation found (live or draft)
+                    print(f"DEBUG: Found translation, updating link and returning")
+                    self.project_page = translation
+                    self.save(update_fields=['project_page'])
+                    return translation
+            except Exception as e:
+                print(f"DEBUG: Error getting translations: {e}")
+                pass
+        
+        # Fallback: search by content matching - include drafts too
+        print(f"DEBUG: Fallback search by content matching")
+        print(f"DEBUG: Searching for title='{self.title}', company='{self.company_name}', email='{self.contact_email}'")
+        
+        # Search for both live and draft pages
+        potential_matches = ProjectPage.objects.filter(
+            title=self.title,
+            company_name=self.company_name,
+            contact_email=self.contact_email
+        )  # Removed .live() to include drafts
+        
+        print(f"DEBUG: Found {potential_matches.count()} potential matches (including drafts)")
+        
+        if potential_matches.exists():
+            found_page = potential_matches.first()
+            print(f"DEBUG: Using first match: {found_page} (ID: {found_page.id}, live: {found_page.live})")
+            # Repair the broken link
+            self.project_page = found_page
+            self.save(update_fields=['project_page'])
+            return found_page
+        
+        print(f"DEBUG: No project page found at all")
+        return None
     
     @property
     def status_display(self):
         """Display status for admin list"""
-        if self.project_page:
+        project_page = self.get_project_page()
+        if project_page:
             return _("✅ Created")
         else:
             return _("⏳ Not created")
@@ -69,15 +198,26 @@ class ProjectAd(models.Model):
     @property 
     def project_link(self):
         """Get link to project page if it exists"""
-        if self.project_page:
+        project_page = self.get_project_page()
+        if project_page:
             from django.urls import reverse
-            return reverse('wagtailadmin_pages:edit', args=[self.project_page.id])
+            return reverse('wagtailadmin_pages:edit', args=[project_page.id])
         return None
     
     @property
     def locale_display(self):
         """Display locale for admin"""
         return dict(self._meta.get_field('locale').choices).get(self.locale, self.locale)
+    
+    @property
+    def funding_display(self):
+        """Display funding info for admin"""
+        if self.is_funded and self.funding_amount:
+            return f"✅ {self.funding_amount:,} ISK"
+        elif self.is_funded:
+            return "✅ Já (upphæð ekki tilgreind)"
+        else:
+            return "⏳ Ekki fjármagnað"
     
     def mark_as_viewed(self):
         """Mark this ad as viewed by admin"""
@@ -125,8 +265,22 @@ class ProjectPage(Page):
     contact_name  = models.CharField(_("Tengiliður"), max_length=120)
     contact_email = models.EmailField(_("Tengiliðapóstur"))
     other         = RichTextField(_("Annað"), blank=True)
+    
+    # NEW: Funding fields (copied from ProjectAd)
+    is_funded      = models.BooleanField(_("Fjármagnað verkefni"), default=False)
+    funding_amount = models.PositiveIntegerField(_("Fjárhæð (ISK)"), null=True, blank=True)
+    
+    # NEW: Requested advisors (copied from ProjectAd)
+    requested_advisors = models.ManyToManyField(
+        User,
+        blank=True,
+        verbose_name=_("Óskir um leiðbeinendur"),
+        help_text=_("Starfsmenn sem fyrirtækið óskaði eftir sem leiðbeinendum"),
+        limit_choices_to={'groups__name': 'Starfsmenn'},
+        related_name='requested_project_pages'
+    )
 
-    # New field for the instructors/supervisors - many-to-many relationship
+    # Field for the actual assigned instructors/supervisors
     leidbeinendur = models.ManyToManyField(
         User,
         blank=True,
@@ -139,6 +293,8 @@ class ProjectPage(Page):
     parent_page_types = ["advertise.ProjectIndexPage"]
     subpage_types = []          # no children below a project page
 
+    base_form_class = ProjectPageForm
+
     content_panels = Page.content_panels + [
         FieldPanel("description"),
         MultiFieldPanel(
@@ -149,7 +305,15 @@ class ProjectPage(Page):
             ],
             heading=_("Fyrirtæki og tengiliður"),
         ),
+        MultiFieldPanel(
+            [
+                FieldPanel("is_funded"),
+                FieldPanel("funding_amount"),
+            ],
+            heading=_("Fjármögnun"),
+        ),
         FieldPanel("other"),
+        FieldPanel("requested_advisors"),
         FieldPanel("leidbeinendur"),
     ]
 
@@ -181,11 +345,32 @@ class ProjectPage(Page):
             
             context['leidbeinendur_with_pages'] = leidbeinendur_with_pages
             
+            # Also create a list for requested advisors (for staff only)
+            requested_advisors_with_pages = []
+            for advisor in self.requested_advisors.all():
+                try:
+                    person_page = PersonPage.objects.live().filter(email=advisor.email).first()
+                    requested_advisors_with_pages.append({
+                        'user': advisor,
+                        'person_page': person_page
+                    })
+                except PersonPage.DoesNotExist:
+                    requested_advisors_with_pages.append({
+                        'user': advisor,
+                        'person_page': None
+                    })
+            
+            context['requested_advisors_with_pages'] = requested_advisors_with_pages
+            
         except ImportError:
             # If people app doesn't exist, just use the regular leidbeinendur
             context['leidbeinendur_with_pages'] = [
                 {'user': user, 'person_page': None} 
                 for user in self.leidbeinendur.all()
+            ]
+            context['requested_advisors_with_pages'] = [
+                {'user': user, 'person_page': None} 
+                for user in self.requested_advisors.all()
             ]
         
         return context

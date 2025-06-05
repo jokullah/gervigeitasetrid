@@ -1,4 +1,4 @@
-from wagtail.models import Page
+from wagtail.models import Page, Locale
 from wagtail.fields import RichTextField
 from wagtail.admin.panels import FieldPanel
 from django.db import models
@@ -59,30 +59,55 @@ class PersonPage(RoutablePageMixin, Page):
     def edit_view(self, request):
         if not (request.user.is_authenticated and request.user.email == self.email):
             raise Http404
+        
         if request.method == 'POST':
-            # Update the fields
+            # Update the fields for current page
             self.job_title = request.POST.get('job_title', '')
             self.bio = request.POST.get('bio', '')
             self.personal_website = request.POST.get('personal_website', '')
             
             # Handle image upload
+            new_image = None
             if request.FILES.get('image'):
-                # Delete old image if it exists
-                if self.image:
-                    old_image = self.image
-                    self.image = None
-                    old_image.delete()
-                
                 # Create new image
                 image_file = request.FILES['image']
-                image = Image.objects.create(
+                new_image = Image.objects.create(
                     title=self.title,
                     file=image_file
                 )
-                self.image = image
+                
+                # Delete old image if it exists (will be done after updating all locales)
+                old_image = self.image
+                self.image = new_image
             
+            # Save current page
             self.save()
+            
+            # Update image across all locales for this person
+            if new_image:
+                # Find all locale versions of this page
+                if hasattr(self, 'translation_key'):
+                    # Wagtail 4.1+ approach
+                    locale_pages = PersonPage.objects.filter(
+                        translation_key=self.translation_key
+                    ).exclude(id=self.id)
+                else:
+                    # Fallback: find pages with same email across different locales
+                    locale_pages = PersonPage.objects.filter(
+                        email=self.email
+                    ).exclude(id=self.id)
+                
+                # Update image for all locale versions
+                for locale_page in locale_pages:
+                    locale_page.image = new_image
+                    locale_page.save()
+                
+                # Now delete the old image if it existed
+                if old_image:
+                    old_image.delete()
+            
             return redirect(self.url)
+        
         return render(request, 'people/person_edit.html', {'page': self})
 
     def get_url_parts(self, *args, **kwargs):
