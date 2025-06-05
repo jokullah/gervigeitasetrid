@@ -1,7 +1,8 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
-from .models import ProjectAd
+from .models import ProjectAd, ProjectApplication
+
 
 class ProjectAdForm(forms.ModelForm):
     class Meta:
@@ -67,3 +68,24 @@ class ProjectAdForm(forms.ModelForm):
             cleaned_data['funding_amount'] = None
             
         return cleaned_data
+
+
+class ProjectApplicationForm(forms.ModelForm):
+    """Form for students to apply to projects"""
+    
+    class Meta:
+        model = ProjectApplication
+        fields = ['message']
+        widgets = {
+            'message': forms.Textarea(attrs={
+                'rows': 6,
+                'placeholder': _('Skrifaðu stuttan texta um hvers vegna þú vilt taka þátt í þessu verkefni (valfrjálst)'),
+                'class': 'form-control'
+            })
+        }
+        labels = {
+            'message': _('Skilaboð til fyrirtækisins')
+        }
+        help_texts = {
+            'message': _('Þessi texti verður sendur til fyrirtækisins ásamt umsókninni þinni')
+        }

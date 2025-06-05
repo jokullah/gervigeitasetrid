@@ -105,12 +105,21 @@
   {% endif %}
 
   <div class="project-actions" style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid #e9ecef;">
-    {% if request.user.is_authenticated and 'Nemendi' in request.user.groups.all|stringformat:'s' %}
-      <a href="{% pageurl page.get_parent %}" class="home-hero__cta">
-        {% trans "Sækja um verkefni" %}
-      </a>
+  
+    {% comment %} Student application button {% endcomment %}
+    {% if request.user.is_authenticated and 'Nemandi' in request.user.groups.all|stringformat:'s' %}
+      {% if user_application %}
+        <span style="display: inline-block; padding: 0.75rem 1.5rem; background: #fff3cd; color: #856404; border-radius: 4px; font-weight: 600;">
+          ⏳ {% trans "Umsókn send - bíður svars" %}
+        </span>
+      {% else %}
+        <a href="{% url 'advertise:apply_to_project' page.id %}" class="home-hero__cta">
+          {% trans "Sækja um verkefni" %}
+        </a>
+      {% endif %}
     {% endif %}
     
+    {% comment %} Existing staff actions {% endcomment %}
     {% if request.user.is_authenticated and 'Starfsmenn' in request.user.groups.all|stringformat:'s' %}
       {% if request.user not in page.leidbeinendur.all %}
         <form method="post" action="{% url 'advertise:assign_to_project' page.id %}" style="display: inline;">
@@ -134,5 +143,4 @@
       {% endif %}
     {% endif %}
   </div>
-</div>
 {% endblock %}

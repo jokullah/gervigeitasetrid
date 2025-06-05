@@ -23,7 +23,6 @@ urlpatterns = [
     path("admin/", include(wagtailadmin_urls)),
     path("documents/", include(wagtaildocs_urls)),
     path("admin/hide-translation-notice/", hide_translation_notice),
-    # REMOVED: path("", include("advertise.urls")),  # This was causing the issue
 ]
 
 urlpatterns += i18n_patterns(
@@ -33,9 +32,9 @@ urlpatterns += i18n_patterns(
     path("signup/", signup, name="signup"),
     path("logout/", logout, name="logout"),
     path("auth/", auth_page, name="auth"),
-    path('forgot-password/', forgot_password, name='forgot_password'),  # MOVED: Before catch-all patterns
-    path("", include("advertise.urls")),
-    path("", include("wagtail.urls")),  # Keep these last as they're catch-all patterns
+    path('forgot-password/', forgot_password, name='forgot_password'),
+    path('advertise/', include('advertise.urls')),  # Advertise URLs
+    path("", include("wagtail.urls")),  # Keep this last as catch-all
 )
 
 if settings.DEBUG:
