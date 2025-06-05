@@ -86,3 +86,8 @@ def signup(request):
 def logout(request):
     auth_logout(request)
     return redirect('/')
+
+
+def forgot_password(request):
+    return render(request, 'forgot_password.html')
+                 

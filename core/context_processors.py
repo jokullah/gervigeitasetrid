@@ -31,12 +31,14 @@ def starfsmenn_person_pages(request):
         return {
             'starfsmenn_person_pages': person_pages,
             'user_person_page': user_person_page,
-            'user_is_starfsmenn': request.user.is_authenticated and request.user.groups.filter(name='Starfsmenn').exists()
+            'user_is_starfsmenn': request.user.is_authenticated and request.user.groups.filter(name='Starfsmenn').exists(),
+            'user_is_nemandi': request.user.is_authenticated and request.user.groups.filter(name='Nemandi').exists()
         }
     except ImportError:
         # If people app doesn't exist, return empty values
         return {
             'starfsmenn_person_pages': [],
             'user_person_page': None,
-            'user_is_starfsmenn': False
+            'user_is_starfsmenn': False,
+            'user_is_nemandi': False
         }

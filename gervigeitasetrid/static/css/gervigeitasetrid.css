@@ -46,7 +46,13 @@ a:hover {
   color: var(--HI-blar);
 }
 
-h1, h2, h3, h4, h5, p, ul {
+h1,
+h2,
+h3,
+h4,
+h5,
+p,
+ul {
   padding: 0;
   margin: 0;
   font-weight: 400;
@@ -121,7 +127,7 @@ main {
   min-height: 40px;
 }
 
-.utility-bar > .inner {
+.utility-bar>.inner {
   max-width: 1100px;
   width: 100%;
   margin-inline: auto;
@@ -169,7 +175,7 @@ main {
   transition: background .15s, color .15s;
 }
 
-.lang-switch button + button {
+.lang-switch button+button {
   border-left: 1px solid var(--Grar);
 }
 
@@ -254,7 +260,7 @@ main {
   min-height: 70px;
 }
 
-.primary-bar > .inner {
+.primary-bar>.inner {
   max-width: 1100px;
   width: 100%;
   margin-inline: auto;
@@ -493,9 +499,12 @@ main {
 
 /* Animation */
 @keyframes pos {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: rotate(-6deg);
   }
+
   50% {
     transform: rotate(6deg);
   }
@@ -967,7 +976,7 @@ main {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.project-card > a {
+.project-card>a {
   text-decoration: none;
   color: inherit;
   display: flex;
@@ -1283,37 +1292,37 @@ main {
   .project-index {
     padding: 1rem;
   }
-  
+
   .project-index-content {
     padding: 0 1rem;
   }
-  
+
   .project-index-content h1 {
     font-size: 1.75rem;
   }
-  
+
   .projects-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .project-detail {
     padding: 1rem;
   }
-  
+
   .project-header h1 {
     font-size: 2rem;
   }
-  
+
   .project-header-meta {
     flex-direction: column;
     align-items: flex-start;
     gap: 1rem;
   }
-  
+
   .project-gallery {
     grid-template-columns: 1fr;
   }
-  
+
   .project-team-members {
     grid-template-columns: 1fr;
   }
@@ -1677,11 +1686,11 @@ main {
     width: 100%;
     padding: 0 1.5rem;
   }
-  
+
   .people-index-content {
     padding: 0 1.5rem;
   }
-  
+
   .event-index,
   .page-content,
   main {
@@ -1711,6 +1720,7 @@ main {
 }
 
 @media (max-width: 996px) {
+
   .page-content,
   main {
     padding: 1.5rem;
@@ -1809,6 +1819,8 @@ main {
     max-width: 100px;
   }
 }
+
+.user-info {
   font-size: 0.9rem;
   margin-bottom: 1.5rem;
 }
@@ -2028,7 +2040,7 @@ main {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.event-card > a {
+.event-card>a {
   text-decoration: none;
   color: inherit;
   display: flex;
@@ -2140,3 +2152,36 @@ main {
   gap: 0.5rem 1rem;
   font-size: 0.85rem;
   color: #6c757d;
+}
+
+
+.user-dropdown-wrapper {
+  position: relative;
+}
+
+.user-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: var(--Hvitur);
+  border: 1px solid var(--Grar);
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  min-width: 200px;
+  z-index: 1000;
+  margin-top: 4px;
+}
+
+.dropdown-item {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--Grar);
+  color: var(--Svartur);
+}
+
+.dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.user-profile-btn:hover {
+  color: var(--HI-blar);
+}
