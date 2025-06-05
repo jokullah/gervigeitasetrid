@@ -74,11 +74,8 @@
       {% if form.requested_advisors.help_text %}
         <small class="form-help">{{ form.requested_advisors.help_text }}</small>
       {% endif %}
-      <div class="select-multiple-wrapper">
+      <div class="advisor-checkbox-container">
         {{ form.requested_advisors }}
-        <small class="form-help multi-select-help">
-          💡 {% trans "Ábending: Haldið niðri Ctrl (PC) eða Cmd (Mac) og smellið til að velja marga starfsmenn. Smellið aftur á valinn starfsmann til að afvelja." %}
-        </small>
       </div>
       {% if form.requested_advisors.errors %}
         <div class="form-errors">{{ form.requested_advisors.errors }}</div>
@@ -86,7 +83,7 @@
     </div>
     
     <div class="form-section">
-      <h2>{% trans "Viðbótarupplýsingar" %}</h2>
+      <h2>{% trans "Aðrar upplýsingar" %}</h2>
       
       {{ form.other.label_tag }}
       {{ form.other }}
@@ -151,40 +148,112 @@
   margin-top: 0.25rem;
 }
 
-.select-multiple-wrapper {
+/* NEW: Advisor checkbox styling */
+.advisor-checkbox-container {
+  max-height: 200px; /* Adjust this based on your needs */
+  overflow-y: auto;
   border: 1px solid var(--Grar);
   border-radius: 6px;
   padding: 1rem;
+  background: var(--Hvitur);
+  margin-top: 0.5rem;
+}
+
+/* Target the actual Django CheckboxSelectMultiple structure */
+.advisor-checkbox-container .advisor-checkbox-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.advisor-checkbox-container input[type="checkbox"] {
+  margin-right: 0.75rem;
+  width: auto !important;
+  min-height: auto !important;
+}
+
+.advisor-checkbox-container label {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem;
+  border-radius: 4px;
+  margin: 0;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-weight: normal;
+}
+
+.advisor-checkbox-container label:hover {
   background: var(--Ljosgrar);
 }
 
-.select-multiple-wrapper select {
-  width: 100% !important;
-  min-height: 200px !important;
-  border: 1px solid var(--Grar);
+/* Scrollbar styling for webkit browsers */
+.advisor-checkbox-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.advisor-checkbox-container::-webkit-scrollbar-track {
+  background: var(--Ljosgrar);
   border-radius: 4px;
-  padding: 0.5rem;
-  background: var(--Hvitur);
-  font-family: inherit;
 }
 
-.select-multiple-wrapper select option {
-  padding: 0.5rem;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.select-multiple-wrapper select option:selected {
-  background: var(--HI-blar);
-  color: var(--Hvitur);
-}
-
-.multi-select-help {
-  display: block;
-  margin-top: 0.75rem;
-  padding: 0.5rem;
-  background: var(--Hvitur);
+.advisor-checkbox-container::-webkit-scrollbar-thumb {
+  background: var(--Grar);
   border-radius: 4px;
-  border-left: 3px solid var(--HI-blar);
+}
+
+.advisor-checkbox-container::-webkit-scrollbar-thumb:hover {
+  background: var(--Dokkgrar);
+}
+
+.advisor-checkbox-container li:hover {
+  background: var(--Ljosgrar);
+}
+
+.advisor-checkbox-container li:last-child {
+  margin-bottom: 0;
+}
+
+.advisor-checkbox-container label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  font-weight: normal;
+  margin: 0;
+  width: 100%;
+}
+
+.advisor-checkbox-container input[type="checkbox"] {
+  width: auto !important;
+  min-height: auto !important;
+  margin: 0 !important;
+  flex-shrink: 0;
+}
+
+.advisor-checkbox-container .checkbox-text {
+  flex: 1;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+/* Scrollbar styling for webkit browsers */
+.advisor-checkbox-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.advisor-checkbox-container::-webkit-scrollbar-track {
+  background: var(--Ljosgrar);
+  border-radius: 4px;
+}
+
+.advisor-checkbox-container::-webkit-scrollbar-thumb {
+  background: var(--Grar);
+  border-radius: 4px;
+}
+
+.advisor-checkbox-container::-webkit-scrollbar-thumb:hover {
+  background: var(--Dokkgrar);
 }
 
 .form-submit {

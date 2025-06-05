@@ -25,10 +25,9 @@ class ProjectAdForm(forms.ModelForm):
                 "step": "1000",
                 "min": "0"
             }),
-            "requested_advisors": forms.SelectMultiple(attrs={
-                "class": "advisor-select",
-                "size": "8",
-                "style": "width: 100%; min-height: 200px;"
+            # Changed to CheckboxSelectMultiple for better UX
+            "requested_advisors": forms.CheckboxSelectMultiple(attrs={
+                "class": "advisor-checkbox-list",
             }),
         }
         labels = {
@@ -39,7 +38,7 @@ class ProjectAdForm(forms.ModelForm):
         help_texts = {
             "is_funded": _("Krossa við ef verkefnið er fjármagnað"),
             "funding_amount": _("Heildarfjárhæð verkefnisins í íslenskum krónum (valfrjálst)"),
-            "requested_advisors": _("Veljið þá starfsmenn sem þið viljið helst fá sem leiðbeinendur. Haldið niðri Ctrl/Cmd og smellið til að velja marga."),
+            "requested_advisors": _("Veljið þá starfsmenn sem þið viljið helst fá sem leiðbeinendur. Smellið á hvern starfsmann til að velja/afvelja."),
         }
     
     def __init__(self, *args, **kwargs):
@@ -51,7 +50,7 @@ class ProjectAdForm(forms.ModelForm):
         
         # Customize the display of advisor choices
         self.fields['requested_advisors'].label_from_instance = lambda obj: (
-            f"{obj.get_full_name()} ({obj.email})" if obj.get_full_name() else f"{obj.username} ({obj.email})"
+            f"{obj.get_full_name()}" if obj.get_full_name() else f"{obj.username}"
         )
         
         # Make funding amount field dependent on is_funded

@@ -86,7 +86,7 @@ class ProjectAd(models.Model):
         User,
         blank=True,
         verbose_name=_("Óskir um leiðbeinendur"),
-        help_text=_("Veljið starfsmenn sem þið viljið helst fá sem leiðbeinendur"),
+        help_text=_("Starfsmenn sem óskað er eftir til að vera leiðbeinendur verkefnis."),
         limit_choices_to={'groups__name': 'Starfsmenn'},
         related_name='requested_projects'
     )

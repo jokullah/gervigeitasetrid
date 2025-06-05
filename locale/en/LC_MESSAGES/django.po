@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-04 16:29+0000\n"
+"POT-Creation-Date: 2025-06-05 14:49+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,93 +18,149 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: advertise/models.py:12
+#: advertise/forms.py:24 advertise/wagtail_hooks.py:78
+msgid "t.d. 500000"
+msgstr "e.g. 500000"
+
+#: advertise/forms.py:34
+msgid "Er verkefnið fjármagnað?"
+msgstr "Is the project funded?"
+
+#: advertise/forms.py:35 advertise/models.py:82 advertise/models.py:271
+msgid "Fjárhæð (ISK)"
+msgstr "Funding (ISK)"
+
+#: advertise/forms.py:36 advertise/templates/advertise/form.html:71
+msgid "Óskir um leiðbeinendur"
+msgstr "Request advisors"
+
+#: advertise/forms.py:39 advertise/models.py:81
+msgid "Krossa við ef verkefnið er fjármagnað"
+msgstr "Check if the project is funded"
+
+#: advertise/forms.py:40
+msgid "Heildarfjárhæð verkefnisins í íslenskum krónum (valfrjálst)"
+msgstr "Total funding of project in Icelandic crowns (optional)"
+
+#: advertise/forms.py:41
+msgid ""
+"Veljið þá starfsmenn sem þið viljið helst fá sem leiðbeinendur. Smellið á "
+"hvern starfsmann til að velja/afvelja."
+msgstr ""
+"Choose which staff you'd most like as advisors. Click each staff member to "
+"choose/undo."
+
+#: advertise/models.py:72
 msgid "Titill"
 msgstr "Title"
 
-#: advertise/models.py:13 advertise/models.py:123
+#: advertise/models.py:73 advertise/models.py:263
 msgid "Lýsing"
 msgstr "Description"
 
-#: advertise/models.py:14 advertise/models.py:124
+#: advertise/models.py:74 advertise/models.py:264
 #: advertise/templates/advertise/project_page.html:14
 msgid "Fyrirtæki"
 msgstr "Company"
 
-#: advertise/models.py:15 advertise/models.py:125
+#: advertise/models.py:75 advertise/models.py:265
 msgid "Tengiliður"
 msgstr "Contact person"
 
-#: advertise/models.py:16 advertise/models.py:126
+#: advertise/models.py:76 advertise/models.py:266
 msgid "Tengiliðapóstur"
 msgstr "Contact email"
 
-#: advertise/models.py:17 advertise/models.py:127
+#: advertise/models.py:77 advertise/models.py:267
 msgid "Annað"
 msgstr "Other"
 
-#: advertise/models.py:21
+#: advertise/models.py:81 advertise/models.py:270
+#: advertise/templates/advertise/project_page.html:25
+msgid "Fjármagnað verkefni"
+msgstr "Funded project"
+
+#: advertise/models.py:82
+msgid "Heildarfjárhæð verkefnisins í íslenskum krónum"
+msgstr "Total funding of project in Icelandic crowns"
+
+#: advertise/models.py:89
+#, fuzzy
+#| msgid "Starfsmenn sem hafa tekið að sér þetta verkefni"
+msgid "Starfsmenn sem óskað er eftir til að vera leiðbeinendur verkefnis."
+msgstr "Faculty involved with this project"
+
+#: advertise/models.py:95
 msgid "Viewed at"
 msgstr ""
 
-#: advertise/models.py:24
+#: advertise/models.py:98
 msgid "Tungumál"
 msgstr "Language"
 
-#: advertise/models.py:27
+#: advertise/models.py:101
 msgid "Icelandic"
 msgstr ""
 
-#: advertise/models.py:28
+#: advertise/models.py:102
 msgid "English"
 msgstr ""
 
-#: advertise/models.py:31
+#: advertise/models.py:105
 msgid "Tungumál auglýsingar þegar hún er birt"
 msgstr "Language of advertisement when published"
 
-#: advertise/models.py:39
+#: advertise/models.py:113
 msgid "Linked project page"
 msgstr ""
 
-#: advertise/models.py:40
+#: advertise/models.py:114
 msgid "Project page created from this advertisement"
 msgstr ""
 
-#: advertise/models.py:44
+#: advertise/models.py:118
 msgid "Project advertisement"
 msgstr ""
 
-#: advertise/models.py:45
+#: advertise/models.py:119
 msgid "Project advertisements"
 msgstr ""
 
-#: advertise/models.py:65
+#: advertise/models.py:194
 msgid "✅ Created"
 msgstr ""
 
-#: advertise/models.py:67
+#: advertise/models.py:196
 msgid "⏳ Not created"
 msgstr ""
 
-#: advertise/models.py:106
+#: advertise/models.py:246
 msgid "Project index"
 msgstr ""
 
-#: advertise/models.py:133 advertise/templates/advertise/project_page.html:21
-#: advertise/templates/advertise/project_page.html:36
+#: advertise/models.py:278
+msgid "Starfsmenn sem fyrirtækið óskaði eftir sem leiðbeinendum"
+msgstr "Staff members whom the company requested as advisors"
+
+#: advertise/models.py:287 advertise/templates/advertise/project_page.html:35
+#: advertise/templates/advertise/project_page.html:50
 msgid "Leiðbeinendur"
 msgstr "Advisors"
 
-#: advertise/models.py:134
+#: advertise/models.py:288
 msgid "Starfsmenn sem hafa tekið að sér þetta verkefni"
 msgstr "Faculty involved with this project"
 
-#: advertise/models.py:150
+#: advertise/models.py:306
 msgid "Fyrirtæki og tengiliður"
 msgstr "Company and contact"
 
-#: advertise/models.py:194
+#: advertise/models.py:313 advertise/templates/advertise/form.html:45
+#: advertise/templates/advertise/project_page.html:23
+msgid "Fjármögnun"
+msgstr "Funding"
+
+#: advertise/models.py:379
 msgid "Verkefni"
 msgstr "Project"
 
@@ -125,7 +181,16 @@ msgstr ""
 msgid "Auglýsa verkefni"
 msgstr "Advertise project"
 
-#: advertise/templates/advertise/form.html:10
+#: advertise/templates/advertise/form.html:11
+msgid "Grunnupplýsingar"
+msgstr "Basic information"
+
+#: advertise/templates/advertise/form.html:86
+#: advertise/templates/advertise/project_page.html:103
+msgid "Aðrar upplýsingar"
+msgstr "Additional information"
+
+#: advertise/templates/advertise/form.html:98
 msgid "Senda inn"
 msgstr "Submit"
 
@@ -133,35 +198,39 @@ msgstr "Submit"
 msgid "Engin verkefni að svo stöddu."
 msgstr "No projects available at the moment"
 
-#: advertise/templates/advertise/project_page.html:37
+#: advertise/templates/advertise/project_page.html:51
 msgid "Engir leiðbeinendur skráðir"
 msgstr "No advisors registered"
 
 #: advertise/templates/advertise/project_page.html:61
-msgid "Aðrar upplýsingar"
-msgstr "Additional information"
+msgid "Fyrirtækið óskaði eftir"
+msgstr "The company asked for"
 
-#: advertise/templates/advertise/project_page.html:71
+#: advertise/templates/advertise/project_page.html:77
+msgid "Þessar upplýsingar sjást aðeins starfsmönnum"
+msgstr "This information is only visible to staff members"
+
+#: advertise/templates/advertise/project_page.html:113
 msgid "Sækja um verkefni"
 msgstr "Apply for project"
 
-#: advertise/templates/advertise/project_page.html:79
+#: advertise/templates/advertise/project_page.html:121
 msgid "Ertu viss um að þú viljir hengja þig við þetta verkefni?"
 msgstr "Are you sure you want to attach to this project?"
 
-#: advertise/templates/advertise/project_page.html:80
+#: advertise/templates/advertise/project_page.html:122
 msgid "Hengja við verkefni"
 msgstr "Attach to project"
 
-#: advertise/templates/advertise/project_page.html:86
+#: advertise/templates/advertise/project_page.html:128
 msgid "Þú ert leiðbeinandi fyrir þetta verkefni"
 msgstr "You are an advisor for this project"
 
-#: advertise/templates/advertise/project_page.html:91
+#: advertise/templates/advertise/project_page.html:133
 msgid "Ertu viss um að þú viljir draga þig úr þessu verkefni?"
 msgstr "Are you sure you want to withdraw from this project?"
 
-#: advertise/templates/advertise/project_page.html:92
+#: advertise/templates/advertise/project_page.html:134
 msgid "Draga úr verkefni"
 msgstr "Withdraw from project"
 
@@ -173,112 +242,113 @@ msgstr "Thank you!"
 msgid "Verkefnið þitt verður skoðað innan skamms."
 msgstr "Your project will be reviewed shortly."
 
-#: ⁨advertise/views copy.py⁩:50 advertise/views.py:67
+#: advertise/views.py:79
 msgid "Þú hefur ekki heimild til að hengja þig við verkefni."
 msgstr "You don't have permission to attach to projects"
 
-#: ⁨advertise/views copy.py⁩:61 advertise/views.py:78
+#: advertise/views.py:90
 msgid "Þú ert nú þegar skráður sem leiðbeinandi fyrir þetta verkefni."
 msgstr "You are already registered as an advisor for this project."
 
-#: ⁨advertise/views copy.py⁩:68 advertise/views.py:85
+#: advertise/views.py:97
 msgid "Þú hefur verið skráður sem leiðbeinandi fyrir þetta verkefni."
 msgstr "You have been registered as an advisor for this project."
 
-#: ⁨advertise/views copy.py⁩:83 advertise/views.py:100
+#: advertise/views.py:112
 msgid "Þú hefur ekki heimild til að draga þig úr verkefni."
 msgstr "You don't have permission to withdraw from projects."
 
-#: ⁨advertise/views copy.py⁩:94 advertise/views.py:111
+#: advertise/views.py:123
 msgid "Þú ert ekki skráður sem leiðbeinandi fyrir þetta verkefni."
 msgstr "You are not registered as an advisor for this project."
 
-#: ⁨advertise/views copy.py⁩:101 advertise/views.py:118
+#: advertise/views.py:130
 msgid "Þú hefur verið fjarlægður sem leiðbeinandi fyrir þetta verkefni."
 msgstr "You have been removed as an advisor for this project."
 
-#: ⁨advertise/wagtail_hooks copy.py⁩:18 advertise/wagtail_hooks.py:18
+#: advertise/wagtail_hooks.py:20
 msgid "Verkefnaauglýsingar"
 msgstr "Project advertisements"
 
-#: ⁨advertise/wagtail_hooks copy.py⁩:43 advertise/wagtail_hooks.py:43
+#: advertise/wagtail_hooks.py:105
 msgid "Hólf"
 msgstr "Inbox"
 
-#: ⁨advertise/wagtail_hooks copy.py⁩:573 advertise/wagtail_hooks.py:573
+#: advertise/wagtail_hooks.py:853
 msgid "1 new project advertisement"
 msgstr ""
 
-#: ⁨advertise/wagtail_hooks copy.py⁩:575 advertise/wagtail_hooks.py:575
+#: advertise/wagtail_hooks.py:855
 #, python-brace-format
 msgid "{count} new project advertisements"
 msgstr ""
 
-#: ⁨advertise/wagtail_hooks copy.py⁩:607 advertise/wagtail_hooks.py:607
+#: advertise/wagtail_hooks.py:887
 msgid "New project advertisements are waiting for review"
 msgstr ""
 
-#: ⁨advertise/wagtail_hooks copy.py⁩:621 advertise/wagtail_hooks.py:621
+#: advertise/wagtail_hooks.py:901
 msgid "View advertisements"
 msgstr ""
 
-#: blog/templates/blog/blog_page.html:66
-msgid "Tags"
-msgstr ""
-
-#: blog/templates/blog/blog_tag_index_page.html:9
-msgid "Síður taggaðar með:"
-msgstr "Pages tagged with:"
-
-#: blog/templates/blog/blog_tag_index_page.html:20
-msgid "Engar síður fundust með þessu taggi"
-msgstr "No pages found with this tag"
-
-#: core/templates/bulk_copy/chooser.html:7
+#: core/templates/bulk_copy/chooser.html:11
 msgid "Afrita síður milli tungumála"
 msgstr "Copy pages between languages"
 
-#: core/templates/bulk_copy/chooser.html:11
+#: core/templates/bulk_copy/chooser.html:13
+#, fuzzy
+#| msgid "Afrita síður milli tungumála"
+msgid "Veldu síður til að afrita á milli tungumála"
+msgstr "Copy pages between languages"
+
+#: core/templates/bulk_copy/chooser.html:20
 msgid "Frá íslensku yfir í ensku"
 msgstr "From Icelandic to English"
 
-#: core/templates/bulk_copy/chooser.html:14
+#: core/templates/bulk_copy/chooser.html:27
 msgid "Einungis íslenskar síður án enskra þýðinga eru sýndar."
 msgstr "Only Icelandic pages without English translations are shown."
 
-#: core/templates/bulk_copy/chooser.html:22
-#: core/templates/bulk_copy/chooser.html:58
+#: core/templates/bulk_copy/chooser.html:37
+#: core/templates/bulk_copy/chooser.html:90
 msgid "Velja allar"
 msgstr "Select all"
 
-#: core/templates/bulk_copy/chooser.html:36
+#: core/templates/bulk_copy/chooser.html:56
 msgid "Afrita valdar síður yfir á ensku"
 msgstr "Copy selected pages to English"
 
-#: core/templates/bulk_copy/chooser.html:39
+#: core/templates/bulk_copy/chooser.html:63
 msgid "Allar íslenskar síður hafa þegar enskar þýðingar."
 msgstr "All Icelandic pages already have English translations"
 
-#: core/templates/bulk_copy/chooser.html:47
+#: core/templates/bulk_copy/chooser.html:73
 msgid "Frá ensku yfir í íslensku"
 msgstr "From English to Icelandic"
 
-#: core/templates/bulk_copy/chooser.html:50
+#: core/templates/bulk_copy/chooser.html:80
 msgid "Einungis enskar síður án íslenskra þýðinga eru sýndar."
 msgstr "Only English pages without Icelandic translations are shown."
 
-#: core/templates/bulk_copy/chooser.html:72
+#: core/templates/bulk_copy/chooser.html:109
 msgid "Afrita valdar síður yfir á íslensku"
 msgstr "Copy selected pages to Icelandic"
 
-#: core/templates/bulk_copy/chooser.html:75
+#: core/templates/bulk_copy/chooser.html:116
 msgid "Allar enskar síður hafa þegar íslenskar þýðingar."
 msgstr "All English pages already have Icelandic translations."
 
-#: core/templates/bulk_copy/chooser.html:79
-#: people/templates/people/person_edit.html:42
-msgid "Hætta við"
-msgstr "Cancel"
+#: core/templates/bulk_copy/chooser.html:125
+msgid "Til baka"
+msgstr "Back"
+
+#: core/templates/bulk_copy/chooser.html:431
+msgid "Vinsamlegast veldu að minnsta kosti eina síðu til að afrita."
+msgstr "Please choose at least one page to copy"
+
+#: core/templates/bulk_copy/chooser.html:437
+msgid "Afrita..."
+msgstr "Copy..."
 
 #: core/wagtail_hooks.py:22
 msgid "Afrita ÍS ↔ EN síður"
@@ -1589,83 +1659,61 @@ msgstr ""
 msgid "None"
 msgstr ""
 
-#: event/templates/event/event_index_page.html:13
-msgid "Viðburðir taggaðir með"
-msgstr "Events tagged with"
-
-#: event/templates/event/event_index_page.html:15
+#: event/templates/event/event_index_page.html:12
 #: home/templates/home/home_page.html:44
 msgid "Viðburðir"
 msgstr "Events"
 
-#: event/templates/event/event_index_page.html:18
+#: event/templates/event/event_index_page.html:14
 msgid "Síðufletting"
 msgstr "Pagination"
 
-#: event/templates/event/event_index_page.html:21
+#: event/templates/event/event_index_page.html:17
 msgid "Fyrri síða"
 msgstr "Previous page"
 
-#: event/templates/event/event_index_page.html:29
+#: event/templates/event/event_index_page.html:25
 msgid "Síða"
 msgstr "Page"
 
-#: event/templates/event/event_index_page.html:35
+#: event/templates/event/event_index_page.html:31
 msgid "Næsta síða"
 msgstr "Next page"
 
-#: event/templates/event/event_index_page.html:43
+#: event/templates/event/event_index_page.html:39
 #: home/templates/home/home_page.html:65
 msgid "Viðburður"
 msgstr "Event"
 
-#: event/templates/event/event_index_page.html:48
+#: event/templates/event/event_index_page.html:44
 #: home/templates/home/home_page.html:70
 msgid "Engin mynd tiltæk"
 msgstr "No image available"
 
-#: event/templates/event/event_index_page.html:49
+#: event/templates/event/event_index_page.html:45
 #: home/templates/home/home_page.html:71
 msgid "No image available"
 msgstr ""
 
-#: event/templates/event/event_index_page.html:73
+#: event/templates/event/event_index_page.html:69
 msgid "Tími"
 msgstr "Time"
 
-#: event/templates/event/event_index_page.html:77
+#: event/templates/event/event_index_page.html:73
 msgid "Staðsetning"
 msgstr "Location"
 
-#: event/templates/event/event_index_page.html:81
+#: event/templates/event/event_index_page.html:77
 msgid "Gestgjafi"
 msgstr "Host"
 
-#: event/templates/event/event_index_page.html:84
+#: event/templates/event/event_index_page.html:80
 msgid "Kynnir"
 msgstr "Speaker"
 
-#: event/templates/event/event_index_page.html:94
-#: home/templates/home/home_page.html:97
-msgid "Skoða alla viðburði með merkinu"
-msgstr "View all events with this tag"
-
-#: event/templates/event/event_index_page.html:106
+#: event/templates/event/event_index_page.html:89
 msgid "Engir viðburðir fundust"
 msgstr "No events found"
-
-#: event/templates/event/event_index_page.html:106
-msgid "með þessu merki"
-msgstr "with this tag"
-
-#: event/templates/event/event_index_page.html:114
-msgid "Skoða alla viðburði"
-msgstr "View all events"
-
-#: event/templates/event/event_index_page.html:115
-#: home/templates/home/home_page.html:116
-msgid "Sjá alla viðburði"
-msgstr "See all events"
 
 #: gervigeitasetrid/templates/auth.html:4
 msgid "Staðfesting"
@@ -1679,7 +1727,9 @@ msgstr "New account verification"
 msgid ""
 "Takk fyrir að búa til aðgang. Vinsamlegast staðfestu netfangið þitt með því "
 "að smella á tengilinn sem við sendum þér í tölvupósti."
-msgstr "Thank you for creating an account. Please verify your email address by clicking the link we sent you by email"
+msgstr ""
+"Thank you for creating an account. Please verify your email address by "
+"clicking the link we sent you by email"
 
 #: gervigeitasetrid/templates/auth.html:17
 msgid "Ekki búin(n) að fá tölvupóst?"
@@ -1691,6 +1741,19 @@ msgstr "Send again"
 
 #: gervigeitasetrid/templates/auth.html:26
 msgid "Fara á innskráningarsíðu"
+msgstr "Go to login page"
+
+#: gervigeitasetrid/templates/forgot_password.html:4
+#: gervigeitasetrid/templates/forgot_password.html:9
+#, fuzzy
+#| msgid "Staðfesta lykilorð"
+msgid "Gleymt lykilorð"
+msgstr "Confirm password"
+
+#: gervigeitasetrid/templates/forgot_password.html:15
+#, fuzzy
+#| msgid "Fara á innskráningarsíðu"
+msgid "Til baka í innskráningu"
 msgstr "Go to login page"
 
 #: gervigeitasetrid/templates/includes/footer.html:16
@@ -1771,7 +1834,7 @@ msgid "Skrá út"
 msgstr "Log out"
 
 #: gervigeitasetrid/templates/includes/header.html:92
-#: gervigeitasetrid/templates/login.html:29
+#: gervigeitasetrid/templates/login.html:34
 #: gervigeitasetrid/templates/signup.html:40
 msgid "Innskrá"
 msgstr "Log in"
@@ -1783,6 +1846,14 @@ msgstr "Log in"
 #: search/templates/search/search.html:21
 msgid "Leita"
 msgstr "Search"
+
+#: gervigeitasetrid/templates/includes/header.html:168
+msgid "Staða: "
+msgstr ""
+
+#: gervigeitasetrid/templates/includes/header.html:168
+msgid "Nemandi"
+msgstr ""
 
 #: gervigeitasetrid/templates/login.html:4
 #: gervigeitasetrid/templates/login.html:9
@@ -1799,11 +1870,17 @@ msgstr ""
 msgid "Password"
 msgstr ""
 
-#: gervigeitasetrid/templates/login.html:32
+#: gervigeitasetrid/templates/login.html:29
+#, fuzzy
+#| msgid "Staðfesta lykilorð"
+msgid "Gleymt lykilorð?"
+msgstr "Confirm password"
+
+#: gervigeitasetrid/templates/login.html:37
 msgid "Ekki með aðgang?"
 msgstr "Don't have an account?"
 
-#: gervigeitasetrid/templates/login.html:34
+#: gervigeitasetrid/templates/login.html:39
 #: gervigeitasetrid/templates/signup.html:9
 #: gervigeitasetrid/templates/signup.html:35
 msgid "Búa til aðgang"
@@ -1850,11 +1927,15 @@ msgstr ""
 msgid "Main content for the About Us page"
 msgstr ""
 
-#: home/templates/home/home_page.html:108
+#: home/templates/home/home_page.html:96
 msgid "Engir væntanlegir viðburðir."
 msgstr "No upcoming events"
 
-#: home/templates/home/home_page.html:128
+#: home/templates/home/home_page.html:104
+msgid "Sjá alla viðburði"
+msgstr "See all events"
+
+#: home/templates/home/home_page.html:116
 msgid "Fréttir"
 msgstr "News"
 
@@ -1921,9 +2002,23 @@ msgstr "Website"
 msgid "Mynd"
 msgstr "Photo"
 
-#: people/templates/people/person_edit.html:38
+#: people/templates/people/person_edit.html:35
+#, fuzzy
+#| msgid "Engin mynd tiltæk"
+msgid "Engin mynd"
+msgstr "No image available"
+
+#: people/templates/people/person_edit.html:43
 msgid "Vista breytingar"
 msgstr "Save changes"
+
+#: people/templates/people/person_edit.html:47
+msgid "Hætta við"
+msgstr "Cancel"
+
+#: people/templates/people/person_edit.html:64
+msgid "Vinsamlegast veljið mynd"
+msgstr ""
 
 #: search/templates/search/search.html:34
 msgid "Þú leitaðir að"
@@ -1944,3 +2039,21 @@ msgstr "Next"
 #: search/templates/search/search.html:60
 msgid "Engin leitarniðurstaða fannst"
 msgstr "No search results found"
+
+#~ msgid "Síður taggaðar með:"
+#~ msgstr "Pages tagged with:"
+
+#~ msgid "Engar síður fundust með þessu taggi"
+#~ msgstr "No pages found with this tag"
+
+#~ msgid "Viðburðir taggaðir með"
+#~ msgstr "Events tagged with"
+
+#~ msgid "Skoða alla viðburði með merkinu"
+#~ msgstr "View all events with this tag"
+
+#~ msgid "með þessu merki"
+#~ msgstr "with this tag"
+
+#~ msgid "Skoða alla viðburði"
+#~ msgstr "View all events"
