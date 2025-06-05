@@ -2,24 +2,18 @@
 {% load i18n i18n_extra %}
 {% load static wagtailcore_tags wagtailimages_tags %}
 
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/blog.css' %}">
-{% endblock %}
-
-{% block body_class %}template-blogpage{% endblock %}
-
 {% block content %}
-<article class="blog-article">
-    <header class="blog-header">
-        <h1>{{ page.title }}</h1>
-        <div class="blog-meta">
+<article>
+    <header>
+        <h1 class="font-serif underline">{{ page.title }}</h1>
+        <div>
             <time datetime="{{ page.date|date:'Y-m-d' }}">{{ page.date|date:"F j, Y" }}</time>
             {% if page.authors.all %}
-                <div class="blog-authors">
+                <div>
                     {% for author in page.authors.all %}
-                        <div class="blog-author">
+                        <div>
                             {% if author.author_image %}
-                                {% image author.author_image fill-40x40 class="author-image" %}
+                                {% image author.author_image fill-40x40%}
                             {% endif %}
                             <span>{{ author.name }}</span>
                         </div>
@@ -30,28 +24,28 @@
     </header>
 
     {% if page.thumbnail_image %}
-        <div class="blog-featured-image">
+        <div>
             {% image page.thumbnail_image width-800 height-300 %}
         </div>
     {% endif %}
 
     {% if page.intro %}
-        <div class="blog-intro">
+        <div>
             {{ page.intro }}
         </div>
     {% endif %}
 
-    <div class="blog-content">
+    <div>
         {{ page.body|richtext }}
     </div>
 
     {% if page.gallery_images.all %}
-        <div class="blog-gallery">
+        <div>
             {% for item in page.gallery_images.all %}
-                <div class="gallery-item">
+                <div>
                     {% image item.image fill-200x150 %}
                     {% if item.caption %}
-                        <div class="gallery-caption">
+                        <div>
                             {{ item.caption }}
                         </div>
                     {% endif %}
