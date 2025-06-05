@@ -146,8 +146,27 @@
             </svg>
             <span>{{ request.user.email }}</span>
           </a>
+        {% elif user_is_nemandi %}
+          {% comment %} Nemandi user - clickable with dropdown {% endcomment %}
+          <div class="user-dropdown-wrapper">
+            <button class="user-profile-btn" onclick="toggleUserDropdown()" style="background: none; border: none; color: inherit; cursor: pointer; display: flex; align-items: center;">
+              <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                <circle cx="12" cy="8" r="5" stroke="currentColor" stroke-width="2" fill="none"/>
+                <path d="M3,21 C3,16 8,14 12,14 C16,14 21,16 21,21" stroke="currentColor" stroke-width="2" fill="none"/>
+              </svg>
+              <span>{{ request.user.email }}</span>
+              <svg viewBox="0 0 24 24" width="12" height="12" style="margin-left: 4px;" aria-hidden="true">
+                <polyline points="6,9 12,15 18,9" stroke="currentColor" stroke-width="2" fill="none"/>
+              </svg>
+            </button>
+            <div class="user-dropdown" id="userDropdown" style="display: none;">
+              <div class="dropdown-item">
+                <strong>{% trans "Staða: " %}:</strong> {% trans "Nemandi" %}
+              </div>
+            </div>
+          </div>
         {% else %}
-          {% comment %} Either not Starfsmenn, or Starfsmenn without PersonPage - non-clickable {% endcomment %}
+          {% comment %} Other users - non-clickable {% endcomment %}
           <div style="display: flex; align-items: center;">
             <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
               <circle cx="12" cy="8" r="5" stroke="currentColor" stroke-width="2" fill="none"/>
