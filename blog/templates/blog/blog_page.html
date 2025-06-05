@@ -59,18 +59,11 @@
             {% endfor %}
         </div>
     {% endif %}
+	<ul>
+		{% for tag in page.tagged_items.all %}
+			<li>{{ tag.tag.name }}</li>
+		{% endfor %}
+	</ul>
 
-    {% with tags=page.tags.all %}
-        {% if tags %}
-            <div class="blog-tags">
-                <h3>{% trans "Tags" %}</h3>
-                {% for tag in tags %}
-                    <a href="{% slugurl 'tags' %}?tag={{ tag }}">
-                        <button type="button" class="tag-button">{{ tag }}</button>
-                    </a>
-                {% endfor %}
-            </div>
-        {% endif %}
-    {% endwith %}
 </article>
 {% endblock %}

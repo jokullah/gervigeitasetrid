@@ -4,22 +4,10 @@ from django.forms.widgets import TimeInput
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 from wagtail.models import Page, Locale
-from wagtail.admin.panels import FieldPanel, MultiFieldPanel
+from wagtail.admin.panels import FieldPanel, MultiFieldPanel, InlinePanel
 from wagtail.snippets.models import register_snippet
 
 from modelcluster.fields import ParentalManyToManyField
-
-
-
-
-
-
-@register_snippet
-class EventTag(models.Model):
-    name = models.CharField(max_length=255)
-
-    def __str__(self):
-        return self.name
 
 
 class EventPage(Page):
@@ -30,9 +18,6 @@ class EventPage(Page):
     
     start_time = models.TimeField(blank=True, null=True)
     end_time = models.TimeField(blank=True, null=True)
-
-    tags = ParentalManyToManyField("event.EventTag", blank=True)
-
 
     # Fields for public lectures
     host = models.CharField(max_length=255, blank=True)
@@ -55,20 +40,16 @@ class EventPage(Page):
         FieldPanel('start_time', widget=TimeInput(format='%H:%M')),
         FieldPanel('end_time', widget=TimeInput(format='%H:%M')),
         FieldPanel('location'),
-        FieldPanel("tags", widget=forms.CheckboxSelectMultiple),
         FieldPanel('event_image'),
         FieldPanel('description'),
-
-
         MultiFieldPanel([
             FieldPanel('host'),
             FieldPanel('speaker'),
         ], heading="Public Lecture Fields"),
+	InlinePanel('tagged_items', label='Tags'),
     ]
     parent_page_types = ['event.EventIndexPage']
     subpage_types = []
-
-
 
 
 class EventIndexPage(Page):
@@ -101,21 +82,3 @@ class EventIndexPage(Page):
     parent_page_types = ['home.HomePage']
     subpage_types = ['event.EventPage']
 
-
-class EventTagIndexPage(Page):
-    def get_context(self, request):
-        # get the tag from the query string ?tag=xyz
-        tag = request.GET.get('tag')
-
-        if tag:
-            events = EventPage.objects.filter(tags__name=tag).live().specific()
-        else:
-            events = EventPage.objects.live().specific()
-
-        context = super().get_context(request)
-        context['events'] = events
-        context['current_tag'] = tag
-        return context
-    
-    parent_page_types = ['home.HomePage']
-    subpage_types = []

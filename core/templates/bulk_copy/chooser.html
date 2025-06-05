@@ -2,92 +2,410 @@
 {% load i18n wagtailadmin_tags %}
 
 {% block content %}
-<div class="bulk-copy-wrapper">
+<div class="nice-padding">
+  <div class="bulk-copy-container">
+    
+    <header class="bulk-copy-header">
+      <h1 class="bulk-copy-main-title">
+        <svg class="icon icon-copy" aria-hidden="true"><use href="#icon-copy"></use></svg>
+        {% trans "Afrita síður milli tungumála" %}
+      </h1>
+      <p class="bulk-copy-subtitle">{% trans "Veldu síður til að afrita á milli tungumála" %}</p>
+    </header>
 
-  <h1 class="bulk-copy-title">{% trans "Afrita síður milli tungumála" %}</h1>
+    {# --- IS → EN Section --- #}
+    <div class="bulk-copy-card">
+      <div class="bulk-copy-card-header">
+        <h2 class="bulk-copy-section-title">
+          🇮🇸 → 🇬🇧 {% trans "Frá íslensku yfir í ensku" %}
+        </h2>
+      </div>
+      
+      <div class="bulk-copy-card-content">
+        {% if is_to_en %}
+          <div class="help-block">
+            <p>{% trans "Einungis íslenskar síður án enskra þýðinga eru sýndar." %}</p>
+          </div>
 
-  {# --- IS → EN Section --- #}
-  <section class="bulk-copy-section">
-    <h2>{% trans "Frá íslensku yfir í ensku" %}</h2>
+          <form method="post" class="bulk-copy-form">
+            {% csrf_token %}
+            <input type="hidden" name="dst_lang" value="en">
 
-    {% if is_to_en %}
-      <p>{% trans "Einungis íslenskar síður án enskra þýðinga eru sýndar." %}</p>
-
-      <form method="post" class="bulk-copy-form">
-        {% csrf_token %}
-        <input type="hidden" name="dst_lang" value="en">
-
-        <label class="bulk-copy-checkbox-label">
-          <input type="checkbox" id="select-all-is">
-          <strong>{% trans "Velja allar" %}</strong>
-        </label>
-
-        <ul class="listing">
-          {% for page in is_to_en %}
-            <li>
-              <label>
-                <input type="checkbox" name="pages" value="{{ page.id }}">
-                {{ page.get_admin_display_title }}
+            <div class="bulk-copy-controls">
+              <label class="bulk-copy-select-all">
+                <input type="checkbox" id="select-all-is" class="select-all-checkbox">
+                <strong>✓ {% trans "Velja allar" %}</strong>
               </label>
-            </li>
-          {% endfor %}
-        </ul>
+            </div>
 
-        <button type="submit" class="button button-primary">{% trans "Afrita valdar síður yfir á ensku" %}</button>
-      </form>
-    {% else %}
-      <p>{% trans "Allar íslenskar síður hafa þegar enskar þýðingar." %}</p>
-    {% endif %}
-  </section>
+            <div class="bulk-copy-page-list">
+              {% for page in is_to_en %}
+                <label class="bulk-copy-page-item">
+                  <input type="checkbox" name="pages" value="{{ page.id }}" class="page-checkbox">
+                  <div class="page-info">
+                    <span class="page-title">{{ page.get_admin_display_title }}</span>
+                    <span class="page-type">{{ page.content_type.model_class.get_verbose_name }}</span>
+                  </div>
+                </label>
+              {% endfor %}
+            </div>
 
-  <hr>
+            <div class="bulk-copy-actions">
+              <button type="submit" class="button button-primary">
+                <svg class="icon icon-copy" aria-hidden="true"><use href="#icon-copy"></use></svg>
+                {% trans "Afrita valdar síður yfir á ensku" %}
+              </button>
+            </div>
+          </form>
+        {% else %}
+          <div class="success-message">
+            <svg class="icon icon-success" aria-hidden="true"><use href="#icon-success"></use></svg>
+            <p>{% trans "Allar íslenskar síður hafa þegar enskar þýðingar." %}</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
 
-  {# --- EN → IS Section --- #}
-  <section class="bulk-copy-section">
-    <h2>{% trans "Frá ensku yfir í íslensku" %}</h2>
+    {# --- EN → IS Section --- #}
+    <div class="bulk-copy-card">
+      <div class="bulk-copy-card-header">
+        <h2 class="bulk-copy-section-title">
+          🇬🇧 → 🇮🇸 {% trans "Frá ensku yfir í íslensku" %}
+        </h2>
+      </div>
+      
+      <div class="bulk-copy-card-content">
+        {% if en_to_is %}
+          <div class="help-block">
+            <p>{% trans "Einungis enskar síður án íslenskra þýðinga eru sýndar." %}</p>
+          </div>
 
-    {% if en_to_is %}
-      <p>{% trans "Einungis enskar síður án íslenskra þýðinga eru sýndar." %}</p>
+          <form method="post" class="bulk-copy-form">
+            {% csrf_token %}
+            <input type="hidden" name="dst_lang" value="is">
 
-      <form method="post" class="bulk-copy-form">
-        {% csrf_token %}
-        <input type="hidden" name="dst_lang" value="is">
-
-        <label class="bulk-copy-checkbox-label">
-          <input type="checkbox" id="select-all-en">
-          <strong>{% trans "Velja allar" %}</strong>
-        </label>
-
-        <ul class="listing">
-          {% for page in en_to_is %}
-            <li>
-              <label>
-                <input type="checkbox" name="pages" value="{{ page.id }}">
-                {{ page.get_admin_display_title }}
+            <div class="bulk-copy-controls">
+              <label class="bulk-copy-select-all">
+                <input type="checkbox" id="select-all-en" class="select-all-checkbox">
+                <strong>✓ {% trans "Velja allar" %}</strong>
               </label>
-            </li>
-          {% endfor %}
-        </ul>
+            </div>
 
-        <button type="submit" class="button button-primary">{% trans "Afrita valdar síður yfir á íslensku" %}</button>
-      </form>
-    {% else %}
-      <p>{% trans "Allar enskar síður hafa þegar íslenskar þýðingar." %}</p>
-    {% endif %}
-  </section>
+            <div class="bulk-copy-page-list">
+              {% for page in en_to_is %}
+                <label class="bulk-copy-page-item">
+                  <input type="checkbox" name="pages" value="{{ page.id }}" class="page-checkbox">
+                  <div class="page-info">
+                    <span class="page-title">{{ page.get_admin_display_title }}</span>
+                    <span class="page-type">{{ page.content_type.model_class.get_verbose_name }}</span>
+                  </div>
+                </label>
+              {% endfor %}
+            </div>
 
-  <a href="{% url 'wagtailadmin_home' %}" class="button button-secondary">{% trans "Hætta við" %}</a>
+            <div class="bulk-copy-actions">
+              <button type="submit" class="button button-primary">
+                <svg class="icon icon-copy" aria-hidden="true"><use href="#icon-copy"></use></svg>
+                {% trans "Afrita valdar síður yfir á íslensku" %}
+              </button>
+            </div>
+          </form>
+        {% else %}
+          <div class="success-message">
+            <svg class="icon icon-success" aria-hidden="true"><use href="#icon-success"></use></svg>
+            <p>{% trans "Allar enskar síður hafa þegar íslenskar þýðingar." %}</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
 
+    <div class="bulk-copy-footer">
+      <a href="{% url 'wagtailadmin_home' %}" class="button button-secondary">
+        <svg class="icon icon-arrow-left" aria-hidden="true"><use href="#icon-arrow-left"></use></svg>
+        {% trans "Til baka" %}
+      </a>
+    </div>
+
+  </div>
 </div>
 
+<style>
+.bulk-copy-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 0;
+}
+
+.bulk-copy-header {
+  text-align: center;
+  margin-bottom: 3rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid #e1e5e9;
+}
+
+.bulk-copy-main-title {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #2e3d49;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.bulk-copy-main-title .icon {
+  width: 2rem;
+  height: 2rem;
+  fill: #007d7e;
+}
+
+.bulk-copy-subtitle {
+  color: #6b7280;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.bulk-copy-card {
+  background: #ffffff;
+  border: 1px solid #e1e5e9;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.bulk-copy-card-header {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid #e1e5e9;
+}
+
+.bulk-copy-section-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #2e3d49;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.bulk-copy-card-content {
+  padding: 2rem;
+}
+
+.help-block {
+  background: #f0f9ff;
+  border-left: 4px solid #0ea5e9;
+  padding: 1rem 1.5rem;
+  margin-bottom: 2rem;
+  border-radius: 0 8px 8px 0;
+}
+
+.help-block p {
+  margin: 0;
+  color: #0c4a6e;
+  font-weight: 500;
+}
+
+.bulk-copy-controls {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.bulk-copy-select-all {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 6px;
+  transition: background-color 0.15s ease;
+}
+
+.bulk-copy-select-all:hover {
+  background-color: #f8fafc;
+}
+
+.select-all-checkbox {
+  width: 1.2rem;
+  height: 1.2rem;
+}
+
+.bulk-copy-page-list {
+  max-height: 400px;
+  overflow-y: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+}
+
+.bulk-copy-page-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  cursor: pointer;
+  border-bottom: 1px solid #f1f5f9;
+  transition: background-color 0.15s ease;
+}
+
+.bulk-copy-page-item:last-child {
+  border-bottom: none;
+}
+
+.bulk-copy-page-item:hover {
+  background-color: #f8fafc;
+}
+
+.bulk-copy-page-item:has(.page-checkbox:checked) {
+  background-color: #f0f9ff;
+  border-color: #bae6fd;
+}
+
+.page-checkbox {
+  width: 1.1rem;
+  height: 1.1rem;
+  flex-shrink: 0;
+}
+
+.page-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.page-title {
+  font-weight: 500;
+  color: #1f2937;
+  line-height: 1.4;
+}
+
+.page-type {
+  font-size: 0.875rem;
+  color: #6b7280;
+  text-transform: capitalize;
+}
+
+.bulk-copy-actions {
+  text-align: center;
+}
+
+.bulk-copy-actions .button {
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: auto;
+  line-height: 1.4;
+}
+
+.bulk-copy-actions .button .icon {
+  width: 1rem;
+  height: 1rem;
+  margin-right: 0.25rem;
+}
+
+.success-message {
+  text-align: center;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  padding: 2rem;
+  color: #166534;
+}
+
+.success-message .icon {
+  width: 2rem;
+  height: 2rem;
+  fill: #22c55e;
+  margin-bottom: 0.5rem;
+}
+
+.success-message p {
+  margin: 0;
+  font-weight: 500;
+  font-size: 1.1rem;
+}
+
+.bulk-copy-footer {
+  text-align: center;
+  padding-top: 2rem;
+  border-top: 1px solid #e1e5e9;
+}
+
+.bulk-copy-footer .button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+}
+
+.bulk-copy-footer .button .icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .bulk-copy-container {
+    max-width: 100%;
+    padding: 1rem 0;
+  }
+  
+  .bulk-copy-card-content {
+    padding: 1.5rem;
+  }
+  
+  .bulk-copy-main-title {
+    font-size: 1.5rem;
+  }
+  
+  .bulk-copy-page-item {
+    padding: 0.75rem 1rem;
+  }
+}
+
+/* Dark mode support (if Wagtail admin uses it) */
+@media (prefers-color-scheme: dark) {
+  .bulk-copy-card {
+    background: #1f2937;
+    border-color: #374151;
+  }
+  
+  .bulk-copy-card-header {
+    background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
+    border-color: #4b5563;
+  }
+  
+  .bulk-copy-main-title,
+  .bulk-copy-section-title,
+  .page-title {
+    color: #f9fafb;
+  }
+  
+  .bulk-copy-subtitle,
+  .page-type {
+    color: #d1d5db;
+  }
+}
+</style>
+
 <script>
+document.addEventListener('DOMContentLoaded', function() {
   const selectAllIS = document.getElementById("select-all-is");
   if (selectAllIS) {
     selectAllIS.addEventListener("change", function () {
-      document.querySelectorAll("form input[name='pages']").forEach(cb => {
-        if (cb.closest("form").querySelector("input[name='dst_lang']").value === "en") {
-          cb.checked = this.checked;
-        }
+      const form = this.closest('.bulk-copy-card');
+      const checkboxes = form.querySelectorAll('.page-checkbox');
+      checkboxes.forEach(cb => {
+        cb.checked = this.checked;
       });
     });
   }
@@ -95,12 +413,30 @@
   const selectAllEN = document.getElementById("select-all-en");
   if (selectAllEN) {
     selectAllEN.addEventListener("change", function () {
-      document.querySelectorAll("form input[name='pages']").forEach(cb => {
-        if (cb.closest("form").querySelector("input[name='dst_lang']").value === "is") {
-          cb.checked = this.checked;
-        }
+      const form = this.closest('.bulk-copy-card');
+      const checkboxes = form.querySelectorAll('.page-checkbox');
+      checkboxes.forEach(cb => {
+        cb.checked = this.checked;
       });
     });
   }
+
+  // Add some visual feedback for form submission
+  const forms = document.querySelectorAll('.bulk-copy-form');
+  forms.forEach(form => {
+    form.addEventListener('submit', function(e) {
+      const checkedBoxes = form.querySelectorAll('.page-checkbox:checked');
+      if (checkedBoxes.length === 0) {
+        e.preventDefault();
+        alert('{% trans "Vinsamlegast veldu að minnsta kosti eina síðu til að afrita." %}');
+        return;
+      }
+      
+      const submitBtn = form.querySelector('button[type="submit"]');
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<svg class="icon icon-spinner" aria-hidden="true"><use href="#icon-spinner"></use></svg> {% trans "Afrita..." %}';
+    });
+  });
+});
 </script>
 {% endblock %}
