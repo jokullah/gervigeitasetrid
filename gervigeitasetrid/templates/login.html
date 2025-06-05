@@ -24,6 +24,11 @@
             <div class="form-group">
                 <label for="password">{% trans "Password" %}</label>
                 <input type="password" id="password" name="password" required>
+                <div style="margin-top: 0.5rem; text-align: left;">
+                    <a href="{% url 'forgot_password' %}" style="color: #10099F; text-decoration: underline; font-size: 0.8rem;">
+                        {% trans "Gleymt lykilorð?" %}
+                    </a>
+                </div>
             </div>
             
             <button type="submit" class="home-hero__cta" style="cursor: pointer;">{% trans "Innskrá" %}</button>
@@ -37,4 +42,4 @@
         </form>
     </div>
 </div>
-{% endblock %} 
+{% endblock %}
