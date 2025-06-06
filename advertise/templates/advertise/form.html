@@ -1,276 +1,214 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% block content %}
-<main>
-  <h1>{% trans "Auglýsa verkefni" %}</h1>
+<main class="max-w-4xl mx-auto px-6 py-8">
+  <h1 class="text-3xl font-bold text-gray-900 mb-8">{% trans "Auglýsa verkefni" %}</h1>
 
-  <form method="post" class="page-form" novalidate>
+  <form method="post" class="space-y-8" novalidate>
     {% csrf_token %}
     
-    <div class="form-section">
-      <h2>{% trans "Grunnupplýsingar" %}</h2>
+    <div class="pb-6 border-b border-gray-300">
+      <h2 class="text-xl font-semibold text-blue-700 mb-4">{% trans "Grunnupplýsingar" %}</h2>
       
-      {{ form.title.label_tag }}
-      {{ form.title }}
-      {% if form.title.errors %}
-        <div class="form-errors">{{ form.title.errors }}</div>
-      {% endif %}
-      
-      {{ form.description.label_tag }}
-      {{ form.description }}
-      {% if form.description.errors %}
-        <div class="form-errors">{{ form.description.errors }}</div>
-      {% endif %}
-      
-      {{ form.company_name.label_tag }}
-      {{ form.company_name }}
-      {% if form.company_name.errors %}
-        <div class="form-errors">{{ form.company_name.errors }}</div>
-      {% endif %}
-      
-      {{ form.contact_name.label_tag }}
-      {{ form.contact_name }}
-      {% if form.contact_name.errors %}
-        <div class="form-errors">{{ form.contact_name.errors }}</div>
-      {% endif %}
-      
-      {{ form.contact_email.label_tag }}
-      {{ form.contact_email }}
-      {% if form.contact_email.errors %}
-        <div class="form-errors">{{ form.contact_email.errors }}</div>
-      {% endif %}
+      <div class="space-y-4">
+        <div>
+          {{ form.title.label_tag }}
+          {{ form.title }}
+          {% if form.title.errors %}
+            <div class="text-red-600 text-sm mt-1">{{ form.title.errors }}</div>
+          {% endif %}
+        </div>
+        
+        <div>
+          {{ form.description.label_tag }}
+          {{ form.description }}
+          {% if form.description.errors %}
+            <div class="text-red-600 text-sm mt-1">{{ form.description.errors }}</div>
+          {% endif %}
+        </div>
+        
+        <div>
+          {{ form.company_name.label_tag }}
+          {{ form.company_name }}
+          {% if form.company_name.errors %}
+            <div class="text-red-600 text-sm mt-1">{{ form.company_name.errors }}</div>
+          {% endif %}
+        </div>
+        
+        <div>
+          {{ form.contact_name.label_tag }}
+          {{ form.contact_name }}
+          {% if form.contact_name.errors %}
+            <div class="text-red-600 text-sm mt-1">{{ form.contact_name.errors }}</div>
+          {% endif %}
+        </div>
+        
+        <div>
+          {{ form.contact_email.label_tag }}
+          {{ form.contact_email }}
+          {% if form.contact_email.errors %}
+            <div class="text-red-600 text-sm mt-1">{{ form.contact_email.errors }}</div>
+          {% endif %}
+        </div>
+      </div>
     </div>
     
-    <div class="form-section">
-      <h2>{% trans "Fjármögnun" %}</h2>
+    <div class="pb-6 border-b border-gray-300">
+      <h2 class="text-xl font-semibold text-blue-700 mb-4">{% trans "Fjármögnun" %}</h2>
       
-      <div class="checkbox-field">
+      <div class="flex items-start gap-2 mb-4">
         {{ form.is_funded }}
-        {{ form.is_funded.label_tag }}
-        {% if form.is_funded.help_text %}
-          <small class="form-help">{{ form.is_funded.help_text }}</small>
-        {% endif %}
+        <div>
+          {{ form.is_funded.label_tag }}
+          {% if form.is_funded.help_text %}
+            <small class="block text-gray-600 italic mt-1">{{ form.is_funded.help_text }}</small>
+          {% endif %}
+        </div>
         {% if form.is_funded.errors %}
-          <div class="form-errors">{{ form.is_funded.errors }}</div>
+          <div class="text-red-600 text-sm mt-1">{{ form.is_funded.errors }}</div>
         {% endif %}
       </div>
       
-      <div class="funding-amount-field" id="funding-amount-field" style="display: none;">
+      <div id="funding-amount-field" style="display: none;">
         {{ form.funding_amount.label_tag }}
         {{ form.funding_amount }}
         {% if form.funding_amount.help_text %}
-          <small class="form-help">{{ form.funding_amount.help_text }}</small>
+          <small class="block text-gray-600 italic mt-1">{{ form.funding_amount.help_text }}</small>
         {% endif %}
         {% if form.funding_amount.errors %}
-          <div class="form-errors">{{ form.funding_amount.errors }}</div>
+          <div class="text-red-600 text-sm mt-1">{{ form.funding_amount.errors }}</div>
         {% endif %}
       </div>
     </div>
     
-    <div class="form-section">
-      <h2>{% trans "Óskir um leiðbeinendur" %}</h2>
+    <div class="pb-6 border-b border-gray-300">
+      <h2 class="text-xl font-semibold text-blue-700 mb-4">{% trans "Óskir um leiðbeinendur" %}</h2>
       
       {{ form.requested_advisors.label_tag }}
       {% if form.requested_advisors.help_text %}
-        <small class="form-help">{{ form.requested_advisors.help_text }}</small>
+        <small class="block text-gray-600 italic mt-1">{{ form.requested_advisors.help_text }}</small>
       {% endif %}
-      <div class="advisor-checkbox-container">
+      <div class="max-h-48 overflow-y-auto border border-gray-300 rounded-md p-4 bg-white mt-2">
         {{ form.requested_advisors }}
       </div>
       {% if form.requested_advisors.errors %}
-        <div class="form-errors">{{ form.requested_advisors.errors }}</div>
+        <div class="text-red-600 text-sm mt-1">{{ form.requested_advisors.errors }}</div>
       {% endif %}
     </div>
     
-    <div class="form-section">
-      <h2>{% trans "Aðrar upplýsingar" %}</h2>
+    <div class="pb-6">
+      <h2 class="text-xl font-semibold text-blue-700 mb-4">{% trans "Aðrar upplýsingar" %}</h2>
       
       {{ form.other.label_tag }}
       {{ form.other }}
       {% if form.other.help_text %}
-        <small class="form-help">{{ form.other.help_text }}</small>
+        <small class="block text-gray-600 italic mt-1">{{ form.other.help_text }}</small>
       {% endif %}
       {% if form.other.errors %}
-        <div class="form-errors">{{ form.other.errors }}</div>
+        <div class="text-red-600 text-sm mt-1">{{ form.other.errors }}</div>
       {% endif %}
     </div>
     
-    <button type="submit" class="form-submit">{% trans "Senda inn" %}</button>
+    <button type="submit" class="bg-pink-600 hover:bg-pink-700 text-white px-8 py-3 rounded-md text-lg font-semibold cursor-pointer transition-colors duration-200 mt-8">
+      {% trans "Senda inn" %}
+    </button>
   </form>
 </main>
 
 <style>
-.form-section {
-  margin-bottom: 2rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid var(--Grar);
-}
-
-.form-section:last-of-type {
-  border-bottom: none;
-}
-
-.form-section h2 {
-  color: var(--HI-blar);
-  font-size: 1.3rem;
-  margin-bottom: 1rem;
-  font-weight: 600;
-}
-
-.checkbox-field {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-}
-
-.checkbox-field input[type="checkbox"] {
-  margin-top: 0.25rem;
-  width: auto !important;
-  min-height: auto !important;
-}
-
-.checkbox-field label {
-  margin: 0;
-  font-weight: 600;
-}
-
-.form-help {
-  display: block;
-  color: var(--Dokkgrar);
-  font-style: italic;
-  margin-top: 0.25rem;
-}
-
-.form-errors {
-  color: #dc3545;
-  font-size: 0.9rem;
-  margin-top: 0.25rem;
-}
-
-/* NEW: Advisor checkbox styling */
-.advisor-checkbox-container {
-  max-height: 200px; /* Adjust this based on your needs */
-  overflow-y: auto;
-  border: 1px solid var(--Grar);
+/* Form input styling with visible borders - using regular CSS */
+input[type="text"], 
+input[type="email"], 
+input[type="number"], 
+textarea, 
+select {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #d1d5db !important; /* Gray-300 with !important to override */
   border-radius: 6px;
-  padding: 1rem;
-  background: var(--Hvitur);
-  margin-top: 0.5rem;
+  transition: all 0.2s ease;
+  font-size: 16px;
+  background-color: white;
 }
 
-/* Target the actual Django CheckboxSelectMultiple structure */
-.advisor-checkbox-container .advisor-checkbox-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
+input[type="text"]:focus, 
+input[type="email"]:focus, 
+input[type="number"]:focus, 
+textarea:focus, 
+select:focus {
+  outline: none;
+  border-color: #3b82f6 !important; /* Blue-500 */
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
-.advisor-checkbox-container input[type="checkbox"] {
-  margin-right: 0.75rem;
+/* Label styling */
+label {
+  display: block;
+  font-weight: 600;
+  color: #374151; /* Gray-700 */
+  margin-bottom: 4px;
+  font-size: 14px;
+}
+
+/* Checkbox styling */
+input[type="checkbox"] {
+  margin-top: 4px;
   width: auto !important;
   min-height: auto !important;
 }
 
-.advisor-checkbox-container label {
-  display: flex;
-  align-items: center;
-  padding: 0.75rem;
-  border-radius: 4px;
+/* Checkbox container styling */
+#id_requested_advisors ul {
+  list-style: none;
+  padding: 0;
   margin: 0;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  font-weight: normal;
 }
 
-.advisor-checkbox-container label:hover {
-  background: var(--Ljosgrar);
+#id_requested_advisors li {
+  margin-bottom: 8px;
 }
 
-/* Scrollbar styling for webkit browsers */
-.advisor-checkbox-container::-webkit-scrollbar {
-  width: 8px;
-}
-
-.advisor-checkbox-container::-webkit-scrollbar-track {
-  background: var(--Ljosgrar);
-  border-radius: 4px;
-}
-
-.advisor-checkbox-container::-webkit-scrollbar-thumb {
-  background: var(--Grar);
-  border-radius: 4px;
-}
-
-.advisor-checkbox-container::-webkit-scrollbar-thumb:hover {
-  background: var(--Dokkgrar);
-}
-
-.advisor-checkbox-container li:hover {
-  background: var(--Ljosgrar);
-}
-
-.advisor-checkbox-container li:last-child {
-  margin-bottom: 0;
-}
-
-.advisor-checkbox-container label {
+#id_requested_advisors label {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 6px;
   cursor: pointer;
   font-weight: normal;
   margin: 0;
   width: 100%;
+  transition: background-color 0.2s ease;
 }
 
-.advisor-checkbox-container input[type="checkbox"] {
+#id_requested_advisors label:hover {
+  background-color: #f3f4f6; /* Gray-100 */
+}
+
+#id_requested_advisors input[type="checkbox"] {
+  flex-shrink: 0;
   width: auto !important;
   min-height: auto !important;
   margin: 0 !important;
-  flex-shrink: 0;
 }
 
-.advisor-checkbox-container .checkbox-text {
-  flex: 1;
-  font-size: 0.95rem;
-  line-height: 1.4;
-}
-
-/* Scrollbar styling for webkit browsers */
-.advisor-checkbox-container::-webkit-scrollbar {
+/* Scrollbar styling */
+.max-h-48::-webkit-scrollbar {
   width: 8px;
 }
 
-.advisor-checkbox-container::-webkit-scrollbar-track {
-  background: var(--Ljosgrar);
+.max-h-48::-webkit-scrollbar-track {
+  background: #f3f4f6;
   border-radius: 4px;
 }
 
-.advisor-checkbox-container::-webkit-scrollbar-thumb {
-  background: var(--Grar);
+.max-h-48::-webkit-scrollbar-thumb {
+  background: #9ca3af;
   border-radius: 4px;
 }
 
-.advisor-checkbox-container::-webkit-scrollbar-thumb:hover {
-  background: var(--Dokkgrar);
-}
-
-.form-submit {
-  background: var(--Bleikur);
-  color: var(--Hvitur);
-  padding: 1rem 2rem;
-  border: none;
-  border-radius: 6px;
-  font-size: 1.1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  margin-top: 2rem;
-}
-
-.form-submit:hover {
-  background: var(--Bleikur-til-aherslu);
+.max-h-48::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
 }
 </style>
 
