@@ -7,181 +7,224 @@
 {% get_site_root as base_root %}
 {% with base_root|translate_page:cur_lang as root_page %}
 
-<header class="site-header">
+<header class="bg-white border-b border-gray-200">
 
   {# 1 ▸ UTILITY STRIP #}
-  <div class="utility-bar">
-    <div class="inner">
+  <div class="bg-gray-50 border-b border-gray-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-10">
 
-      {# language toggle #}
-      {# ------------------------------------------------------------------ #}
-      {#  Pick the current Page.  "page" exists on Wagtail pages;           #}
-      {#  fall back to root_page on views (search, 404, etc.)               #}
-      {# ------------------------------------------------------------------ #}
-      {% with page|default:root_page as this_page %}
+        {# Language Toggle #}
+        {% with page|default:root_page as this_page %}
           {% with this_page|translate_page:'en' as en_page %}
-              {% with this_page|translate_page:'is' as is_page %}
+            {% with this_page|translate_page:'is' as is_page %}
+              <div class="flex items-center space-x-1">
+                {# English button #}
+                <form action="{% url 'set_language' %}" method="post" class="inline">
+                  {% csrf_token %}
+                  <input type="hidden" name="next" value="{% pageurl en_page %}">
+                  <button type="submit" name="language" value="en"
+                          class="px-2 py-1 text-xs font-medium rounded transition-colors duration-200 
+                                 {% if cur_lang|slice:':2' == 'en' %}bg-gray-900 text-white{% else %}text-gray-600 hover:text-gray-900{% endif %}">
+                    EN
+                  </button>
+                </form>
 
-                  <div class="lang-switch">
-                    {# ---- English button ---- #}
-                    <form action="{% url 'set_language' %}" method="post">
-                      {% csrf_token %}
-                      <input type="hidden" name="next" value="{% pageurl en_page %}">
-                      <button type="submit" name="language" value="en"
-                              {% if cur_lang|slice:":2" == 'en' %}class="is-active"{% endif %}>
-                        EN
-                      </button>
-                    </form>
-
-                    {# ---- Icelandic button ---- #}
-                    <form action="{% url 'set_language' %}" method="post">
-                      {% csrf_token %}
-                      <input type="hidden" name="next" value="{% pageurl is_page %}">
-                      <button type="submit" name="language" value="is"
-                              {% if cur_lang|slice:":2" == 'is' %}class="is-active"{% endif %}>
-                        ÍS
-                      </button>
-                    </form>
-                  </div>
-
-              {% endwith %}
+                {# Icelandic button #}
+                <form action="{% url 'set_language' %}" method="post" class="inline">
+                  {% csrf_token %}
+                  <input type="hidden" name="next" value="{% pageurl is_page %}">
+                  <button type="submit" name="language" value="is"
+                          class="px-2 py-1 text-xs font-medium rounded transition-colors duration-200
+                                 {% if cur_lang|slice:':2' == 'is' %}bg-gray-900 text-white{% else %}text-gray-600 hover:text-gray-900{% endif %}">
+                    ÍS
+                  </button>
+                </form>
+              </div>
+            {% endwith %}
           {% endwith %}
-      {% endwith %}
+        {% endwith %}
 
-      {% if request.user.is_authenticated %}
-        <div class="user-info">
-          {% if user_is_starfsmenn and user_person_page %}
-            {% comment %} Starfsmenn user with PersonPage - clickable {% endcomment %}
-            <a href="{% pageurl user_person_page %}" style="color: inherit; text-decoration: none; display: flex; align-items: center;">
-              <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
-                <circle cx="12" cy="8" r="5" stroke="currentColor" stroke-width="2" fill="none"/>
-                <path d="M3,21 C3,16 8,14 12,14 C16,14 21,16 21,21" stroke="currentColor" stroke-width="2" fill="none"/>
-              </svg>
-              <span>{{ request.user.email }}</span>
-            </a>
+        {# Right side - Only Login/Logout (NO email display here) #}
+        <div class="flex items-center">
+          {% if request.user.is_authenticated %}
+            <form method="post" action="{% url 'logout' %}" class="inline">
+              {% csrf_token %}
+              <button type="submit" 
+                      class="text-xs text-gray-600 hover:text-red-600 transition-colors duration-200"
+                      onclick="return confirm('{% trans "Ertu viss um að þú viljir skrá þig út?" %}')">
+                {% trans "Skrá út" %}
+              </button>
+            </form>
           {% else %}
-            {% comment %} Either not Starfsmenn, or Starfsmenn without PersonPage - non-clickable {% endcomment %}
-            <div style="display: flex; align-items: center;">
-              <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
-                <circle cx="12" cy="8" r="5" stroke="currentColor" stroke-width="2" fill="none"/>
-                <path d="M3,21 C3,16 8,14 12,14 C16,14 21,16 21,21" stroke="currentColor" stroke-width="2" fill="none"/>
-              </svg>
-              <span>{{ request.user.email }}</span>
-            </div>
+            <a href="{% url 'login' %}" 
+               class="text-xs text-gray-600 hover:text-gray-900 transition-colors duration-200">
+              {% trans "Innskrá" %}
+            </a>
           {% endif %}
         </div>
-        {% endif %}
-
-      {# quick links #}
-      <nav class="utility-links">
-        <a href="https://thjonusta.hi.is/hc/is-is">{% trans "Þjónusta" %}</a>
-        <a href="https://ugla.hi.is/">UGLA</a>
-        <a href="https://hi.is/starfsmannaleit#">
-          {% trans "Finna" %}&nbsp;{% trans "starfsfólk" %}
-        </a>
-        {% if request.user.is_authenticated %}
-          <form method="post" action="{% url 'logout' %}" style="display: inline;">
-            {% csrf_token %}
-            <button type="submit" class="cta" onclick="return confirm('{% trans "Ertu viss um að þú viljir skrá þig út?" %}')">
-              {% trans "Skrá út" %}
-            </button>
-          </form>
-        {% else %}
-          <a href="{% url 'login' %}" class="cta">{% trans "Innskrá" %}</a>
-        {% endif %}
-      </nav>
-
-      {# search #}
-      <form class="utility-search" action="/search/" method="get">
-        <label class="visually-hidden" for="search-box">{% trans "Leita" %}</label>
-        <input id="search-box" name="query" type="search"
-               placeholder="{% trans 'Leita' %}">
-        <button type="submit" aria-label="{% trans 'Leita' %}">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <circle cx="10" cy="10" r="7" stroke="currentColor"
-                    stroke-width="2" fill="none"/>
-            <line x1="15" y1="15" x2="22" y2="22"
-                  stroke="currentColor" stroke-width="2"/>
-          </svg>
-        </button>
-      </form>
-
+      </div>
     </div>
   </div>
 
   {# 2 ▸ PRIMARY STRIP #}
-  <div class="primary-bar">
-    <div class="inner">
+  <div class="bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-20">
 
-      {# logo → root of active language #}
-      <a class="site-logo" href="{% pageurl root_page %}">
-        <img src="{% static 'images/hi-logo-white-on-blue.svg' %}" alt="Háskóli Íslands">
-      </a>
+        {# Logo #}
+        <a class="flex-shrink-0" href="{% pageurl root_page %}">
+          <img class="h-12 w-auto" src="{% static 'images/hi-logo-white-on-blue.svg' %}" alt="Háskóli Íslands">
+        </a>
 
-      {# main menu #}
-      <div class="nav-wrapper">
-        <nav class="main-nav">
+        {# Main Navigation #}
+        <nav class="hidden md:flex items-center space-x-10">
           {% for p in root_page.get_children.live.in_menu %}
             {% with p|translate_page:cur_lang as tp %}
-              <a href="{% pageurl tp %}">{{ tp.title }}</a>
+              <a href="{% pageurl tp %}" 
+                 class="text-gray-700 hover:text-gray-900 font-medium text-sm tracking-wide transition-colors duration-200 relative group">
+                {{ tp.title }}
+                <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-gray-900 transition-all duration-200 group-hover:w-full"></span>
+              </a>
             {% endwith %}
           {% endfor %}
         </nav>
-      </div>
 
-      {% if not request.user.is_authenticated %}
-      <a href="{% url 'advertise:advertise-project' %}" class="advertise-btn">
-        {% trans "Auglýsa verkefni" %}
-      </a>
-      {% endif %}
-
-      {% if request.user.is_authenticated %}
-      <div class="user-info">
-        {% if user_is_starfsmenn and user_person_page %}
-          {% comment %} Starfsmenn user with PersonPage - clickable {% endcomment %}
-          <a href="{% pageurl user_person_page %}" style="color: inherit; text-decoration: none; display: flex; align-items: center;">
-            <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
-              <circle cx="12" cy="8" r="5" stroke="currentColor" stroke-width="2" fill="none"/>
-              <path d="M3,21 C3,16 8,14 12,14 C16,14 21,16 21,21" stroke="currentColor" stroke-width="2" fill="none"/>
-            </svg>
-            <span>{{ request.user.email }}</span>
-          </a>
-        {% elif user_is_nemandi %}
-          {% comment %} Nemandi user - clickable with dropdown {% endcomment %}
-          <div class="user-dropdown-wrapper">
-            <button class="user-profile-btn" onclick="toggleUserDropdown()" style="background: none; border: none; color: inherit; cursor: pointer; display: flex; align-items: center;">
-              <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
-                <circle cx="12" cy="8" r="5" stroke="currentColor" stroke-width="2" fill="none"/>
-                <path d="M3,21 C3,16 8,14 12,14 C16,14 21,16 21,21" stroke="currentColor" stroke-width="2" fill="none"/>
-              </svg>
-              <span>{{ request.user.email }}</span>
-              <svg viewBox="0 0 24 24" width="12" height="12" style="margin-left: 4px;" aria-hidden="true">
-                <polyline points="6,9 12,15 18,9" stroke="currentColor" stroke-width="2" fill="none"/>
-              </svg>
-            </button>
-            <div class="user-dropdown" id="userDropdown" style="display: none;">
-              <div class="dropdown-item">
-                <strong>{% trans "Staða: " %}:</strong> {% trans "Nemandi" %}
+        {# Right side items #}
+        <div class="flex items-center space-x-6">
+          
+          {# Search #}
+          <form class="hidden sm:flex items-center" action="/search/" method="get">
+            <div class="relative">
+              <input id="search-box" name="query" type="search"
+                     placeholder="{% trans 'Leita' %}"
+                     class="w-64 pl-10 pr-4 py-2 text-sm border border-gray-300 rounded-full focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all duration-200">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg class="w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="10" cy="10" r="7"/>
+                  <line x1="15" y1="15" x2="22" y2="22"/>
+                </svg>
               </div>
             </div>
-          </div>
-        {% else %}
-          {% comment %} Other users - non-clickable {% endcomment %}
-          <div style="display: flex; align-items: center;">
-            <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
-              <circle cx="12" cy="8" r="5" stroke="currentColor" stroke-width="2" fill="none"/>
-              <path d="M3,21 C3,16 8,14 12,14 C16,14 21,16 21,21" stroke="currentColor" stroke-width="2" fill="none"/>
+          </form>
+
+          {# Advertise Button (if not authenticated) #}
+          {% if not request.user.is_authenticated %}
+            <a href="{% url 'advertise:advertise-project' %}" 
+               class="px-6 py-2 bg-gray-900 text-white font-medium rounded-full hover:bg-gray-800 transition-colors duration-200 text-sm">
+              {% trans "Auglýsa verkefni" %}
+            </a>
+          {% endif %}
+
+          {# User Info (ONLY displayed here in main nav) #}
+          {% if request.user.is_authenticated %}
+            <div class="text-gray-700">
+              {% if user_is_starfsmenn and user_person_page %}
+                <a href="{% pageurl user_person_page %}" 
+                   class="flex items-center space-x-2 text-gray-700 hover:text-gray-900 transition-colors duration-200 p-2 rounded-lg hover:bg-gray-50">
+                  <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="8" r="5"/>
+                    <path d="M3,21 C3,16 8,14 12,14 C16,14 21,16 21,21"/>
+                  </svg>
+                  <span class="text-sm font-medium">{{ request.user.email }}</span>
+                </a>
+              {% elif user_is_nemandi %}
+                <div class="relative">
+                  <button class="flex items-center space-x-2 text-gray-700 hover:text-gray-900 transition-colors duration-200 p-2 rounded-lg hover:bg-gray-50" 
+                          onclick="toggleUserDropdown()">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="8" r="5"/>
+                      <path d="M3,21 C3,16 8,14 12,14 C16,14 21,16 21,21"/>
+                    </svg>
+                    <span class="text-sm font-medium">{{ request.user.email }}</span>
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="6,9 12,15 18,9"/>
+                    </svg>
+                  </button>
+                  <div id="userDropdown" 
+                       class="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50 hidden">
+                    <div class="px-4 py-2 text-sm text-gray-700 border-b border-gray-100">
+                      <strong>{% trans "Staða" %}:</strong> {% trans "Nemandi" %}
+                    </div>
+                  </div>
+                </div>
+              {% else %}
+                <div class="flex items-center space-x-2 p-2">
+                  <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="8" r="5"/>
+                    <path d="M3,21 C3,16 8,14 12,14 C16,14 21,16 21,21"/>
+                  </svg>
+                  <span class="text-sm font-medium">{{ request.user.email }}</span>
+                </div>
+              {% endif %}
+            </div>
+          {% endif %}
+
+          {# Mobile Menu Button #}
+          <button class="md:hidden p-2 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors duration-200" onclick="toggleMobileMenu()">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
             </svg>
-            <span>{{ request.user.email }}</span>
-          </div>
-        {% endif %}
+          </button>
+
+        </div>
       </div>
-      {% endif %}
+
+      {# Mobile Navigation #}
+      <div id="mobileMenu" class="md:hidden hidden border-t border-gray-200 py-4">
+        <nav class="flex flex-col space-y-3">
+          {% for p in root_page.get_children.live.in_menu %}
+            {% with p|translate_page:cur_lang as tp %}
+              <a href="{% pageurl tp %}" 
+                 class="text-gray-700 hover:text-gray-900 font-medium py-2 px-3 rounded-lg hover:bg-gray-50 transition-colors duration-200">
+                {{ tp.title }}
+              </a>
+            {% endwith %}
+          {% endfor %}
+          
+          {# Mobile Search #}
+          <form class="sm:hidden mt-4" action="/search/" method="get">
+            <div class="relative">
+              <input name="query" type="search"
+                     placeholder="{% trans 'Leita' %}"
+                     class="w-full pl-10 pr-4 py-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg class="w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="10" cy="10" r="7"/>
+                  <line x1="15" y1="15" x2="22" y2="22"/>
+                </svg>
+              </div>
+            </div>
+          </form>
+        </nav>
+      </div>
 
     </div>
   </div>
 
   {% wagtailuserbar "top-right" %}
 </header>
+
+<script>
+function toggleUserDropdown() {
+  const dropdown = document.getElementById('userDropdown');
+  dropdown.classList.toggle('hidden');
+}
+
+function toggleMobileMenu() {
+  const menu = document.getElementById('mobileMenu');
+  menu.classList.toggle('hidden');
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function(event) {
+  const dropdown = document.getElementById('userDropdown');
+  const button = event.target.closest('button');
+  
+  if (!button && dropdown && !dropdown.contains(event.target)) {
+    dropdown.classList.add('hidden');
+  }
+});
+</script>
 
 {% endwith %}
