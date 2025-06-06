@@ -4,49 +4,74 @@
 {% block body_class %}template-blogindexpage{% endblock %}
 
 {% block content %}
-  <h1>{{ page.title }}</h1>
-  <div class="intro">{{ page.intro|richtext }}</div>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Page Title -->
+    <h1 class="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">{{ page.title }}</h1>
+    
+    <!-- Intro Section -->
+    <div class="text-lg text-gray-600 mb-12 max-w-3xl">{{ page.intro|richtext }}</div>
 
-  <div class="blog-grid">
-    {% for post in blogpages %}
-      {% with post=post.specific %}
-        <div class="blog-card">
-          <a href="{% pageurl post %}">
-            {# -- Thumbnail image for the post -- #}
-            <div class="blog-card__image">
-              {% if post.thumbnail_image %}
-                {% image post.thumbnail_image fill-320x180 %}
-              {% elif post.main_image %}
-                {% image post.main_image fill-320x180 %}
-              {% endif %}
-            </div>
-
-            {# -- Title -- #}
-            <h2 class="blog-card__title">{{ post.title }}</h2>
-
-            {# -- Meta row: date + authors -- #}
-            <div class="blog-card__meta">
-              <time class="blog-card__date">
-                {{ post.first_published_at|date:"F j, Y" }}
-              </time>
-              <div class="blog-card__authors">
-                {% for author in post.authors.all %}
-                  {% with author.author_image as img %}
-                    {% if img %}
-                      {% image img fill-32x32 alt=author.name class="author-icon" %}
-                    {% else %}
-                      <img
-                        src="{% static 'images/default-user-icon.svg' %}"
-                        alt="{{ author.name }}"
-                        class="author-icon">
-                    {% endif %}
-                  {% endwith %}
-                {% endfor %}
+    <!-- Blog Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {% for post in blogpages %}
+        {% with post=post.specific %}
+          <article class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden group">
+            <a href="{% pageurl post %}" class="block">
+              <!-- Thumbnail Image -->
+              <div class="aspect-video overflow-hidden bg-gray-200">
+                {% if post.thumbnail_image %}
+                  {% image post.thumbnail_image fill-320x180 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" %}
+                {% elif post.main_image %}
+                  {% image post.main_image fill-320x180 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" %}
+                {% else %}
+                  <div class="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                    <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                  </div>
+                {% endif %}
               </div>
-            </div>
-          </a>
-        </div>
-      {% endwith %}
-    {% endfor %}
+
+              <!-- Card Content -->
+              <div class="p-6">
+                <!-- Title -->
+                <h2 class="text-xl font-semibold text-gray-900 mb-3 line-clamp-2 group-hover:text-blue-600 transition-colors duration-200">
+                  {{ post.title }}
+                </h2>
+
+                <!-- Meta Information -->
+                <div class="flex items-center justify-between text-sm text-gray-500">
+                  <!-- Date -->
+                  <time class="flex items-center">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                    {{ post.first_published_at|date:"F j, Y" }}
+                  </time>
+
+                  <!-- Authors -->
+                  <div class="flex items-center -space-x-2">
+                    {% for author in post.authors.all %}
+                      {% with author.author_image as img %}
+                        <div class="relative">
+                          {% if img %}
+                            {% image img fill-32x32 alt=author.name class="w-8 h-8 rounded-full border-2 border-white object-cover" %}
+                          {% else %}
+                            <img
+                              src="{% static 'images/default-user-icon.svg' %}"
+                              alt="{{ author.name }}"
+                              class="w-8 h-8 rounded-full border-2 border-white bg-gray-100 object-cover">
+                          {% endif %}
+                        </div>
+                      {% endwith %}
+                    {% endfor %}
+                  </div>
+                </div>
+              </div>
+            </a>
+          </article>
+        {% endwith %}
+      {% endfor %}
+    </div>
   </div>
 {% endblock %}
