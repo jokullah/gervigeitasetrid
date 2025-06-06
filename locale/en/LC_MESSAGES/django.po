@@ -1806,7 +1806,7 @@ msgstr "Contact: hi@hi.is"
 
 #: gervigeitasetrid/templates/includes/footer.html:38
 msgid "Rafræn vöktun"
-msgstr "Electronic surveillance"
+msgstr "Virtual surveillance"
 
 #: gervigeitasetrid/templates/includes/footer.html:39
 msgid "Tilkynna áreitni"
@@ -1853,17 +1853,17 @@ msgstr ""
 
 #: gervigeitasetrid/templates/includes/header.html:168
 msgid "Nemandi"
-msgstr ""
+msgstr "Student"
 
 #: gervigeitasetrid/templates/login.html:4
 #: gervigeitasetrid/templates/login.html:9
 msgid "Login"
-msgstr ""
+msgstr "Skrá inn"
 
 #: gervigeitasetrid/templates/login.html:20
 #: gervigeitasetrid/templates/signup.html:21
 msgid "Email"
-msgstr ""
+msgstr "Email"
 
 #: gervigeitasetrid/templates/login.html:25
 #: gervigeitasetrid/templates/signup.html:26
@@ -2018,7 +2018,7 @@ msgstr "Cancel"
 
 #: people/templates/people/person_edit.html:64
 msgid "Vinsamlegast veljið mynd"
-msgstr ""
+msgstr "Please choose an image"
 
 #: search/templates/search/search.html:34
 msgid "Þú leitaðir að"
