@@ -2,91 +2,129 @@
 {% load static %}
 {% load wagtailcore_tags wagtailimages_tags i18n i18n_extra %}
 
-{% block extra_css %}
-    <link rel="stylesheet" type="text/css" href="{% static 'css/event.css' %}">
-{% endblock %}
-
 {% block content %}
-<div class="event-index">
-    <div class="event-index-header">
-        <h2>{% trans "Viðburðir" %}</h2>
+<div class="max-w-7xl mx-auto px-6 py-12">
+    <div class="flex justify-between items-center mb-12 border-b border-gray-200 pb-6">
+        <h2 class="text-4xl font-bold text-gray-900">{% trans "Viðburðir" %}</h2>
         
-        <div class="pagination" role="navigation" aria-label="{% trans 'Síðufletting' %}">
+        <nav class="pagination flex items-center gap-2" role="navigation" aria-label="{% trans 'Síðufletting' %}">
             {% if events.has_previous %}
-                <a href="?page={{ events.previous_page_number }}
+                <a href="?page={{ events.previous_page_number }}" 
+                   class="px-3 py-2 text-sm text-gray-600 hover:text-blue-600 transition-colors"
                    aria-label="{% trans 'Fyrri síða' %}">&larr;</a>
             {% endif %}
             
             {% for num in events.paginator.page_range %}
                 {% if num == events.number %}
-                    <span class="current" aria-current="page">{{ num }}</span>
+                    <span class="px-3 py-2 text-sm bg-blue-600 text-white rounded-md" aria-current="page">{{ num }}</span>
                 {% else %}
-                    <a href="?page={{ num }}
+                    <a href="?page={{ num }}" 
+                       class="px-3 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
                        aria-label="{% trans 'Síða' %} {{ num }}">{{ num }}</a>
                 {% endif %}
             {% endfor %}
             
             {% if events.has_next %}
-                <a href="?page={{ events.next_page_number }}
+                <a href="?page={{ events.next_page_number }}" 
+                   class="px-3 py-2 text-sm text-gray-600 hover:text-blue-600 transition-colors"
                    aria-label="{% trans 'Næsta síða' %}">&rarr;</a>
             {% endif %}
-        </div>
+        </nav>
     </div>
 
-    <div class="events-grid">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {% for event in events %}
-            <article class="event-card">
-                <a href="{{ event.url }}" aria-label="{% trans 'Viðburður' %}: {{ event.title }}">
-                    <div class="event-image-container">
+            <article class="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group">
+                <a href="{{ event.url }}" class="block" aria-label="{% trans 'Viðburður' %}: {{ event.title }}">
+                    <div class="relative h-48 bg-gradient-to-br from-blue-100 to-purple-100 overflow-hidden">
                         {% if event.event_image %}
-                            {% image event.event_image fill-400x200 class="event-image" alt=event.title %}
+                            {% image event.event_image fill-400x200 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt=event.title %}
                         {% else %}
-                            <div class="event-placeholder" role="img" aria-label="{% trans 'Engin mynd tiltæk' %}">
-                                {% trans "No image available" %}
+                            <div class="flex items-center justify-center h-full text-gray-500 text-sm" role="img" aria-label="{% trans 'Engin mynd tiltæk' %}">
+                                <svg class="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
                             </div>
                         {% endif %}
-                    </div>
-                    
-                    <div class="event-content">
-                        <div class="event-meta-top">
-                            <div class="event-date-container">
-                                <div class="event-day">{{ event.date|date:"d" }}</div>
-                                <div class="event-month-year">{{ event.date|date:"M Y" }}</div>
-                            </div>
-                            <span class="event-type-badge">{{ event.event_type }}</span>
+                        
+                        <div class="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg p-3 text-center min-w-16">
+                            <div class="text-2xl font-bold text-gray-900">{{ event.date|date:"d" }}</div>
+                            <div class="text-xs uppercase text-gray-600 font-medium">{{ event.date|date:"M" }}</div>
                         </div>
                         
-                        <h3 class="event-title">{{ event.title }}</h3>
+                        <div class="absolute top-4 right-4">
+                            <span class="inline-block bg-blue-600 text-white text-xs px-3 py-1 rounded-full font-medium">
+                                {{ event.event_type }}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4 group-hover:text-blue-600 transition-colors line-clamp-2">
+                            {{ event.title }}
+                        </h3>
                         
                         {% if event.description %}
-                            <div class="event-description">
-                                {{ event.description|truncatewords:30 }}
-                            </div>
+                            <p class="text-gray-600 text-sm leading-relaxed mb-6">
+                                {{ event.description|truncatewords:20 }}
+                            </p>
                         {% endif %}
                         
-                        <div class="event-meta">
+                        <div class="space-y-3 text-sm text-gray-500">
+                            <!-- Date -->
+                            <div class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                                <span>{{ event.date|date:"j. F Y" }}</span>
+                            </div>
+                            
                             {% if event.start_time and event.end_time %}
-                                <span class="event-meta-label">{% trans "Tími" %}:</span>
-                                <span>{{ event.start_time|time:"H:i" }} - {{ event.end_time|time:"H:i" }}</span>
+                                <div class="flex items-center gap-2">
+                                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    <span>{{ event.start_time|time:"H:i" }} - {{ event.end_time|time:"H:i" }}</span>
+                                </div>
                             {% endif %}
                             
-                            <span class="event-meta-label">{% trans "Staðsetning" %}:</span>
-                            <span>{{ event.location }}</span>
+                            <div class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                                <span>{{ event.location }}</span>
+                            </div>
 
                             {% if event.event_type == "lecture" %}
-                                <span class="event-meta-label">{% trans "Gestgjafi" %}:</span>
-                                <span>{{ event.host }}</span>
+                                {% if event.host %}
+                                    <div class="flex items-center gap-2">
+                                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                                        </svg>
+                                        <span><span class="font-medium">{% trans "Gestgjafi" %}:</span> {{ event.host }}</span>
+                                    </div>
+                                {% endif %}
                                 
-                                <span class="event-meta-label">{% trans "Kynnir" %}:</span>
-                                <span>{{ event.speaker }}</span>
+                                {% if event.speaker %}
+                                    <div class="flex items-center gap-2">
+                                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                        </svg>
+                                        <span><span class="font-medium">{% trans "Kynnir" %}:</span> {{ event.speaker }}</span>
+                                    </div>
+                                {% endif %}
                             {% endif %}
                         </div>
                     </div>
                 </a>
             </article>
         {% empty %}
-            <div class="no-events">
-                <p>{% trans "Engir viðburðir fundust" %}.</p>
+            <div class="col-span-full text-center py-16">
+                <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                <p class="text-gray-500 text-lg">{% trans "Engir viðburðir fundust" %}.</p>
             </div>
         {% endfor %}
     </div>
