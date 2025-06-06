@@ -87,6 +87,8 @@ class ProjectPageForm(WagtailAdminPageForm):
                 for user in student_queryset
             ]
 
+    
+
 
 class ProjectAd(models.Model):
     title          = models.CharField(_("Titill"), max_length=200) 
@@ -268,12 +270,58 @@ class ProjectIndexPage(Page):
     # Provide children to the template context
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request, *args, **kwargs)
-        context["projects"] = (
+        
+        # Get all live project children
+        all_projects = (
             self.get_children()
             .live()
             .specific()
             .order_by("-first_published_at")
         )
+        
+        # Filter projects based on user group and faculty assignment
+        if request.user.is_authenticated:
+            # Check user's groups
+            user_groups = [group.name for group in request.user.groups.all()]
+            
+            if 'Starfsmenn' in user_groups:
+                # Faculty can see all live projects
+                filtered_projects = all_projects
+                context['user_can_see_all'] = True
+                context['user_type'] = 'faculty'
+            elif 'Nemandi' in user_groups:
+                # Students can only see projects with faculty assigned
+                filtered_projects = [
+                    project for project in all_projects 
+                    if project.has_faculty_assigned
+                ]
+                context['user_can_see_all'] = False
+                context['user_type'] = 'student'
+            else:
+                # Other authenticated users (shouldn't happen in your case)
+                filtered_projects = []
+                context['user_can_see_all'] = False
+                context['user_type'] = 'other'
+        else:
+            # Anonymous users can't see any projects
+            filtered_projects = []
+            context['user_can_see_all'] = False
+            context['user_type'] = 'anonymous'
+        
+        context["projects"] = filtered_projects
+        
+        # Add some stats for debugging/admin purposes
+        if request.user.is_authenticated and 'Starfsmenn' in [group.name for group in request.user.groups.all()]:
+            total_projects = all_projects.count()
+            projects_with_faculty = len([p for p in all_projects if p.has_faculty_assigned])
+            projects_without_faculty = total_projects - projects_with_faculty
+            
+            context["project_stats"] = {
+                'total': total_projects,
+                'with_faculty': projects_with_faculty,
+                'without_faculty': projects_without_faculty
+            }
+        
         return context
 
 
@@ -476,5 +524,37 @@ class ProjectPage(Page):
         
         return context
 
+    @property
+    def has_faculty_assigned(self):
+        """Check if this project has any faculty members assigned as leidbeinendur"""
+        return self.leidbeinendur.exists()
+
+    @property
+    def is_visible_to_students(self):
+        """
+        Project is visible to students only if:
+        1. It's live/published AND
+        2. It has at least one faculty member assigned
+        """
+        return self.live and self.has_faculty_assigned
+
+    @property
+    def is_visible_to_faculty(self):
+        """
+        Project is visible to faculty if:
+        1. It's live/published (regardless of faculty assignment)
+        """
+        return self.live
+
+    def get_visibility_status(self):
+        """Get human-readable visibility status for admin"""
+        if not self.live:
+            return "Draft - Not published"
+        elif self.has_faculty_assigned:
+            return "Visible to all (has faculty)"
+        else:
+            return "Visible to faculty only"
+
+    # class Meta should be LAST:
     class Meta:
         verbose_name = _("Verkefni")

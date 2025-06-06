@@ -12,6 +12,28 @@
         {{ page.intro|richtext }}
       </div>
     {% endif %}
+    
+    {% comment %} Show projects needing advisors to faculty {% endcomment %}
+    {% if user_type == 'faculty' and project_stats and project_stats.without_faculty > 0 %}
+      <div class="faculty-project-stats" style="background: #f8f9fa; padding: 0.75rem; border-radius: 4px; margin: 1rem 0; border-left: 3px solid #6c757d; font-size: 0.9em;">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <span style="color: #6c757d;"></span>
+          <span style="color: #495057;">
+            <strong>{{ project_stats.without_faculty }}</strong> verkefni þurfa leiðbeinanda
+          </span>
+        </div>
+      </div>
+    {% endif %}
+    
+    {% comment %} Show message to anonymous users {% endcomment %}
+    {% if user_type == 'anonymous' %}
+      <div class="anonymous-user-info" style="background: #ffebee; padding: 1rem; border-radius: 6px; margin: 1rem 0; border-left: 4px solid #f44336;">
+        <h3 style="margin: 0 0 0.5rem 0; color: #c62828;">🔒 {% trans "Login Required" %}</h3>
+        <p style="margin: 0; color: #c62828;">
+          {% trans "Please log in to view available projects." %}
+        </p>
+      </div>
+    {% endif %}
   </header>
 
   <div class="blog-grid">
@@ -20,11 +42,32 @@
         <a href="{% pageurl proj %}">
           <div class="blog-card__content">
             <h2 class="blog-card__title">{{ proj.title }}</h2>
-            {% if proj.company_name %}
-              <div class="blog-card__meta">
-                {{ proj.company_name }}
-              </div>
-            {% endif %}
+            
+            <div class="blog-card__meta">
+              {% if proj.company_name %}
+                <span class="project-company">{{ proj.company_name }}</span>
+              {% endif %}
+              
+              {% if proj.is_funded %}
+                <span class="project-funded-badge" style="background: #c8e6c9; color: #2e7d32; padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.8em; margin-left: 0.5rem;">
+                  💰 {% trans "Funded" %}
+                </span>
+              {% endif %}
+              
+              {% comment %} Show faculty assignment status to faculty {% endcomment %}
+              {% if user_type == 'faculty' %}
+                {% if proj.has_faculty_assigned %}
+                  <span class="faculty-assigned-badge" style="background: #c8e6c9; color: #2e7d32; padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.8em; margin-left: 0.5rem;">
+                    ✓ {% trans "Með leiðbeinanda" %}
+                  </span>
+                {% else %}
+                  <span class="no-faculty-badge" style="background: #fff3e0; color: #f57c00; padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.8em; margin-left: 0.5rem;">
+                    {% trans "Þarf leiðbeinanda" %}
+                  </span>
+                {% endif %}
+              {% endif %}
+            </div>
+            
             <div class="blog-card__excerpt">
               <div class="rich-text">
                 {{ proj.description|richtext|truncatewords_html:25 }}
@@ -35,7 +78,15 @@
       </article>
     {% empty %}
       <div class="project-empty">
-        <p>{% trans "Engin verkefni að svo stöddu." %}</p>
+        {% if user_type == 'student' %}
+          <p>{% trans "No projects with assigned faculty advisors are currently available. Check back later!" %}</p>
+        {% elif user_type == 'faculty' %}
+          <p>{% trans "No projects have been published yet." %}</p>
+        {% elif user_type == 'anonymous' %}
+          <p>{% trans "Please log in to view available projects." %}</p>
+        {% else %}
+          <p>{% trans "Engin verkefni að svo stöddu." %}</p>
+        {% endif %}
       </div>
     {% endfor %}
   </div>

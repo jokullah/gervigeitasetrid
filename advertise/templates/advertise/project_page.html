@@ -5,6 +5,37 @@
 
 {% block content %}
 <div class="project-detail">
+  {% comment %} Visibility status for faculty {% endcomment %}
+  {% if request.user.is_authenticated and 'Starfsmenn' in request.user.groups.all|stringformat:'s' %}
+    <div class="project-visibility-status" style="background: {% if page.has_faculty_assigned %}#c8e6c9{% else %}#fff3e0{% endif %}; padding: 1rem; border-radius: 6px; margin-bottom: 1.5rem; border-left: 4px solid {% if page.has_faculty_assigned %}#4caf50{% else %}#ff9800{% endif %};">
+      <div style="display: flex; align-items: center; justify-content: space-between;">
+        <div>
+          <strong style="color: {% if page.has_faculty_assigned %}#2e7d32{% else %}#f57c00{% endif %};">
+            {% if page.has_faculty_assigned %}
+              ✓ Sýnilegt nemendum
+            {% else %}
+              Þetta verkefni þarf leiðbeinanda
+            {% endif %}
+          </strong>
+          <div style="font-size: 0.9em; margin-top: 0.25rem; color: {% if page.has_faculty_assigned %}#2e7d32{% else %}#f57c00{% endif %};">
+            {% if page.has_faculty_assigned %}
+              Verkefnið hefur leiðbeinendur og er því sýnilegt nemendum.
+            {% else %}
+              Þetta verkefni verður sýnilegt þegar allavega einn leiðbeinandi er skráður.
+            {% endif %}
+          </div>
+        </div>
+        <div style="font-size: 0.8em; color: {% if page.has_faculty_assigned %}#2e7d32{% else %}#f57c00{% endif %};">
+          {% if page.has_faculty_assigned %}
+            {{ page.leidbeinendur.count }} leiðbeinandi/leiðbeinendur
+          {% else %}
+            0 leiðbeinendur
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
   <header class="project-header">
     <h1>{{ page.title }}</h1>
     
@@ -47,7 +78,8 @@
       {% else %}
         <div class="project-meta-item">
           <span class="project-meta-label">{% trans "Leiðbeinendur" %}:</span>
-          <span>{% trans "Engir leiðbeinendur skráðir" %}</span>
+          <span style="color: #f57c00; font-style: italic;">{% trans "Engir leiðbeinendur skráðir" %}</span>
+         
         </div>
       {% endif %}
       
@@ -80,15 +112,6 @@
     </div>
   </header>
 
-  {% comment %}
-  <!-- Uncomment this section if you have a featured image field -->
-  {% if page.featured_image %}
-    <div class="project-featured-image">
-      <img src="{{ page.featured_image.url }}" alt="{{ page.title }}">
-    </div>
-  {% endif %}
-  {% endcomment %}
-
   <div class="project-body-content">
     <div class="rich-text">
       {{ page.description|richtext }}
@@ -106,28 +129,42 @@
 
   <div class="project-actions" style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid #e9ecef;">
   
-    {% comment %} Student application button {% endcomment %}
+    {% comment %} Student application button - only show if project has faculty {% endcomment %}
     {% if request.user.is_authenticated and 'Nemandi' in request.user.groups.all|stringformat:'s' %}
-      {% if user_application %}
-        <span style="display: inline-block; padding: 0.75rem 1.5rem; background: #fff3cd; color: #856404; border-radius: 4px; font-weight: 600;">
-          ⏳ {% trans "Umsókn send - bíður svars" %}
-        </span>
+      {% if page.has_faculty_assigned %}
+        {% if user_application %}
+          <span style="display: inline-block; padding: 0.75rem 1.5rem; background: #fff3cd; color: #856404; border-radius: 4px; font-weight: 600;">
+            ⏳ {% trans "Umsókn send - bíður svars" %}
+          </span>
+        {% else %}
+          <a href="{% url 'advertise:apply_to_project' page.id %}" class="home-hero__cta">
+            {% trans "Sækja um verkefni" %}
+          </a>
+        {% endif %}
       {% else %}
-        <a href="{% url 'advertise:apply_to_project' page.id %}" class="home-hero__cta">
-          {% trans "Sækja um verkefni" %}
-        </a>
+        <div style="padding: 0.75rem 1.5rem; background: #ffebee; color: #c62828; border-radius: 4px; font-weight: 600;">
+          ⏸️ {% trans "Project not yet available for applications" %}
+          <small style="display: block; font-weight: normal; margin-top: 0.25rem;">
+            {% trans "This project will become available once faculty advisors join it." %}
+          </small>
+        </div>
       {% endif %}
     {% endif %}
     
-    {% comment %} Existing staff actions {% endcomment %}
+    {% comment %} Faculty actions {% endcomment %}
     {% if request.user.is_authenticated and 'Starfsmenn' in request.user.groups.all|stringformat:'s' %}
       {% if request.user not in page.leidbeinendur.all %}
         <form method="post" action="{% url 'advertise:assign_to_project' page.id %}" style="display: inline;">
           {% csrf_token %}
           <button type="submit" class="home-hero__cta" style="cursor: pointer; border: none; font: inherit;" onclick="return confirm('{% trans "Ertu viss um að þú viljir hengja þig við þetta verkefni?" %}')">
-            {% trans "Hengja við verkefni" %}
+            {% if page.has_faculty_assigned %}
+              {% trans "Hengja við verkefni" %}
+            {% else %}
+              {% trans "Verða leiðbeinandi" %}
+            {% endif %}
           </button>
         </form>
+        
       {% else %}
         <div class="project-assigned" style="display: inline-block; margin-right: 1rem;">
           <span class="assigned-indicator" style="display: inline-block; padding: 0.75rem 1.5rem; background: var(--Ljosgraenn); color: var(--Svartur); border-radius: 4px; font-weight: 600;">
@@ -140,7 +177,13 @@
             {% trans "Draga úr verkefni" %}
           </button>
         </form>
+        {% if page.leidbeinendur.count == 1 %}
+          <small style="display: block; margin-top: 0.5rem; color: #c62828;">
+            ⚠️ {% trans "Þú ert eini leiðbeinandinn fyrir þetta verkefni. Úrsögn þín felur verkefnið frá nemendum." %}
+          </small>
+        {% endif %}
       {% endif %}
     {% endif %}
   </div>
+</div>
 {% endblock %}
