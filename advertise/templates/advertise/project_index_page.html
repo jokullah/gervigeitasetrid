@@ -15,10 +15,10 @@
     
     {% comment %} Show projects needing advisors to faculty {% endcomment %}
     {% if user_type == 'faculty' and project_stats and project_stats.without_faculty > 0 %}
-      <div class="faculty-project-stats" style="background: #f8f9fa; padding: 0.75rem; border-radius: 4px; margin: 1rem 0; border-left: 3px solid #6c757d; font-size: 0.9em;">
-        <div style="display: flex; align-items: center; gap: 0.5rem;">
-          <span style="color: #6c757d;"></span>
-          <span style="color: #495057;">
+      <div class="bg-gray-50 p-3 rounded my-4 border-l-4 border-gray-500 text-sm">
+        <div class="flex items-center gap-2">
+          <span class="text-gray-500"></span>
+          <span class="text-gray-700">
             <strong>{{ project_stats.without_faculty }}</strong> verkefni þurfa leiðbeinanda
           </span>
         </div>
@@ -27,9 +27,9 @@
     
     {% comment %} Show message to anonymous users {% endcomment %}
     {% if user_type == 'anonymous' %}
-      <div class="anonymous-user-info" style="background: #ffebee; padding: 1rem; border-radius: 6px; margin: 1rem 0; border-left: 4px solid #f44336;">
-        <h3 style="margin: 0 0 0.5rem 0; color: #c62828;">🔒 {% trans "Login Required" %}</h3>
-        <p style="margin: 0; color: #c62828;">
+      <div class="bg-red-50 p-4 rounded-md my-4 border-l-4 border-red-500">
+        <h3 class="mb-2 text-red-700">🔒 {% trans "Login Required" %}</h3>
+        <p class="m-0 text-red-700">
           {% trans "Please log in to view available projects." %}
         </p>
       </div>
@@ -49,7 +49,7 @@
               {% endif %}
               
               {% if proj.is_funded %}
-                <span class="project-funded-badge" style="background: #c8e6c9; color: #2e7d32; padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.8em; margin-left: 0.5rem;">
+                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs ml-2">
                   💰 {% trans "Funded" %}
                 </span>
               {% endif %}
@@ -57,11 +57,11 @@
               {% comment %} Show faculty assignment status to faculty {% endcomment %}
               {% if user_type == 'faculty' %}
                 {% if proj.has_faculty_assigned %}
-                  <span class="faculty-assigned-badge" style="background: #c8e6c9; color: #2e7d32; padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.8em; margin-left: 0.5rem;">
+                  <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs ml-2">
                     ✓ {% trans "Með leiðbeinanda" %}
                   </span>
                 {% else %}
-                  <span class="no-faculty-badge" style="background: #fff3e0; color: #f57c00; padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.8em; margin-left: 0.5rem;">
+                  <span class="bg-orange-100 text-orange-600 px-2 py-1 rounded-full text-xs ml-2">
                     {% trans "Þarf leiðbeinanda" %}
                   </span>
                 {% endif %}
