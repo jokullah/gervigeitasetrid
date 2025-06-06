@@ -2,68 +2,60 @@
 {% load i18n i18n_extra %}
 {% load static wagtailcore_tags wagtailimages_tags %}
 
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/blog.css' %}">
-{% endblock %}
-
-{% block body_class %}template-blogpage{% endblock %}
-
 {% block content %}
-<article class="blog-article">
-    <header class="blog-header">
-        <h1>{{ page.title }}</h1>
-        <div class="blog-meta">
-            <time datetime="{{ page.date|date:'Y-m-d' }}">{{ page.date|date:"F j, Y" }}</time>
-            {% if page.authors.all %}
-                <div class="blog-authors">
-                    {% for author in page.authors.all %}
-                        <div class="blog-author">
-                            {% if author.author_image %}
-                                {% image author.author_image fill-40x40 class="author-image" %}
-                            {% endif %}
-                            <span>{{ author.name }}</span>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-        </div>
+<article class="max-w-3xl mx-auto px-6 py-16 text-gray-800 leading-relaxed">
+
+    <header class="text-center mb-12">
+        <h1 class="text-5xl font-bold mb-2">{{ page.title }}</h1>
+        <p class="text-gray-500 text-sm">
+            <time datetime="{{ page.date|date:'Y-m-d' }}">
+                {{ page.date|date:"F j, Y" }}
+            </time>
+        </p>
+
+        {% if page.authors.all %}
+            <div class="flex justify-center gap-4 mt-4">
+                {% for author in page.authors.all %}
+                    <div class="flex items-center gap-2">
+                        {% if author.author_image %}
+                            <div class="w-9 h-9 rounded-full overflow-hidden">
+                                {% image author.author_image fill-40x40 class="object-cover w-full h-full" %}
+                            </div>
+                        {% endif %}
+                        <span class="text-sm text-gray-700">{{ author.name }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
     </header>
 
     {% if page.thumbnail_image %}
-        <div class="blog-featured-image">
-            {% image page.thumbnail_image width-800 height-300 %}
+        <div class="mb-10 flex justify-center">
+            <div class="w-full max-w-md rounded-lg overflow-hidden shadow-md">
+                {% image page.thumbnail_image fill-600x350 class="w-full h-auto object-cover" %}
+            </div>
         </div>
     {% endif %}
 
     {% if page.intro %}
-        <div class="blog-intro">
+        <div class="text-xl text-center text-gray-700 mb-10">
             {{ page.intro }}
         </div>
     {% endif %}
 
-    <div class="blog-content">
+    <div class="prose prose-lg prose-img:rounded-md prose-img:mx-auto prose-img:my-8 max-w-none mx-auto text-justify">
         {{ page.body|richtext }}
     </div>
 
-    {% if page.gallery_images.all %}
-        <div class="blog-gallery">
-            {% for item in page.gallery_images.all %}
-                <div class="gallery-item">
-                    {% image item.image fill-200x150 %}
-                    {% if item.caption %}
-                        <div class="gallery-caption">
-                            {{ item.caption }}
-                        </div>
-                    {% endif %}
-                </div>
+    {% if page.tagged_items.all %}
+        <ul class="flex flex-wrap justify-center gap-2 mt-12">
+            {% for tag in page.tagged_items.all %}
+                <li class="px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-sm">
+                    {{ tag.tag.name }}
+                </li>
             {% endfor %}
-        </div>
+        </ul>
     {% endif %}
-	<ul>
-		{% for tag in page.tagged_items.all %}
-			<li>{{ tag.tag.name }}</li>
-		{% endfor %}
-	</ul>
 
 </article>
 {% endblock %}
