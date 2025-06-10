@@ -12,8 +12,7 @@ from django.conf.urls.i18n import i18n_patterns
 from django.views.i18n import set_language
 
 from core.views import hide_translation_notice
-from .auth_views import login, signup, logout, forgot_password, verify_email, resend_verification
-
+from .auth_views import login, signup, logout, forgot_password, verify_email, resend_verification, reset_password
 
 # Simple view for the auth page
 def auth_page(request):
@@ -36,6 +35,7 @@ urlpatterns += i18n_patterns(
     path('forgot-password/', forgot_password, name='forgot_password'),
     path('verify-email/<uuid:verification_code>/', verify_email, name='verify_email'),  # Add this line
     path('resend-verification/', resend_verification, name='resend_verification'),
+    path('reset-password/<uuid:reset_code>/', reset_password, name='reset_password'),
     path('advertise/', include('advertise.urls')),  # Advertise URLs
     path("", include("wagtail.urls")),  # Keep this last as catch-all
 )

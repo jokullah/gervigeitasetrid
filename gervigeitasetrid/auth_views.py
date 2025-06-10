@@ -9,6 +9,8 @@ from django.contrib import messages
 from django.utils import timezone
 from core.models import EmailVerification  # Import from your core app
 import uuid
+from core.models import EmailVerification, PasswordReset  # Update this line to include PasswordReset
+
 
 def login(request):
     if request.method == 'POST':
@@ -147,10 +149,6 @@ def logout(request):
     return redirect('/')
 
 
-def forgot_password(request):
-    return render(request, 'forgot_password.html')
-
-
 def send_verification_email(user, verification_code):
     """Send verification email to user"""
     subject = 'Staðfestu netfangið þitt'
@@ -188,7 +186,6 @@ Bestu kveðjur,
         print(f"Failed to send email: {e}")  # For debugging
 
 
-
 def verify_email(request, verification_code):
     """Handle email verification when user clicks the link"""
     try:
@@ -218,7 +215,6 @@ def verify_email(request, verification_code):
     except EmailVerification.DoesNotExist:
         return render(request, 'verification_invalid.html')
     
-
 
 def resend_verification(request):
     """Resend verification email"""
@@ -253,3 +249,138 @@ def resend_verification(request):
             return redirect('auth')
     
     return redirect('auth')
+
+
+def send_password_reset_email(user, reset_code):
+    """Send password reset email to user"""
+    subject = 'Endurstilla lykilorð'
+    
+    # Create reset link
+    reset_url = f"{settings.SITE_URL}/reset-password/{reset_code}/"
+    
+    message = f"""
+Halló!
+
+Þú hefur beðið um að endurstilla lykilorðið þitt. Smelltu á tengilinn hér að neðan til að búa til nýtt lykilorð:
+
+{reset_url}
+
+Þessi tengill rennur út eftir 1 klukkustund.
+
+Ef þú baðst ekki um þessa endurstillingu geturðu hunsað þennan tölvupóst.
+
+Bestu kveðjur,
+Þitt teymi
+"""
+    
+    from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@example.com')
+    
+    try:
+        send_mail(
+            subject,
+            message,
+            from_email,
+            [user.email],
+            fail_silently=False,
+        )
+        print(f"Password reset email sent to {user.email}")  # For debugging
+    except Exception as e:
+        print(f"Failed to send password reset email: {e}")  # For debugging
+
+
+def forgot_password(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        
+        if not email:
+            return render(request, 'forgot_password.html', {
+                'error': 'Vinsamlegast sláðu inn netfang'
+            })
+        
+        if email[-6:] != "@hi.is":
+            return render(request, 'forgot_password.html', {
+                'error': 'Vinsamlegast notaðu @hi.is tölvupóstfang'
+            })
+        
+        try:
+            user = User.objects.get(email=email)
+            
+            # Check if user is verified
+            try:
+                verification = EmailVerification.objects.get(user=user)
+                if not verification.is_verified:
+                    return render(request, 'forgot_password.html', {
+                        'error': 'Þú þarft að staðfesta netfangið þitt áður en þú getur endurstillt lykilorðið.'
+                    })
+            except EmailVerification.DoesNotExist:
+                # User exists but no verification record - assume verified for existing users
+                pass
+            
+            # Create password reset record
+            from core.models import PasswordReset
+            reset_record = PasswordReset.objects.create(user=user)
+            
+            # Send reset email
+            send_password_reset_email(user, reset_record.reset_code)
+            
+            return render(request, 'password_reset_sent.html', {'email': email})
+            
+        except User.DoesNotExist:
+            # Don't reveal that the email doesn't exist - security best practice
+            return render(request, 'password_reset_sent.html', {'email': email})
+    
+    return render(request, 'forgot_password.html')
+
+
+def reset_password(request, reset_code):
+    """Handle password reset when user clicks the link"""
+    try:
+        from core.models import PasswordReset
+        reset_record = PasswordReset.objects.get(reset_code=reset_code)
+        
+        if reset_record.is_expired():
+            return render(request, 'password_reset_expired.html')
+        
+        if reset_record.used:
+            return render(request, 'password_reset_used.html')
+        
+        if request.method == 'POST':
+            password1 = request.POST.get('password1')
+            password2 = request.POST.get('password2')
+            
+            # Validation
+            if password1 != password2:
+                return render(request, 'reset_password_form.html', {
+                    'error': 'Lykilorðin eru ekki eins',
+                    'reset_code': reset_code
+                })
+            
+            if len(password1) < 8:
+                return render(request, 'reset_password_form.html', {
+                    'error': 'Lykilorðið þarf að vera að minnsta kosti 8 stafir',
+                    'reset_code': reset_code
+                })
+            
+            # Update password
+            user = reset_record.user
+            user.set_password(password1)
+            user.save()
+            
+            # Mark reset as used
+            reset_record.used = True
+            reset_record.save()
+            
+            # Auto-login the user
+            auth_login(request, user)
+            
+            messages.success(request, 'Lykilorðið þitt hefur verið endurstillt! Þú ert nú skráð/ur inn.')
+            return redirect('/')
+        
+        # Show password reset form
+        return render(request, 'reset_password_form.html', {
+            'reset_code': reset_code,
+            'user_email': reset_record.user.email
+        })
+        
+    except PasswordReset.DoesNotExist:
+        return render(request, 'password_reset_invalid.html')
