@@ -77,7 +77,7 @@
                     </div>
 
                     <div class="p-4">
-                      <div class="flex items-start space-x-3">
+                      <div class="flex items-start space-x-3 mb-3">
                         <div class="text-center min-w-0 flex-shrink-0">
                           <div class="text-2xl font-bold text-blue-600">{{ event.date|date:"d" }}</div>
                           <div class="text-sm text-gray-600">{{ event.date|date:"F Y" }}</div>
@@ -95,6 +95,17 @@
                           <div class="text-sm text-gray-600">{{ event.location }}</div>
                         </div>
                       </div>
+
+                      <!-- Event Tags -->
+                      {% if event.tagged_items.all %}
+                        <div class="flex flex-wrap gap-1">
+                          {% for tag in event.tagged_items.all %}
+                            <span class="px-2 py-1 text-white rounded-full text-xs font-medium" style="background-color: {{ tag.tag.color }};">
+                              {{ tag.tag.name }}
+                            </span>
+                          {% endfor %}
+                        </div>
+                      {% endif %}
                     </div>
                   </a>
                 </article>
@@ -128,12 +139,27 @@
                         {% image post.thumbnail_image original class="w-full h-48 object-cover" %}
                       {% elif post.main_image %}
                         {% image post.main_image original class="w-full h-48 object-cover" %}
+                      {% else %}
+                        <div class="w-full h-48 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                          <img src="{% static 'images/takn_blatt.svg' %}" alt="Default blog image" class="w-16 h-16 opacity-60">
+                        </div>
                       {% endif %}
                       <div class="p-4">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ post.title }}</h3>
-                        <div class="text-sm text-gray-600">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-3">{{ post.title }}</h3>
+                        <div class="text-sm text-gray-600 mb-3">
                           <span>{{ post.date }}</span>
                         </div>
+                        
+                        <!-- News Tags -->
+                        {% if post.tagged_items.all %}
+                          <div class="flex flex-wrap gap-1">
+                            {% for tag in post.tagged_items.all %}
+                              <span class="px-2 py-1 text-white rounded-full text-xs font-medium" style="background-color: {{ tag.tag.color }};">
+                                {{ tag.tag.name }}
+                              </span>
+                            {% endfor %}
+                          </div>
+                        {% endif %}
                       </div>
                     </a>
                   </article>
