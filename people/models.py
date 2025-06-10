@@ -33,7 +33,7 @@ class PeopleIndexPage(Page):
 
 class PersonPage(RoutablePageMixin, Page):
     job_title = models.CharField(max_length=255, blank=True)
-    email = models.EmailField()
+    email = models.EmailField(blank=False)
     bio = RichTextField(blank=True)
     personal_website = models.URLField(blank=True)
     image = models.ForeignKey(
@@ -66,53 +66,29 @@ class PersonPage(RoutablePageMixin, Page):
             self.bio = request.POST.get('bio', '')
             self.personal_website = request.POST.get('personal_website', '')
             
-            # Handle image upload
-            new_image = None
+            image_file = request.FILES.get('image')
             if request.FILES.get('image'):
-                # Create new image
-                image_file = request.FILES['image']
                 new_image = Image.objects.create(
-                    title=self.title,
+                    title=self.title, # Title of image is title of page
                     file=image_file
                 )
                 
-                # Delete old image if it exists (will be done after updating all locales)
                 old_image = self.image
-                self.image = new_image
-            
-            # Save current page
-            self.save()
-            
-            # Update image across all locales for this person
-            if new_image:
-                # Find all locale versions of this page
-                if hasattr(self, 'translation_key'):
-                    # Wagtail 4.1+ approach
-                    locale_pages = PersonPage.objects.filter(
-                        translation_key=self.translation_key
-                    ).exclude(id=self.id)
-                else:
-                    # Fallback: find pages with same email across different locales
-                    locale_pages = PersonPage.objects.filter(
-                        email=self.email
-                    ).exclude(id=self.id)
+                locale_pages = PersonPage.objects.filter(
+                    translation_key=self.translation_key
+                    )
                 
                 # Update image for all locale versions
                 for locale_page in locale_pages:
                     locale_page.image = new_image
                     locale_page.save()
                 
-                # Now delete the old image if it existed
+                # Delete the old image if it existed
                 if old_image:
                     old_image.delete()
+            else:
+                self.save()
             
             return redirect(self.url)
         
         return render(request, 'people/person_edit.html', {'page': self})
-
-    def get_url_parts(self, *args, **kwargs):
-        url_parts = super().get_url_parts(*args, **kwargs)
-        if url_parts is None:
-            return None
-        site_id, root_url, page_path = url_parts
-        return site_id, root_url, page_path

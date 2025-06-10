@@ -79,6 +79,14 @@
             </div>
           {% endif %}
 
+          {% if page.personal_website %}
+            <div class="flex justify-center lg:justify-start">
+              <a href="{{ page.personal_website }}">
+                <span class="font-semibold"> Personal website</span>
+              </a>
+            </div>
+          {% endif %}
+
         </div>
       </div>
     </div>
@@ -138,6 +146,7 @@
                   </a>
                 </div>
               </div>
+
               
               <!-- Copy Email Button -->
               <button onclick="copyEmail('{{ page.email }}')" 
@@ -149,9 +158,8 @@
               </button>
             </div>
           </div>
+        </div>
         {% endif %}
-
-      </div>
     </div>
   </div>
 </div>
