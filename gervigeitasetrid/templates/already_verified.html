@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load static i18n %}
+
+{% block title %}{% trans "Þegar staðfest" %} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="page-content">
+    <div class="main-content">
+        <h1>{% trans "Netfang þegar staðfest" %}</h1>
+        
+        <div class="auth-message" style="text-align: center; margin: 2rem 0;">
+            <p style="margin-bottom: 1.5rem; color: #10C200;">
+                {% trans "Þetta netfang er þegar staðfest. Þú getur skráð þig inn." %}
+            </p>
+            
+            <p style="color: #666; font-size: 0.9rem;">
+                {% trans "Ef þú ert þegar skráð/ur inn geturðu farið á forsíðuna." %}
+            </p>
+        </div>
+        
+        <div class="auth-actions" style="text-align: center;">
+            <a href="{% url 'login' %}" class="home-hero__cta" style="cursor: pointer; margin-right: 1rem;">
+                {% trans "Fara í innskráningu" %}
+            </a>
+            <a href="/" style="color: #10099F; text-decoration: underline;">
+                {% trans "Fara á forsíðu" %}
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

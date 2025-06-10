@@ -8,17 +8,36 @@
     <div class="main-content">
         <h1>{% trans "Staðfesting á nýjum aðgangi" %}</h1>
         
+        {% if messages %}
+            {% for message in messages %}
+                <div class="message {{ message.tags }}" style="text-align: center; margin: 1rem 0; padding: 10px; border-radius: 4px; 
+                    {% if message.tags == 'success' %}background-color: #D4F6D4; color: #10C200;
+                    {% elif message.tags == 'error' %}background-color: #FFF2F7; color: #D61F69;
+                    {% else %}background-color: #E3F2FD; color: #1976D2;{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+        
         <div class="auth-message" style="text-align: center; margin: 2rem 0;">
             <p style="margin-bottom: 1.5rem;">
                 {% trans "Takk fyrir að búa til aðgang. Vinsamlegast staðfestu netfangið þitt með því að smella á tengilinn sem við sendum þér í tölvupósti." %}
             </p>
             
-            <p style="color: #666; font-size: 0.9rem;">
-                {% trans "Ekki búin(n) að fá tölvupóst?" %}
-                <a href="#" style="color: #10099F; text-decoration: underline;">
-                    {% trans "Senda aftur" %}
-                </a>
-            </p>
+            <div style="color: #666; font-size: 0.9rem; margin-bottom: 1.5rem;">
+                <p style="margin-bottom: 1rem;">{% trans "Ekki búin(n) að fá tölvupóst?" %}</p>
+                
+                <form method="post" action="{% url 'resend_verification' %}" style="display: inline-block;">
+                    {% csrf_token %}
+                    <div style="margin-bottom: 1rem;">
+                        <input type="email" name="email" placeholder="Sláðu inn netfangið þitt" required 
+                               style="padding: 8px; border: 1px solid #ccc; border-radius: 4px; margin-right: 0.5rem;">
+                    </div>
+                    <button type="submit" style="color: #10099F; background: none; border: none; text-decoration: underline; cursor: pointer; font-size: 0.9rem;">
+                        {% trans "Senda aftur" %}
+                    </button>
+                </form>
+            </div>
         </div>
         
         <div class="auth-actions" style="text-align: center;">
@@ -28,4 +47,4 @@
         </div>
     </div>
 </div>
-{% endblock %} 
+{% endblock %}

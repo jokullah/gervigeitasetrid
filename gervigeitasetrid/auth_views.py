@@ -27,7 +27,21 @@ def login(request):
             
         try:
             user = User.objects.get(email=email)
+            
             if user.check_password(password):
+                # Check if user is verified
+                try:
+                    verification = EmailVerification.objects.get(user=user)
+                    if not verification.is_verified:
+                        return render(request, 'login.html', {
+                            'error': 'Vinsamlegast staðfestu netfangið þitt áður en þú skráir þig inn. Athugaðu tölvupóstinn þinn.',
+                            'show_resend': True,
+                            'user_email': email
+                        })
+                except EmailVerification.DoesNotExist:
+                    # User exists but no verification record - assume verified for existing users
+                    pass
+                
                 auth_login(request, user)
                 return redirect('/')
             else:
@@ -36,6 +50,7 @@ def login(request):
             return render(request, 'login.html', {'error': 'Netfang er ekki skráð'})
     
     return render(request, 'login.html')
+
 
 def signup(request):
     if request.method == 'POST':
@@ -50,13 +65,31 @@ def signup(request):
         if len(password1) < 8:
             return render(request, 'signup.html', {'error': 'Lykilorðið þarf að vera að minnsta kosti 8 stafir'})
         
-        #if email[-6:] != "@hi.is":
-            #return render(request, 'signup.html', {'error': 'Vinsamlegast notaðu @hi.is tölvupóstfang'})
+        if email[-6:] != "@hi.is":
+            return render(request, 'signup.html', {'error': 'Vinsamlegast notaðu @hi.is tölvupóstfang'})
             
         try:
             # Check if email already exists
-            if User.objects.filter(email=email).exists():
-                return render(request, 'signup.html', {'error': 'Netfang er nú þegar skráð'})
+            existing_user = User.objects.filter(email=email).first()
+            if existing_user:
+                # Check if user is verified
+                try:
+                    verification = EmailVerification.objects.get(user=existing_user)
+                    if not verification.is_verified:
+                        # User exists but not verified - resend verification
+                        verification.verification_code = uuid.uuid4()
+                        verification.created_at = timezone.now()
+                        verification.save()
+                        
+                        send_verification_email(existing_user, verification.verification_code)
+                        messages.info(request, 'Nýr hlekkur hefur verið sendur á netfangið þitt.')
+                        return redirect(reverse('auth'))
+                    else:
+                        # User exists and is verified
+                        return render(request, 'signup.html', {'error': 'Netfang er nú þegar skráð. Vinsamlegast skráðu þig inn.'})
+                except EmailVerification.DoesNotExist:
+                    # User exists but no verification record - assume verified
+                    return render(request, 'signup.html', {'error': 'Netfang er nú þegar skráð en hefur ekki verið staðfest.'})
                 
             # Create new user with email as username
             username = email.split('@')[0]  # Use part before @ as username
@@ -76,7 +109,7 @@ def signup(request):
             # Send verification email
             send_verification_email(user, verification.verification_code)
             
-            # Redirect to verification page instead of logging in
+            # Redirect to verification page
             return redirect(reverse('auth'))
             
         except IntegrityError:
@@ -184,3 +217,39 @@ def verify_email(request, verification_code):
         
     except EmailVerification.DoesNotExist:
         return render(request, 'verification_invalid.html')
+    
+
+
+def resend_verification(request):
+    """Resend verification email"""
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        
+        if not email:
+            messages.error(request, 'Vinsamlegast sláðu inn netfang.')
+            return redirect('auth')
+        
+        try:
+            user = User.objects.get(email=email)
+            verification = EmailVerification.objects.get(user=user)
+            
+            if verification.is_verified:
+                messages.info(request, 'Þetta netfang er nú þegar staðfest. Þú getur skráð þig inn.')
+                return redirect('login')
+            
+            # Generate new verification code
+            verification.verification_code = uuid.uuid4()
+            verification.created_at = timezone.now()
+            verification.save()
+            
+            # Send new verification email
+            send_verification_email(user, verification.verification_code)
+            
+            messages.success(request, 'Nýr hlekkur hefur verið sendur á netfangið þitt.')
+            return redirect('auth')
+            
+        except (User.DoesNotExist, EmailVerification.DoesNotExist):
+            messages.error(request, 'Netfang fannst ekki eða er þegar staðfest.')
+            return redirect('auth')
+    
+    return redirect('auth')
