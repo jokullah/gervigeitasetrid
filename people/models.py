@@ -68,6 +68,8 @@ class PersonPage(RoutablePageMixin, Page):
             self.job_title = request.POST.get('job_title', '')
             self.bio = request.POST.get('bio', '')
             self.personal_website = request.POST.get('personal_website', '')
+
+            self.save_revision().publish()
             
             locale_pages = PersonPage.objects.filter(
                 translation_key=self.translation_key
@@ -105,5 +107,12 @@ class PersonPage(RoutablePageMixin, Page):
                 locale_page.save_revision().publish()
 
             return redirect(self.url)
-        
-        return render(request, 'people/person_edit.html', {'page': self})
+
+        all_tags = Tag.objects.all().order_by('name')
+        page_tag_ids = list(self.tagged_items.values_list('tag_id', flat=True))
+
+        return render(request, 'people/person_edit.html', {
+            'page': self,
+            'all_tags': all_tags,
+            'page_tag_ids': page_tag_ids,
+        })
