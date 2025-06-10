@@ -19,7 +19,7 @@ class EventPage(Page):
     start_time = models.TimeField(blank=True, null=True)
     end_time = models.TimeField(blank=True, null=True)
 
-    # Fields for public lectures
+    # Fields for lectures
     host = models.CharField(max_length=255, blank=True)
     speaker = models.CharField(max_length=255, blank=True)
 
@@ -30,9 +30,6 @@ class EventPage(Page):
         on_delete=models.SET_NULL,
         related_name='+',
     )
-
-    def main_image(self):
-        return self.event_image
 
 
     content_panels = Page.content_panels + [
@@ -45,7 +42,7 @@ class EventPage(Page):
         MultiFieldPanel([
             FieldPanel('host'),
             FieldPanel('speaker'),
-        ], heading="Public Lecture Fields"),
+        ], heading="Lecture Fields"),
 	InlinePanel('tagged_items', label='Tags'),
     ]
     parent_page_types = ['event.EventIndexPage']
@@ -56,8 +53,7 @@ class EventIndexPage(Page):
     def get_context(self, request):
         context = super().get_context(request)
 
-        lang_code = request.LANGUAGE_CODE
-        current_locale = Locale.objects.get(language_code=lang_code)
+        current_locale = self.locale
 
         # Filter events by current language
         events = (
