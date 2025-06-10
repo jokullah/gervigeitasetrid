@@ -22,11 +22,7 @@ class BlogIndexPage(Page):
     def get_context(self, request):
         context = super().get_context(request)
 
-        current_locale = getattr(request, "locale", None)
-        if current_locale is None:                     # fallback for older Wagtail
-            current_locale = Locale.objects.get(
-                language_code=request.LANGUAGE_CODE[:2]
-            )
+        current_locale = self.locale
 
         blogpages = (
             BlogPage.objects.live()                    # only published
