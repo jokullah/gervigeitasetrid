@@ -161,7 +161,7 @@
           {% endif %}
 
           <!-- Tags Section -->
-          {% if page.tags.all %}
+          {% if page.tagged_items.all %}
             <div class="flex items-center gap-4 flex-wrap">
               <div class="flex items-center gap-2 text-gray-600">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -170,9 +170,9 @@
                 <span class="font-medium text-sm">Tags:</span>
               </div>
               <div class="flex flex-wrap gap-2">
-                {% for tag in page.tags.all %}
-                  <span class="px-3 py-1 text-white rounded-full text-sm font-medium border hover:opacity-80 transition-all duration-200 cursor-pointer" style="background-color: {{ tag.color }}; border-color: {{ tag.color }};">
-                    {{ tag.name }}
+                {% for tag in page.tagged_items.all %}
+                  <span class="px-3 py-1 text-white rounded-full text-sm font-medium border hover:opacity-80 transition-all duration-200 cursor-pointer" style="background-color: {{ tag.tag.color }}; border-color: {{ tag.tag.color }};">
+                    {{ tag.tag.name }}
                   </span>
                 {% endfor %}
               </div>
