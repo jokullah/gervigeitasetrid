@@ -110,7 +110,7 @@
                 <label for="personal_website" class="block text-sm font-semibold text-gray-700">
                   <span class="flex items-center gap-2">
                     <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m-9 9a9 9 0 019-9"></path>
                     </svg>
                     {% trans "Vefsíða" %}
                   </span>
@@ -135,6 +135,44 @@
               <textarea id="bio" name="bio" rows="6" 
                         class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white/80 backdrop-blur-sm resize-y"
                         placeholder="{% trans 'Skrifaðu stuttan texta um þig og þitt starf...' %}">{{ page.bio|striptags }}</textarea>
+            </div>
+
+            <!-- Tags Section -->
+            {% load base_tags %}
+            {% get_all_tags as all_tags %}
+            <div class="space-y-4">
+              <label class="block text-sm font-semibold text-gray-700">
+                <span class="flex items-center gap-2">
+                  <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.99 1.99 0 013 12V7a4 4 0 014-4z"></path>
+                  </svg>
+                  {% trans "Flokkar" %}
+                </span>
+              </label>
+              
+              <div class="bg-white/60 backdrop-blur-sm rounded-xl border-2 border-gray-300 p-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                  {% for tag in all_tags %}
+                    <label class="flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors duration-200 cursor-pointer">
+                      <input type="checkbox" 
+                             name="tags" 
+                             value="{{ tag.id }}" 
+                             class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                             {% if tag in page.tags.all %}checked{% endif %}>
+                      <span class="px-3 py-1 text-white rounded-full text-sm font-medium flex-1 text-center" 
+                            style="background-color: {{ tag.color }};">
+                        {{ tag.name }}
+                      </span>
+                    </label>
+                  {% endfor %}
+                </div>
+                
+                {% if not all_tags %}
+                  <p class="text-gray-500 text-center italic py-4">
+                    {% trans "Engir flokkar tiltækir" %}
+                  </p>
+                {% endif %}
+              </div>
             </div>
 
             <!-- Action Buttons -->
@@ -229,6 +267,12 @@ input[type="file"] {
   overflow: hidden;
   position: absolute;
   z-index: -1;
+}
+
+/* Checkbox styling */
+input[type="checkbox"]:checked {
+  background-color: #3b82f6;
+  border-color: #3b82f6;
 }
 </style>
 {% endblock %}

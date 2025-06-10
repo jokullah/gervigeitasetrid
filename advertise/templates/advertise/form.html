@@ -192,6 +192,39 @@ input[type="checkbox"] {
   margin: 0 !important;
 }
 
+/* Style for the left side of each advisor row */
+.advisor-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 200px; /* Ensure consistent spacing for names */
+}
+
+/* Style for the tag pills container */
+.advisor-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+  margin-left: 40px; /* Move tags closer to middle, starting left of center */
+}
+
+.tag-pill {
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 500;
+  color: white;
+  white-space: nowrap;
+}
+
+/* Loading state */
+.loading-tags {
+  color: #9ca3af;
+  font-size: 11px;
+  font-style: italic;
+}
+
 /* Scrollbar styling */
 .max-h-48::-webkit-scrollbar {
   width: 8px;
@@ -236,6 +269,90 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Listen for changes
   isFundedCheckbox.addEventListener('change', toggleFundingAmount);
+  
+  // Function to fetch advisor tags
+  async function fetchAdvisorTags(email) {
+    try {
+      const response = await fetch(`/advertise/api/advisor-tags/?email=${encodeURIComponent(email)}`);
+      if (response.ok) {
+        const data = await response.json();
+        return data.tags || [];
+      }
+    } catch (error) {
+      console.error('Error fetching advisor tags:', error);
+    }
+    return [];
+  }
+  
+  // Function to create tag pills
+  function createTagPills(tags) {
+    if (!tags || tags.length === 0) {
+      return '';
+    }
+    
+    return tags.map(tag => {
+      return `<span class="tag-pill" style="background-color: ${tag.color || '#666'}">${tag.name}</span>`;
+    }).join('');
+  }
+  
+  // Function to get user email from User ID
+  async function getUserEmail(userId) {
+    try {
+      const response = await fetch(`/advertise/api/user-email/?user_id=${userId}`);
+      if (response.ok) {
+        const data = await response.json();
+        return data.email || null;
+      }
+    } catch (error) {
+      console.error('Error fetching user email:', error);
+    }
+    return null;
+  }
+  
+  // Function to enhance existing advisor checkboxes with tags
+  async function enhanceAdvisorCheckboxes() {
+    const advisorCheckboxes = document.querySelectorAll('#id_requested_advisors input[type="checkbox"]');
+    
+    for (const checkbox of advisorCheckboxes) {
+      const userId = checkbox.value;
+      const label = checkbox.parentElement; // The <label> element
+      
+      // Restructure the label content
+      const currentText = label.textContent.trim();
+      const cleanName = currentText; // Keep the existing name
+      
+      // Create the new structure
+      const leftDiv = document.createElement('div');
+      leftDiv.className = 'advisor-left';
+      leftDiv.appendChild(checkbox);
+      leftDiv.appendChild(document.createTextNode(cleanName));
+      
+      const tagsDiv = document.createElement('div');
+      tagsDiv.className = 'advisor-tags';
+      tagsDiv.innerHTML = '<span class="loading-tags">Loading tags...</span>';
+      
+      // Clear the label and add new structure
+      label.innerHTML = '';
+      label.appendChild(leftDiv);
+      label.appendChild(tagsDiv);
+      
+      // Fetch user email and then tags
+      const email = await getUserEmail(userId);
+      if (email) {
+        const tags = await fetchAdvisorTags(email);
+        if (tags.length > 0) {
+          tagsDiv.innerHTML = createTagPills(tags);
+        } else {
+          tagsDiv.innerHTML = ''; // Remove loading text if no tags
+        }
+      } else {
+        tagsDiv.innerHTML = ''; // Remove loading text if no email found
+      }
+    }
+  }
+  
+  // Initialize the enhanced advisor list
+  enhanceAdvisorCheckboxes();
 });
 </script>
 {% endblock %}

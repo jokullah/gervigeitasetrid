@@ -14,6 +14,11 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_protect
 from django.http import HttpResponseForbidden  # Add this import
+from django.http import JsonResponse
+from django.views.decorators.http import require_GET
+from people.models import PersonPage
+from django.contrib.auth.models import User
+
 
 class AdvertiseView(FormView):
     template_name = "advertise/form.html"
@@ -173,3 +178,48 @@ def unregister_from_project(request, page_id):
     
     # Redirect back to the project page
     return redirect(project_page.url)
+
+@require_GET
+def advisor_tags_api(request):
+    """API endpoint to fetch tags for an advisor by email"""
+    email = request.GET.get('email')
+    
+    if not email:
+        return JsonResponse({'error': 'Email parameter required'}, status=400)
+    
+    try:
+        # Find the person page by email
+        person = PersonPage.objects.filter(email=email, live=True).first()
+        
+        if not person:
+            return JsonResponse({'tags': []})
+        
+        # Get the tags for this person
+        tags_data = []
+        for tag in person.tags.all():
+            tags_data.append({
+                'id': tag.id,
+                'name': tag.name,
+                'color': tag.color
+            })
+        
+        return JsonResponse({'tags': tags_data})
+        
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+@require_GET
+def user_email_api(request):
+    """API endpoint to get user email by user ID"""
+    user_id = request.GET.get('user_id')
+    
+    if not user_id:
+        return JsonResponse({'error': 'User ID parameter required'}, status=400)
+    
+    try:
+        user = User.objects.get(id=user_id)
+        return JsonResponse({'email': user.email})
+    except User.DoesNotExist:
+        return JsonResponse({'error': 'User not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
