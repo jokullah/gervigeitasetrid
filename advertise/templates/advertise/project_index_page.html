@@ -28,9 +28,9 @@
     {% comment %} Show message to anonymous users {% endcomment %}
     {% if user_type == 'anonymous' %}
       <div class="bg-red-50 p-4 rounded-md my-4 border-l-4 border-red-500">
-        <h3 class="mb-2 text-red-700">🔒 {% trans "Login Required" %}</h3>
+        <h3 class="mb-2 text-red-700">{% trans "Skráðu þig inn" %}</h3>
         <p class="m-0 text-red-700">
-          {% trans "Please log in to view available projects." %}
+          {% trans "Aðeins innskráðir nemendur hafa leyfi til að sjá verkefni." %}
         </p>
       </div>
     {% endif %}
