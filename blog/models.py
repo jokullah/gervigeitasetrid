@@ -22,11 +22,7 @@ class BlogIndexPage(Page):
     def get_context(self, request):
         context = super().get_context(request)
 
-        current_locale = getattr(request, "locale", None)
-        if current_locale is None:                     # fallback for older Wagtail
-            current_locale = Locale.objects.get(
-                language_code=request.LANGUAGE_CODE[:2]
-            )
+        current_locale = self.locale
 
         blogpages = (
             BlogPage.objects.live()                    # only published
@@ -54,13 +50,6 @@ class BlogPage(Page):
     body = RichTextField(blank=True)
     authors = ParentalManyToManyField('blog.Author', blank=True)
 
-    def main_image(self):
-        gallery_item = self.gallery_images.first()
-        if gallery_item:
-            return gallery_item.image
-        else:
-            return None
-
     search_fields = Page.search_fields + [
         index.SearchField('intro'),
         index.SearchField('body'),
@@ -72,21 +61,11 @@ class BlogPage(Page):
             "date",
             FieldPanel("authors", widget=forms.CheckboxSelectMultiple),
         ], heading="Blog information"),
-            "intro", "body", "gallery_images",
+            "intro", "body",
 	InlinePanel('tagged_items', label='Tags'),
         ]
     parent_page_types = ['blog.BlogIndexPage']
     subpage_types = []
-
-
-class BlogPageGalleryImage(Orderable):
-    page = ParentalKey(BlogPage, on_delete=models.CASCADE, related_name='gallery_images')
-    image = models.ForeignKey(
-        'wagtailimages.Image', on_delete=models.CASCADE, related_name='+'
-    )
-    caption = models.CharField(blank=True, max_length=250)
-
-    panels = ["image", "caption"]
 
 
 @register_snippet
