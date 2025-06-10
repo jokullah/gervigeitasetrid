@@ -108,6 +108,17 @@ DATABASES = {
 }
 
 
+# Email Configuration
+# For development/testing - this will print emails to your terminal console
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# Default from email
+DEFAULT_FROM_EMAIL = 'iad3@hi.is'
+
+# Site URL for verification links (we'll use this later)
+SITE_URL = 'http://localhost:8000'
+
+
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
