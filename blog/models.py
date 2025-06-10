@@ -31,7 +31,7 @@ class BlogIndexPage(Page):
         blogpages = (
             BlogPage.objects.live()                    # only published
                      .filter(locale=current_locale)    # <-- locale filter
-                     .order_by("-first_published_at")
+                     .order_by("-date")
         )
 
         context["blogpages"] = blogpages
