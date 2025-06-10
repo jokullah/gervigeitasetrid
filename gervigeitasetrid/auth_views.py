@@ -163,7 +163,7 @@ Takk fyrir að búa til aðgang. Vinsamlegast staðfestu netfangið þitt með �
 
 {verification_url}
 
-Þessi tengill rennur út eftir 24 klukkustundir.
+Þessi hlekkur rennur út eftir 24 klukkustundir.
 
 Ef þú bjóst ekki til þennan aðgang geturðu hunsað þennan tölvupóst.
 
@@ -265,7 +265,7 @@ Halló!
 
 {reset_url}
 
-Þessi tengill rennur út eftir 1 klukkustund.
+Þessi hlekkur rennur út eftir 1 klukkustund.
 
 Ef þú baðst ekki um þessa endurstillingu geturðu hunsað þennan tölvupóst.
 
