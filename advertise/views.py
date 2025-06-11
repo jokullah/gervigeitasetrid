@@ -230,24 +230,59 @@ def advisor_tags_api(request):
         return JsonResponse({'error': 'Email parameter required'}, status=400)
     
     try:
+        # Import here to avoid import issues
+        from people.models import PersonPage
+        
         # Find the person page by email
         person = PersonPage.objects.filter(email=email, live=True).first()
         
         if not person:
+            print(f"DEBUG: No PersonPage found for email: {email}")
             return JsonResponse({'tags': []})
         
-        # Get the tags for this person
-        tags_data = []
-        for tag in person.tags.all():
-            tags_data.append({
-                'id': tag.id,
-                'name': tag.name,
-                'color': tag.color
-            })
+        print(f"DEBUG: Found PersonPage for {email}: {person.title}")
         
+        # Get the tags for this person - check if tagged_items exists
+        tags_data = []
+        
+        if hasattr(person, 'tagged_items'):
+            tagged_items = person.tagged_items.all()
+            print(f"DEBUG: Found {tagged_items.count()} tagged_items for {email}")
+            
+            for tagged_item in tagged_items:
+                if hasattr(tagged_item, 'tag') and tagged_item.tag:
+                    tags_data.append({
+                        'id': tagged_item.tag.id,
+                        'name': tagged_item.tag.name,
+                        'color': tagged_item.tag.color
+                    })
+                    print(f"DEBUG: Added tag: {tagged_item.tag.name}")
+        elif hasattr(person, 'tags'):
+            # Alternative: direct tags relationship
+            tags = person.tags.all()
+            print(f"DEBUG: Found {tags.count()} direct tags for {email}")
+            
+            for tag in tags:
+                tags_data.append({
+                    'id': tag.id,
+                    'name': tag.name,
+                    'color': tag.color
+                })
+                print(f"DEBUG: Added tag: {tag.name}")
+        else:
+            print(f"DEBUG: No tags relationship found for PersonPage model")
+        
+        print(f"DEBUG: Returning {len(tags_data)} tags for {email}")
         return JsonResponse({'tags': tags_data})
         
+    except ImportError as e:
+        print(f"DEBUG: Import error - people.models.PersonPage not found: {e}")
+        return JsonResponse({'error': 'PersonPage model not available', 'tags': []})
     except Exception as e:
+        print(f"DEBUG: Error in advisor_tags_api for email {email}: {str(e)}")
+        print(f"DEBUG: Error type: {type(e).__name__}")
+        import traceback
+        traceback.print_exc()
         return JsonResponse({'error': str(e)}, status=500)
 
 @require_GET
