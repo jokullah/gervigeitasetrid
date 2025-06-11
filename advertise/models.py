@@ -555,6 +555,9 @@ class ProjectPage(Page):
         else:
             return "Visible to faculty only"
 
+    ai_translated = models.BooleanField(default=False, help_text="This page was translated using AI")
+
     # class Meta should be LAST:
     class Meta:
         verbose_name = _("Verkefni")
+

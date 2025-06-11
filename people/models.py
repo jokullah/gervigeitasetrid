@@ -21,6 +21,8 @@ class DepartmentIndexPage(Page):
     parent_page_types = ['home.HomePage']
     subpage_types = ['people.PeopleIndexPage']
 
+    ai_translated = models.BooleanField(default=False, help_text="This page was translated using AI")
+
 
 class PeopleIndexPage(Page):
     intro = RichTextField(blank=True)
@@ -31,6 +33,8 @@ class PeopleIndexPage(Page):
 
     parent_page_types = ['people.DepartmentIndexPage']
     subpage_types = ['people.PersonPage']
+
+    ai_translated = models.BooleanField(default=False, help_text="This page was translated using AI")
 
 
 class PersonPage(RoutablePageMixin, Page):
@@ -127,3 +131,5 @@ class PersonPage(RoutablePageMixin, Page):
             return redirect(self.url)
         
         return render(request, 'people/person_edit.html', {'page': self})
+
+    ai_translated = models.BooleanField(default=False, help_text="This page was translated using AI")

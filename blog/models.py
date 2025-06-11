@@ -36,6 +36,8 @@ class BlogIndexPage(Page):
     parent_page_types = ['home.HomePage']
     subpage_types = ['blog.BlogPage']
 
+    ai_translated = models.BooleanField(default=False, help_text="This page was translated using AI")
+
 
 class BlogPage(Page):
     thumbnail_image = models.ForeignKey(
@@ -66,6 +68,8 @@ class BlogPage(Page):
         ]
     parent_page_types = ['blog.BlogIndexPage']
     subpage_types = []
+
+    ai_translated = models.BooleanField(default=False, help_text="This page was translated using AI")
 
 
 @register_snippet

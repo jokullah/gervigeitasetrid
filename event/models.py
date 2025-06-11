@@ -48,6 +48,8 @@ class EventPage(Page):
     parent_page_types = ['event.EventIndexPage']
     subpage_types = []
 
+    ai_translated = models.BooleanField(default=False, help_text="This page was translated using AI")
+
 
 class EventIndexPage(Page):
     def get_context(self, request):
@@ -77,4 +79,6 @@ class EventIndexPage(Page):
     
     parent_page_types = ['home.HomePage']
     subpage_types = ['event.EventPage']
+
+    ai_translated = models.BooleanField(default=False, help_text="This page was translated using AI")
 

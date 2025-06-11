@@ -56,6 +56,12 @@
 
         <main id="main">
             {% block content %}{% endblock %}
+            
+            {% if page.ai_translated %}
+            <div style="color: #666; font-size: 0.85em; margin-top: 2em; border-top: 1px solid #eee; padding: 1em; text-align: center; max-width: 800px; margin-left: auto; margin-right: auto;">
+                <em>This content was automatically translated using AI (GPT-4o).</em>
+            </div>
+            {% endif %}
         </main>
 
         {% include "includes/footer.html" %}

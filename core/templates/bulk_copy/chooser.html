@@ -11,6 +11,13 @@
         {% trans "Afrita síður milli tungumála" %}
       </h1>
       <p class="bulk-copy-subtitle">{% trans "Veldu síður til að afrita á milli tungumála" %}</p>
+      
+      {% if ai_translation_available %}
+        <div class="ai-translation-notice">
+          <svg class="icon icon-cog" aria-hidden="true"><use href="#icon-cog"></use></svg>
+          <p>🤖 {% trans "AI þýðing er virk - textinn verður sjálfkrafa þýddur" %}</p>
+        </div>
+      {% endif %}
     </header>
 
     {# --- IS → EN Section --- #}
@@ -36,6 +43,14 @@
                 <input type="checkbox" id="select-all-is" class="select-all-checkbox">
                 <strong>✓ {% trans "Velja allar" %}</strong>
               </label>
+              
+              {% if ai_translation_available %}
+                <label class="ai-translation-toggle">
+                  <input type="checkbox" name="translate_content" id="translate-content-is" checked>
+                  <strong>🤖 {% trans "Nota AI þýðingu" %}</strong>
+                  <small>{% trans "Textinn verður sjálfkrafa þýddur úr íslensku í ensku" %}</small>
+                </label>
+              {% endif %}
             </div>
 
             <div class="bulk-copy-page-list">
@@ -53,7 +68,7 @@
             <div class="bulk-copy-actions">
               <button type="submit" class="button button-primary">
                 <svg class="icon icon-copy" aria-hidden="true"><use href="#icon-copy"></use></svg>
-                {% trans "Afrita valdar síður yfir á ensku" %}
+                <span class="button-text">{% trans "Afrita valdar síður yfir á ensku" %}</span>
               </button>
             </div>
           </form>
@@ -89,6 +104,14 @@
                 <input type="checkbox" id="select-all-en" class="select-all-checkbox">
                 <strong>✓ {% trans "Velja allar" %}</strong>
               </label>
+              
+              {% if ai_translation_available %}
+                <label class="ai-translation-toggle">
+                  <input type="checkbox" name="translate_content" id="translate-content-en" checked>
+                  <strong>🤖 {% trans "Nota AI þýðingu" %}</strong>
+                  <small>{% trans "Textinn verður sjálfkrafa þýddur úr ensku í íslensku" %}</small>
+                </label>
+              {% endif %}
             </div>
 
             <div class="bulk-copy-page-list">
@@ -106,7 +129,7 @@
             <div class="bulk-copy-actions">
               <button type="submit" class="button button-primary">
                 <svg class="icon icon-copy" aria-hidden="true"><use href="#icon-copy"></use></svg>
-                {% trans "Afrita valdar síður yfir á íslensku" %}
+                <span class="button-text">{% trans "Afrita valdar síður yfir á íslensku" %}</span>
               </button>
             </div>
           </form>
@@ -163,7 +186,31 @@
 .bulk-copy-subtitle {
   color: #6b7280;
   font-size: 1.1rem;
+  margin: 0 0 1rem 0;
+}
+
+.ai-translation-notice {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border: 1px solid #0ea5e9;
+  border-radius: 8px;
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.ai-translation-notice .icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  fill: #0284c7;
+  flex-shrink: 0;
+}
+
+.ai-translation-notice p {
   margin: 0;
+  color: #0c4a6e;
+  font-weight: 500;
 }
 
 .bulk-copy-card {
@@ -213,25 +260,48 @@
   margin-bottom: 1.5rem;
   padding-bottom: 1rem;
   border-bottom: 1px solid #f1f5f9;
-}
-
-.bulk-copy-select-all {
   display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  cursor: pointer;
-  padding: 0.5rem;
-  border-radius: 6px;
-  transition: background-color 0.15s ease;
+  flex-direction: column;
+  gap: 1rem;
 }
 
-.bulk-copy-select-all:hover {
+.bulk-copy-select-all,
+.ai-translation-toggle {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  cursor: pointer;
+  padding: 0.75rem;
+  border-radius: 8px;
+  transition: background-color 0.15s ease;
+  border: 1px solid transparent;
+}
+
+.bulk-copy-select-all:hover,
+.ai-translation-toggle:hover {
   background-color: #f8fafc;
 }
 
-.select-all-checkbox {
+.ai-translation-toggle {
+  background: #fefce8;
+  border-color: #facc15;
+}
+
+.ai-translation-toggle:hover {
+  background: #fef3c7;
+}
+
+.ai-translation-toggle small {
+  color: #92400e;
+  font-size: 0.875rem;
+  margin-left: 1.75rem;
+}
+
+.select-all-checkbox,
+.ai-translation-toggle input[type="checkbox"] {
   width: 1.2rem;
   height: 1.2rem;
+  margin-right: 0.5rem;
 }
 
 .bulk-copy-page-list {
@@ -370,29 +440,9 @@
   .bulk-copy-page-item {
     padding: 0.75rem 1rem;
   }
-}
-
-/* Dark mode support (if Wagtail admin uses it) */
-@media (prefers-color-scheme: dark) {
-  .bulk-copy-card {
-    background: #1f2937;
-    border-color: #374151;
-  }
   
-  .bulk-copy-card-header {
-    background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
-    border-color: #4b5563;
-  }
-  
-  .bulk-copy-main-title,
-  .bulk-copy-section-title,
-  .page-title {
-    color: #f9fafb;
-  }
-  
-  .bulk-copy-subtitle,
-  .page-type {
-    color: #d1d5db;
+  .bulk-copy-controls {
+    flex-direction: column;
   }
 }
 </style>
@@ -421,6 +471,34 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
+  // Update button text based on AI translation setting
+  const aiTranslationCheckboxes = document.querySelectorAll('input[name="translate_content"]');
+  aiTranslationCheckboxes.forEach(checkbox => {
+    checkbox.addEventListener('change', function() {
+      const form = this.closest('.bulk-copy-form');
+      const button = form.querySelector('button[type="submit"]');
+      const buttonText = button.querySelector('.button-text');
+      const isToEn = form.querySelector('input[name="dst_lang"]').value === 'en';
+      
+      if (this.checked) {
+        if (isToEn) {
+          buttonText.textContent = '🤖 {% trans "Afrita og þýða yfir á ensku" %}';
+        } else {
+          buttonText.textContent = '🤖 {% trans "Afrita og þýða yfir á íslensku" %}';
+        }
+      } else {
+        if (isToEn) {
+          buttonText.textContent = '{% trans "Afrita valdar síður yfir á ensku" %}';
+        } else {
+          buttonText.textContent = '{% trans "Afrita valdar síður yfir á íslensku" %}';
+        }
+      }
+    });
+    
+    // Trigger the change event on page load to set initial button text
+    checkbox.dispatchEvent(new Event('change'));
+  });
+
   // Add some visual feedback for form submission
   const forms = document.querySelectorAll('.bulk-copy-form');
   forms.forEach(form => {
@@ -433,8 +511,16 @@ document.addEventListener('DOMContentLoaded', function() {
       }
       
       const submitBtn = form.querySelector('button[type="submit"]');
+      const aiTranslation = form.querySelector('input[name="translate_content"]');
+      const isTranslating = aiTranslation && aiTranslation.checked;
+      
       submitBtn.disabled = true;
-      submitBtn.innerHTML = '<svg class="icon icon-spinner" aria-hidden="true"><use href="#icon-spinner"></use></svg> {% trans "Afrita..." %}';
+      
+      if (isTranslating) {
+        submitBtn.innerHTML = '<svg class="icon icon-spinner" aria-hidden="true"><use href="#icon-spinner"></use></svg> <span>🤖 {% trans "Afrita og þýði..." %}</span>';
+      } else {
+        submitBtn.innerHTML = '<svg class="icon icon-spinner" aria-hidden="true"><use href="#icon-spinner"></use></svg> <span>{% trans "Afrita..." %}</span>';
+      }
     });
   });
 });
