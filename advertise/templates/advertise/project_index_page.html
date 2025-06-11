@@ -14,15 +14,18 @@
     {% endif %}
     
     {% comment %} Show projects needing advisors to faculty {% endcomment %}
-    {% if user_type == 'faculty' and project_stats and project_stats.without_faculty > 0 %}
-      <div class="bg-gray-50 p-3 rounded my-4 border-l-4 border-gray-500 text-sm">
-        <div class="flex items-center gap-2">
-          <span class="text-gray-500"></span>
-          <span class="text-gray-700">
-            <strong>{{ project_stats.without_faculty }}</strong> verkefni þurfa leiðbeinanda
-          </span>
+    {% if user_type == 'faculty' and project_stats %}
+      {% if project_stats.without_faculty > 0 %}
+        <div class="bg-gray-50 p-3 rounded my-4 border-l-4 border-gray-500 text-sm">
+          <div class="flex items-center gap-2">
+            <span class="text-gray-500"></span>
+            <span class="text-gray-700">
+              <strong>{{ project_stats.without_faculty }}</strong> verkefni þurfa leiðbeinanda
+            </span>
+          </div>
         </div>
-      </div>
+      {% endif %}
+      
     {% endif %}
     
     {% comment %} Show message to anonymous users {% endcomment %}
@@ -50,8 +53,21 @@
               
               {% if proj.is_funded %}
                 <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs ml-2">
-                  💰 {% trans "Funded" %}
+                  {% trans "Launað" %}
                 </span>
+              {% endif %}
+
+              {% comment %} Show time limit warning if expires soon {% endcomment %}
+              {% if proj.time_limit %}
+                {% if proj.expires_soon %}
+                  <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs ml-2">
+                    {% trans "Rennur út" %} {{ proj.time_limit|date:"d/m" }}
+                  </span>
+                {% else %}
+                  <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-xs ml-2">
+                    {{ proj.time_limit|date:"d/m/Y" }}
+                  </span>
+                {% endif %}
               {% endif %}
               
               {% comment %} Show faculty assignment status to faculty {% endcomment %}
