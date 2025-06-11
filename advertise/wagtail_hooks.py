@@ -13,6 +13,7 @@ from wagtail.admin.ui.tables import Column
 from django.utils.html import format_html
 from django import forms
 from django.contrib.auth.models import User
+from datetime import date
 
 
 class ProjectAdViewSet(ModelViewSet):
@@ -27,6 +28,7 @@ class ProjectAdViewSet(ModelViewSet):
         "company_name",
         "contact_name",
         "contact_email",
+        "time_limit",  # ADD THIS LINE
         "is_funded",
         "funding_amount",
         "requested_advisors",
@@ -66,6 +68,15 @@ class ProjectAdViewSet(ModelViewSet):
                         f"{obj.get_full_name()} ({obj.email})" if obj.get_full_name() else f"{obj.username} ({obj.email})"
                     )
                 
+                # ADD THIS: Improve time_limit widget
+                if 'time_limit' in self.fields:
+                    self.fields['time_limit'].widget = forms.DateInput(attrs={
+                        "type": "date",
+                        "class": "form-control",
+                        "placeholder": _("YYYY-MM-DD")
+                    })
+                    self.fields['time_limit'].required = False
+                
                 # Improve other widgets
                 if 'description' in self.fields:
                     self.fields['description'].widget = forms.Textarea(attrs={"rows": 5})
@@ -80,6 +91,18 @@ class ProjectAdViewSet(ModelViewSet):
                         "min": "0"
                     })
                     self.fields['funding_amount'].required = False
+            
+            # ADD THIS: Validation for time_limit
+            def clean_time_limit(self):
+                """Validate that time_limit is not in the past"""
+                time_limit = self.cleaned_data.get('time_limit')
+                
+                if time_limit and time_limit < date.today():
+                    raise forms.ValidationError(
+                        _("Tímamörk geta ekki verið í fortíðinni. Veljið dagsetningu í framtíðinni.")
+                    )
+                
+                return time_limit
             
             def clean(self):
                 cleaned_data = super().clean()
@@ -137,6 +160,7 @@ class ProjectAdEditView(UpdateView):
         "company_name",
         "contact_name",
         "contact_email",
+        "time_limit",  # ADD THIS LINE
         "is_funded",
         "funding_amount",
         "requested_advisors",
@@ -219,6 +243,17 @@ class PublishProjectAdView(View):
                             pass
                     else:
                         project_ad.funding_amount = None
+                # ADD THIS: Handle time_limit field
+                elif key == 'time_limit' or key.endswith('-time_limit'):
+                    if value and value.strip():
+                        try:
+                            from datetime import datetime
+                            project_ad.time_limit = datetime.strptime(value, '%Y-%m-%d').date()
+                            updated_fields.append(f"time_limit: '{value}'")
+                        except ValueError:
+                            pass
+                    else:
+                        project_ad.time_limit = None
             
             print(f"DEBUG: Updated fields: {updated_fields}")
             
@@ -293,12 +328,14 @@ class PublishProjectAdView(View):
                 other=project_ad.other or "",
                 is_funded=project_ad.is_funded,
                 funding_amount=project_ad.funding_amount,
+                time_limit=project_ad.time_limit,  # ADD THIS LINE
                 live=False,  # Start as draft/unpublished
                 show_in_menus=False,
                 locale=wagtail_locale,  # Set the correct locale
             )
             
             print(f"DEBUG: Created ProjectPage instance: {project_page} (locale: {wagtail_locale})")
+            print(f"DEBUG: ProjectPage time_limit: {project_page.time_limit}")
             
             # Add as child of ProjectIndexPage
             project_index.add_child(instance=project_page)
@@ -681,6 +718,7 @@ def add_custom_projectad_js():
                                             name.includes('company_name') || 
                                             name.includes('contact_name') || 
                                             name.includes('contact_email') || 
+                                            name.includes('time_limit') ||  // ADD THIS LINE
                                             name.includes('is_funded') ||
                                             name.includes('funding_amount') ||
                                             name.includes('other') ||

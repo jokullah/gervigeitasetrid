@@ -9,6 +9,8 @@ from django import forms
 from wagtail.admin.forms import WagtailAdminPageForm
 from django.contrib.auth.models import User
 from django.utils.safestring import mark_safe
+from django.utils import timezone
+from datetime import date
 
 
 class ProjectPageForm(WagtailAdminPageForm):
@@ -98,6 +100,13 @@ class ProjectAd(models.Model):
     contact_email  = models.EmailField(_("Tengiliðapóstur")) 
     other          = models.TextField(_("Annað"), blank=True) 
     submitted_at   = models.DateTimeField(auto_now_add=True)
+
+    time_limit     = models.DateField(
+        _("Umsóknarfrestur verkefnis"), 
+        null=True, 
+        blank=True,
+        help_text=_("Umsóknarfrestur verkefnisins. Skildu eftir tómt ef verkefnið á að vera ávallt sýnilegt.")
+    )
     
     # NEW: Funding fields
     is_funded      = models.BooleanField(_("Fjármagnað verkefni"), default=False, help_text=_("Krossa við ef verkefnið er fjármagnað"))
@@ -115,6 +124,23 @@ class ProjectAd(models.Model):
     
     # Track if admin has viewed this ad
     viewed_at      = models.DateTimeField(null=True, blank=True, verbose_name=_("Viewed at"))
+
+    @property
+    def is_expired(self):
+        """Check if this project has expired based on time_limit"""
+        if not self.time_limit:
+            return False
+        return date.today() > self.time_limit
+    
+    @property
+    def expires_soon(self):
+        """Check if project expires within 7 days"""
+        if not self.time_limit:
+            return False
+        from datetime import timedelta
+        warning_date = date.today() + timedelta(days=7)
+        return self.time_limit <= warning_date and not self.is_expired
+
     
     locale = models.CharField(
         _("Tungumál"),
@@ -271,7 +297,7 @@ class ProjectIndexPage(Page):
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request, *args, **kwargs)
         
-        # Get all live project children
+        # Get all live project children (excluding expired ones)
         all_projects = (
             self.get_children()
             .live()
@@ -279,20 +305,26 @@ class ProjectIndexPage(Page):
             .order_by("-first_published_at")
         )
         
+        # Filter out expired projects
+        non_expired_projects = [
+            project for project in all_projects 
+            if not project.is_expired
+        ]
+        
         # Filter projects based on user group and faculty assignment
         if request.user.is_authenticated:
             # Check user's groups
             user_groups = [group.name for group in request.user.groups.all()]
             
             if 'Starfsmenn' in user_groups:
-                # Faculty can see all live projects
-                filtered_projects = all_projects
+                # Faculty can see all non-expired live projects
+                filtered_projects = non_expired_projects
                 context['user_can_see_all'] = True
                 context['user_type'] = 'faculty'
             elif 'Nemandi' in user_groups:
-                # Students can only see projects with faculty assigned
+                # Students can only see non-expired projects with faculty assigned
                 filtered_projects = [
-                    project for project in all_projects 
+                    project for project in non_expired_projects 
                     if project.has_faculty_assigned
                 ]
                 context['user_can_see_all'] = False
@@ -312,12 +344,15 @@ class ProjectIndexPage(Page):
         
         # Add some stats for debugging/admin purposes
         if request.user.is_authenticated and 'Starfsmenn' in [group.name for group in request.user.groups.all()]:
-            total_projects = all_projects.count()
-            projects_with_faculty = len([p for p in all_projects if p.has_faculty_assigned])
-            projects_without_faculty = total_projects - projects_with_faculty
+            total_projects = len(all_projects)
+            expired_projects = len([p for p in all_projects if p.is_expired])
+            projects_with_faculty = len([p for p in non_expired_projects if p.has_faculty_assigned])
+            projects_without_faculty = len(non_expired_projects) - projects_with_faculty
             
             context["project_stats"] = {
                 'total': total_projects,
+                'expired': expired_projects,
+                'active': len(non_expired_projects),
                 'with_faculty': projects_with_faculty,
                 'without_faculty': projects_without_faculty
             }
@@ -414,6 +449,51 @@ class ProjectPage(Page):
 
     base_form_class = ProjectPageForm
 
+    time_limit    = models.DateField(
+        _("Umsóknarfrestur verkefnis"), 
+        null=True, 
+        blank=True,
+        help_text=_("Umsóknarfrestur fyrir nemendur og starfsmenn. Verkefnið verður ekki sýnilegt að honum liðnum.")
+    )
+
+    @property
+    def is_expired(self):
+        """Check if this project has expired based on time_limit"""
+        if not self.time_limit:
+            return False
+        return date.today() > self.time_limit
+    
+    @property
+    def is_visible_to_students(self):
+        """
+        Project is visible to students only if:
+        1. It's live/published AND
+        2. It has at least one faculty member assigned AND
+        3. It's not expired
+        """
+        return self.live and self.has_faculty_assigned and not self.is_expired
+
+    @property
+    def is_visible_to_faculty(self):
+        """
+        Project is visible to faculty if:
+        1. It's live/published AND
+        2. It's not expired (faculty also shouldn't see expired projects)
+        """
+        return self.live and not self.is_expired
+
+    def get_visibility_status(self):
+        """Get human-readable visibility status for admin"""
+        if not self.live:
+            return "Draft - Not published"
+        elif self.is_expired:
+            return "Expired - Hidden from public"
+        elif self.has_faculty_assigned:
+            return "Visible to all (has faculty)"
+        else:
+            return "Visible to faculty only"
+    
+    # Update content_panels to include the new field
     content_panels = Page.content_panels + [
         FieldPanel("description"),
         MultiFieldPanel(
@@ -432,6 +512,7 @@ class ProjectPage(Page):
             heading=_("Fjármögnun"),
         ),
         FieldPanel("other"),
+        FieldPanel("time_limit"),  # Add this line
         FieldPanel("requested_advisors"),
         FieldPanel("leidbeinendur"),
         FieldPanel("selected_students"),

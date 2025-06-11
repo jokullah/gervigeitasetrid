@@ -59,6 +59,16 @@
           </span>
         </div>
       {% endif %}
+
+      {% comment %} Show time limit info to all users {% endcomment %}
+      {% if page.time_limit %}
+        <div class="project-meta-item">
+          <span class="project-meta-label">{% trans "Umsóknarfrestur" %}:</span>
+          <span class="project-time-limit">
+            {{ page.time_limit|date:"d. F Y" }}
+          </span>
+        </div>
+      {% endif %}
       
       {% if page.leidbeinendur.all %}
         <div class="project-meta-item">

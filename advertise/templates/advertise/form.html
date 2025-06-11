@@ -50,6 +50,18 @@
             <div class="text-red-600 text-sm mt-1">{{ form.contact_email.errors }}</div>
           {% endif %}
         </div>
+
+        <!-- NEW: Time Limit Field -->
+        <div>
+          {{ form.time_limit.label_tag }}
+          {{ form.time_limit }}
+          {% if form.time_limit.help_text %}
+            <small class="block text-gray-600 italic mt-1">{{ form.time_limit.help_text }}</small>
+          {% endif %}
+          {% if form.time_limit.errors %}
+            <div class="text-red-600 text-sm mt-1">{{ form.time_limit.errors }}</div>
+          {% endif %}
+        </div>
       </div>
     </div>
     
@@ -120,6 +132,7 @@
 input[type="text"], 
 input[type="email"], 
 input[type="number"], 
+input[type="date"], 
 textarea, 
 select {
   width: 100%;
@@ -134,11 +147,31 @@ select {
 input[type="text"]:focus, 
 input[type="email"]:focus, 
 input[type="number"]:focus, 
+input[type="date"]:focus, 
 textarea:focus, 
 select:focus {
   outline: none;
   border-color: #3b82f6 !important; /* Blue-500 */
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Special styling for date input */
+input[type="date"] {
+  position: relative;
+  font-family: inherit;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  background: transparent;
+  bottom: 0;
+  color: transparent;
+  cursor: pointer;
+  height: auto;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: auto;
 }
 
 /* Label styling */
