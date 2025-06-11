@@ -15,8 +15,11 @@ from base.models import TaggedItem
 class BlogIndexPage(Page):
     intro = RichTextField(blank=True)
 
+    ai_translated = models.BooleanField(default=False, help_text="This page was translated using AI")
+
     content_panels = Page.content_panels + [
         FieldPanel("intro"),
+        FieldPanel('ai_translated'),
     ]
 
     def get_context(self, request):
@@ -35,8 +38,6 @@ class BlogIndexPage(Page):
     
     parent_page_types = ['home.HomePage']
     subpage_types = ['blog.BlogPage']
-
-    ai_translated = models.BooleanField(default=False, help_text="This page was translated using AI")
 
 
 class BlogPage(Page):
@@ -57,8 +58,11 @@ class BlogPage(Page):
         index.SearchField('body'),
     ]
 
+    ai_translated = models.BooleanField(default=False, help_text="This page was translated using AI")
+
     content_panels = Page.content_panels + [
         FieldPanel('thumbnail_image'),
+        FieldPanel('ai_translated'),
         MultiFieldPanel([
             "date",
             FieldPanel("authors", widget=forms.CheckboxSelectMultiple),
@@ -68,8 +72,6 @@ class BlogPage(Page):
         ]
     parent_page_types = ['blog.BlogIndexPage']
     subpage_types = []
-
-    ai_translated = models.BooleanField(default=False, help_text="This page was translated using AI")
 
 
 @register_snippet

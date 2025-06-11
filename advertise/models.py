@@ -494,10 +494,13 @@ class ProjectPage(Page):
             return "Visible to all (has faculty)"
         else:
             return "Visible to faculty only"
+
+    ai_translated = models.BooleanField(default=False, help_text="This page was translated using AI")
     
     # Update content_panels to include the new field
     content_panels = Page.content_panels + [
         FieldPanel("description"),
+        FieldPanel('ai_translated'),
         MultiFieldPanel(
             [
                 FieldPanel("company_name"),
@@ -637,8 +640,6 @@ class ProjectPage(Page):
             return "Visible to all (has faculty)"
         else:
             return "Visible to faculty only"
-
-    ai_translated = models.BooleanField(default=False, help_text="This page was translated using AI")
 
     # class Meta should be LAST:
     class Meta:

@@ -42,9 +42,12 @@ class HomePage(Page):
         help_text="Choose a page to link to for the Call to Action",
     )
 
+    ai_translated = models.BooleanField(default=False, help_text="This page was translated using AI")
+
     body = RichTextField(blank=True)
     # modify your content_panels:
     content_panels = Page.content_panels + [
+        FieldPanel('ai_translated'),
         MultiFieldPanel(
             [
                 FieldPanel("image"),
@@ -113,9 +116,12 @@ class AboutPage(Page):
         help_text=gettext_lazy("Main content for the About Us page")
     )
 
+    ai_translated = models.BooleanField(default=False, help_text="This page was translated using AI")
+
     content_panels = Page.content_panels + [
         FieldPanel("intro_image"),
         FieldPanel("body"),
+        FieldPanel('ai_translated'),
     ]
 
     parent_page_types = ['home.HomePage']
@@ -136,9 +142,12 @@ class SupportersPage(Page):
         ('supporter', SupporterBlock())
     ], blank=True)
 
+    ai_translated = models.BooleanField(default=False, help_text="This page was translated using AI")
+
     content_panels = Page.content_panels + [
         FieldPanel('intro'),
         FieldPanel('supporters'),
+        FieldPanel('ai_translated'),
     ]
 
     parent_page_types = ['home.HomePage']

@@ -13,27 +13,29 @@ from base.models import TaggedItem, Tag
 class DepartmentIndexPage(Page):
     intro = RichTextField(blank=True)
 
+    ai_translated = models.BooleanField(default=False, help_text="This page was translated using AI")
+
     content_panels = Page.content_panels + [
         FieldPanel('intro'),
+        FieldPanel('ai_translated'),
     ]
 
     parent_page_types = ['home.HomePage']
     subpage_types = ['people.PeopleIndexPage']
 
-    ai_translated = models.BooleanField(default=False, help_text="This page was translated using AI")
-
 
 class PeopleIndexPage(Page):
     intro = RichTextField(blank=True)
 
+    ai_translated = models.BooleanField(default=False, help_text="This page was translated using AI")
+
     content_panels = Page.content_panels + [
         FieldPanel('intro'),
+        FieldPanel('ai_translated'),
     ]
 
     parent_page_types = ['people.DepartmentIndexPage']
     subpage_types = ['people.PersonPage']
-
-    ai_translated = models.BooleanField(default=False, help_text="This page was translated using AI")
 
 
 class PersonPage(RoutablePageMixin, Page):
@@ -48,6 +50,8 @@ class PersonPage(RoutablePageMixin, Page):
         on_delete=models.SET_NULL,
         related_name='+'
     )
+
+    ai_translated = models.BooleanField(default=False, help_text="This page was translated using AI")
     
     content_panels = Page.content_panels + [
         FieldPanel('job_title'),
@@ -55,14 +59,12 @@ class PersonPage(RoutablePageMixin, Page):
         FieldPanel('email'),
         FieldPanel('image'),
         FieldPanel('personal_website'),
+        FieldPanel('ai_translated'),
         InlinePanel('tagged_items', label='Tags'),
     ]
 
     parent_page_types = ['people.PeopleIndexPage']
     subpage_types = []
-
-
-    ai_translated = models.BooleanField(default=False, help_text="This page was translated using AI")
     
 
     @route(r'^edit/$', name='edit')
@@ -115,7 +117,7 @@ class PersonPage(RoutablePageMixin, Page):
 
             return redirect(self.url)
 
-        all_tags = Tag.objects.all().order_by('name')
+        all_tags = Tag.objects.all().order_by('name_is')
         page_tag_ids = list(self.tagged_items.values_list('tag_id', flat=True))
 
         return render(request, 'people/person_edit.html', {

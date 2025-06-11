@@ -31,6 +31,7 @@ class EventPage(Page):
         related_name='+',
     )
 
+    ai_translated = models.BooleanField(default=False, help_text="This page was translated using AI")
 
     content_panels = Page.content_panels + [
         FieldPanel('date'),
@@ -39,6 +40,7 @@ class EventPage(Page):
         FieldPanel('location'),
         FieldPanel('event_image'),
         FieldPanel('description'),
+        FieldPanel('ai_translated'),
         MultiFieldPanel([
             FieldPanel('host'),
             FieldPanel('speaker'),
@@ -47,8 +49,6 @@ class EventPage(Page):
     ]
     parent_page_types = ['event.EventIndexPage']
     subpage_types = []
-
-    ai_translated = models.BooleanField(default=False, help_text="This page was translated using AI")
 
 
 class EventIndexPage(Page):
@@ -76,9 +76,12 @@ class EventIndexPage(Page):
 
         context['events'] = events
         return context
-    
-    parent_page_types = ['home.HomePage']
-    subpage_types = ['event.EventPage']
 
     ai_translated = models.BooleanField(default=False, help_text="This page was translated using AI")
 
+    content_panels = Page.content_panels + [
+        FieldPanel('ai_translated'),
+    ]
+    
+    parent_page_types = ['home.HomePage']
+    subpage_types = ['event.EventPage']
