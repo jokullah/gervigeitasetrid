@@ -4,18 +4,142 @@
 {% block body_class %}template-aboutpage{% endblock %}
 
 {% block content %}
-  <section class="about-hero">
-    <h1>{{ page.title }}</h1>
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+  <!-- Hero Section -->
+  <div class="relative pt-16 pb-32 overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-indigo-600/10"></div>
+    
+    <!-- Background Pattern -->
+    <div class="absolute inset-0 opacity-20">
+      <div class="absolute top-10 left-10 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl animate-pulse"></div>
+      <div class="absolute top-20 right-10 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl animate-pulse animation-delay-2000"></div>
+      <div class="absolute -bottom-8 left-20 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl animate-pulse animation-delay-4000"></div>
+    </div>
 
-    {% if page.intro_image %}
-      <div class="about-image">
-        {# adjust the filter to suit your layout: #}
-        {% image page.intro_image fill-800x400 alt=page.title %}
+    <div class="relative max-w-6xl mx-auto px-6">
+      <div class="text-center">
+        <h1 class="text-5xl md:text-7xl font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 bg-clip-text text-transparent leading-tight mb-8">
+          {{ page.title }}
+        </h1>
+        
+        {% if page.intro %}
+          <p class="text-xl md:text-2xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
+            {{ page.intro }}
+          </p>
+        {% endif %}
       </div>
-    {% endif %}
-  </section>
+    </div>
+  </div>
 
-  <section class="about-body">
-    {{ page.body|richtext }}
-  </section>
+  <!-- Image Section -->
+  {% if page.intro_image %}
+    <div class="relative -mt-16 pb-20">
+      <div class="max-w-6xl mx-auto px-6">
+        <div class="relative group">
+          <div class="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl overflow-hidden ring-1 ring-white/50">
+            {% image page.intro_image fill-1200x600 class="w-full h-96 md:h-[600px] object-cover group-hover:scale-105 transition-transform duration-700" alt=page.title %}
+            <!-- Overlay gradient -->
+            <div class="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          </div>
+          <!-- Decorative border -->
+          <div class="absolute -inset-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl opacity-20 group-hover:opacity-30 transition-opacity duration-300 -z-10"></div>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+  <!-- Content Section -->
+  <div class="relative {% if not page.intro_image %}-mt-16{% endif %} pb-20">
+    <div class="max-w-4xl mx-auto px-6">
+      
+      <!-- Main Content Card -->
+      <div class="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl overflow-hidden">
+
+        <!-- Body Content -->
+        <div class="px-8 py-12">
+          <div class="prose prose-lg prose-blue max-w-none
+                      prose-headings:text-gray-900 prose-headings:font-bold prose-headings:mb-6 prose-headings:mt-8
+                      prose-h1:text-4xl prose-h2:text-3xl prose-h3:text-2xl
+                      prose-p:text-gray-700 prose-p:leading-relaxed prose-p:text-lg prose-p:mb-6
+                      prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline prose-a:font-medium
+                      prose-strong:text-gray-900 prose-strong:font-semibold
+                      prose-ul:text-gray-700 prose-li:text-gray-700 prose-li:mb-2
+                      prose-ol:text-gray-700
+                      prose-blockquote:border-l-4 prose-blockquote:border-blue-500 prose-blockquote:bg-blue-50 prose-blockquote:p-6 prose-blockquote:rounded-r-xl prose-blockquote:text-blue-900 prose-blockquote:font-medium prose-blockquote:not-italic
+                      prose-code:bg-gray-100 prose-code:px-2 prose-code:py-1 prose-code:rounded prose-code:text-sm prose-code:text-gray-800
+                      prose-pre:bg-gray-900 prose-pre:text-gray-100 prose-pre:rounded-xl
+                      prose-img:rounded-xl prose-img:shadow-lg">
+            
+            {% if page.body %}
+              {{ page.body|richtext }}
+            {% else %}
+              <div class="text-center py-16">
+                <div class="w-24 h-24 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full mx-auto mb-6 flex items-center justify-center">
+                  <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                  </svg>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-4">Content Coming Soon</h3>
+                <p class="text-gray-600 text-lg max-w-md mx-auto">
+                  We're working on adding our story here. Check back soon to learn more about our mission and values.
+                </p>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .8; }
+}
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
+
+/* Enhanced prose styling for better readability */
+.prose h1:first-child {
+  margin-top: 0;
+}
+
+.prose blockquote {
+  position: relative;
+}
+
+.prose blockquote::before {
+  content: '"';
+  position: absolute;
+  top: -10px;
+  left: 10px;
+  font-size: 4rem;
+  color: rgba(59, 130, 246, 0.3);
+  font-family: serif;
+}
+
+/* Custom scrollbar for better UX */
+.prose::-webkit-scrollbar {
+  width: 8px;
+}
+
+.prose::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+.prose::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.prose::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+</style>
 {% endblock %}
