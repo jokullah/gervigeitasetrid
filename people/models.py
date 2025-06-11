@@ -117,7 +117,7 @@ class PersonPage(RoutablePageMixin, Page):
 
             return redirect(self.url)
 
-        all_tags = Tag.objects.all().order_by('name')
+        all_tags = Tag.objects.all().order_by('name_is')
         page_tag_ids = list(self.tagged_items.values_list('tag_id', flat=True))
 
         return render(request, 'people/person_edit.html', {
