@@ -384,3 +384,42 @@ def reset_password(request, reset_code):
         
     except PasswordReset.DoesNotExist:
         return render(request, 'password_reset_invalid.html')
+    
+    
+def send_form_verification_email(contact_email, verification_code, company_name, title):
+    """Send verification email for project advertisement form"""
+    subject = 'Staðfestu verkefnaauglýsingu þína'
+    
+    # Create verification link
+    verification_url = f"{settings.SITE_URL}/verify-project-ad/{verification_code}/"
+    
+    message = f"""
+Halló!
+
+Takk fyrir að senda inn verkefnaauglýsingu fyrir "{title}" frá {company_name}.
+
+Til að ljúka við sendingu auglýsingarinnar, vinsamlegast staðfestu netfangið þitt með því að smella á tengilinn hér að neðan:
+
+{verification_url}
+
+Þessi tengill rennur út eftir 24 klukkustundir.
+
+Ef þú sendir ekki inn þessa auglýsingu geturðu hunsað þennan tölvupóst.
+
+Bestu kveðjur,
+Háskóli Íslands
+"""
+    
+    from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@hi.is')
+    
+    try:
+        send_mail(
+            subject,
+            message,
+            from_email,
+            [contact_email],
+            fail_silently=False,
+        )
+        print(f"Form verification email sent to {contact_email}")  # For debugging
+    except Exception as e:
+        print(f"Failed to send form verification email: {e}")  # For debugging

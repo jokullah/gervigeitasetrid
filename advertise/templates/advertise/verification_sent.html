@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Staðfesting send" %} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<main class="max-w-4xl mx-auto px-6 py-8">
+    <div class="text-center">
+        <div class="mb-8">
+            <div class="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+                <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                </svg>
+            </div>
+            
+            <h1 class="text-3xl font-bold text-gray-900 mb-4">
+                {% trans "Staðfestingarpóstur sendur" %}
+            </h1>
+            
+            <p class="text-lg text-gray-600 mb-6">
+                {% trans "Takk fyrir að senda inn verkefnaauglýsinguna þína!" %}
+            </p>
+            
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 max-w-2xl mx-auto">
+                <p class="text-blue-800 mb-4">
+                    {% trans "Við höfum sent staðfestingartengil á netfangið þitt. Vinsamlegast athugaðu tölvupóstinn þinn og smelltu á tengilinn til að ljúka við sendingu auglýsingarinnar." %}
+                </p>
+                
+                <p class="text-blue-700 text-sm">
+                    {% trans "Tengillinn rennur út eftir 24 klukkustundir." %}
+                </p>
+            </div>
+            
+            <div class="mt-8">
+                <a href="/" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-md font-semibold transition-colors duration-200">
+                    {% trans "Fara á forsíðu" %}
+                </a>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}
