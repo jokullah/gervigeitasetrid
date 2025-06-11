@@ -10,7 +10,9 @@ from wagtail.admin.forms import WagtailAdminPageForm
 from django.contrib.auth.models import User
 from django.utils.safestring import mark_safe
 from django.utils import timezone
-from datetime import date
+from datetime import date, timedelta
+import json
+import uuid
 
 
 class ProjectPageForm(WagtailAdminPageForm):
@@ -641,4 +643,55 @@ class ProjectPage(Page):
     # class Meta should be LAST:
     class Meta:
         verbose_name = _("Verkefni")
+
+
+
+class PendingProjectAd(models.Model):
+    """Stores form data before email verification"""
+    
+    # Store form data as JSON
+    form_data = models.JSONField()
+    
+    # Verification fields
+    verification_code = models.UUIDField(default=uuid.uuid4, unique=True)
+    contact_email = models.EmailField()  # Store email separately for easy access
+    created_at = models.DateTimeField(auto_now_add=True)
+    verified = models.BooleanField(default=False)
+    
+    def is_expired(self):
+        """Check if verification is expired (24 hours)"""
+        return timezone.now() > self.created_at + timedelta(hours=24)
+    
+    def create_project_ad(self):
+        """Convert this pending ad to a real ProjectAd"""
+        if self.verified:
+            # Create the ProjectAd from stored data
+            ad_data = self.form_data.copy()
+            
+            # Handle the requested_advisors many-to-many field
+            requested_advisor_ids = ad_data.pop('requested_advisors', [])
+            
+            # Handle time_limit date conversion
+            if 'time_limit' in ad_data and ad_data['time_limit']:
+                from datetime import datetime
+                ad_data['time_limit'] = datetime.strptime(ad_data['time_limit'], '%Y-%m-%d').date()
+            
+            # Create the ProjectAd
+            project_ad = ProjectAd.objects.create(**ad_data)
+            
+            # Add requested advisors
+            if requested_advisor_ids:
+                advisors = User.objects.filter(id__in=requested_advisor_ids)
+                project_ad.requested_advisors.set(advisors)
+            
+            return project_ad
+        return None
+    
+    def __str__(self):
+        return f"Pending: {self.form_data.get('title', 'No title')} ({self.contact_email})"
+    
+    class Meta:
+        verbose_name = _("Pending Project Advertisement")
+        verbose_name_plural = _("Pending Project Advertisements")
+
 

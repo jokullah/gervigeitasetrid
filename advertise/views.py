@@ -9,7 +9,7 @@ from django.shortcuts import get_object_or_404, redirect, render  # Add render i
 from django.contrib import messages
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-from .models import ProjectAd, ProjectPage, ProjectIndexPage, ProjectApplication  # Add ProjectApplication import
+from .models import ProjectAd, ProjectPage, ProjectIndexPage, ProjectApplication, PendingProjectAd
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_protect
@@ -20,51 +20,93 @@ from people.models import PersonPage
 from django.contrib.auth.models import User
 
 
+
+
+def send_form_verification_email(contact_email, verification_code, company_name, title):
+    """Send verification email for project advertisement form"""
+    subject = 'Staðfestu verkefnaauglýsingu þína'
+    
+    # Create verification link
+    verification_url = f"{settings.SITE_URL}/verify-project-ad/{verification_code}/"
+    
+    message = f"""
+Halló!
+
+Takk fyrir að senda inn verkefnaauglýsingu fyrir "{title}" frá {company_name}.
+
+Til að ljúka við sendingu auglýsingarinnar, vinsamlegast staðfestu netfangið þitt með því að smella á tengilinn hér að neðan:
+
+{verification_url}
+
+Þessi tengill rennur út eftir 24 klukkustundir.
+
+Ef þú sendir ekki inn þessa auglýsingu geturðu hunsað þennan tölvupóst.
+
+Bestu kveðjur,
+Háskóli Íslands
+"""
+    
+    from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@hi.is')
+    
+    try:
+        send_mail(
+            subject,
+            message,
+            from_email,
+            [contact_email],
+            fail_silently=False,
+        )
+        print(f"Form verification email sent to {contact_email}")  # For debugging
+    except Exception as e:
+        print(f"Failed to send form verification email: {e}")  # For debugging
+
+
 class AdvertiseView(FormView):
     template_name = "advertise/form.html"
     form_class    = ProjectAdForm
-    success_url   = reverse_lazy("advertise:advertise-thanks")
+    success_url   = reverse_lazy("advertise:advertise-verification-sent")
 
     def form_valid(self, form):
-        # CRITICAL: Don't save yet - we need to set locale first
-        instance = form.save(commit=False)
+        # Instead of saving as ProjectAd, save as PendingProjectAd
+        from .models import PendingProjectAd
         
-        # Capture the current language from the request
+        # Get form data
+        form_data = form.cleaned_data.copy()
+        
+        # Capture the current language
         current_language = translation.get_language()
-        instance.locale = current_language
+        form_data['locale'] = current_language
         
-        # Now save the instance first (required before saving many-to-many)
-        instance.save()
+        # Handle requested_advisors (many-to-many field)
+        requested_advisors = form_data.pop('requested_advisors', [])
+        form_data['requested_advisors'] = [advisor.id for advisor in requested_advisors]
         
-        # IMPORTANT: Save the many-to-many data (including requested_advisors)
-        form.save_m2m()
+        # Handle date field (convert to string for JSON storage)
+        if 'time_limit' in form_data and form_data['time_limit']:
+            form_data['time_limit'] = form_data['time_limit'].strftime('%Y-%m-%d')
+        
+        # Store contact email separately
+        contact_email = form_data['contact_email']
+        
+        # Create pending submission
+        pending_ad = PendingProjectAd.objects.create(
+            form_data=form_data,
+            contact_email=contact_email
+        )
+        
+        # Send verification email
+        send_form_verification_email(
+            contact_email=contact_email,
+            verification_code=pending_ad.verification_code,
+            company_name=form_data['company_name'],
+            title=form_data['title']
+        )
         
         # Debug logging
-        print(f"DEBUG: Form submitted from {self.request.path}")
+        print(f"DEBUG: Form submitted with email verification")
+        print(f"DEBUG: Contact email: {contact_email}")
+        print(f"DEBUG: Verification code: {pending_ad.verification_code}")
         print(f"DEBUG: Current language: {current_language}")
-        print(f"DEBUG: Saved ProjectAd with locale: {instance.locale}")
-        print(f"DEBUG: Requested advisors count: {instance.requested_advisors.count()}")
-        for advisor in instance.requested_advisors.all():
-            print(f"DEBUG: - {advisor.get_full_name()} ({advisor.email})")
-        
-        # Send notification email
-        advisors_list = ", ".join([
-            advisor.get_full_name() or advisor.username 
-            for advisor in instance.requested_advisors.all()
-        ])
-        
-        send_mail(
-            subject=f"Ný verkefnaauglýsing: {instance.title}",
-            message=(
-                f"Fyrirtæki: {instance.company_name}\n"
-                f"Tengiliður: {instance.contact_name} <{instance.contact_email}>\n"
-                f"Tungumál: {instance.get_locale_display()}\n"
-                f"Óskir um leiðbeinendur: {advisors_list}\n\n"
-                f"Lýsing:\n{instance.description}"
-            ),
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[settings.PROJECT_AD_NOTIFY_TO],
-        )
         
         return super().form_valid(form)
 
@@ -223,3 +265,61 @@ def user_email_api(request):
         return JsonResponse({'error': 'User not found'}, status=404)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+    
+
+class AdvertiseVerificationSentView(TemplateView):
+    """Show confirmation that verification email was sent"""
+    template_name = "advertise/verification_sent.html"
+
+
+def verify_project_ad(request, verification_code):
+    """Handle project advertisement verification"""
+    from .models import PendingProjectAd
+    
+    try:
+        pending_ad = get_object_or_404(PendingProjectAd, verification_code=verification_code)
+        
+        if pending_ad.is_expired():
+            return render(request, 'advertise/verification_expired.html', {
+                'contact_email': pending_ad.contact_email
+            })
+        
+        if pending_ad.verified:
+            return render(request, 'advertise/already_verified.html')
+        
+        # Mark as verified
+        pending_ad.verified = True
+        pending_ad.save()
+        
+        # Create the actual ProjectAd
+        project_ad = pending_ad.create_project_ad()
+        
+        if project_ad:
+            # Send notification email to admin (like the original code)
+            advisors_list = ", ".join([
+                advisor.get_full_name() or advisor.username 
+                for advisor in project_ad.requested_advisors.all()
+            ])
+            
+            send_mail(
+                subject=f"Ný verkefnaauglýsing: {project_ad.title}",
+                message=(
+                    f"Fyrirtæki: {project_ad.company_name}\n"
+                    f"Tengiliður: {project_ad.contact_name} <{project_ad.contact_email}>\n"
+                    f"Tungumál: {project_ad.get_locale_display()}\n"
+                    f"Óskir um leiðbeinendur: {advisors_list}\n\n"
+                    f"Lýsing:\n{project_ad.description}"
+                ),
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[settings.PROJECT_AD_NOTIFY_TO],
+            )
+            
+            print(f"DEBUG: Created ProjectAd with ID: {project_ad.id}")
+            print(f"DEBUG: Notified admin at: {settings.PROJECT_AD_NOTIFY_TO}")
+        
+        return render(request, 'advertise/verification_success.html', {
+            'project_ad': project_ad
+        })
+        
+    except PendingProjectAd.DoesNotExist:
+        return render(request, 'advertise/verification_invalid.html')

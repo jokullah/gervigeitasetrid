@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Auglýsing staðfest" %} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<main class="max-w-4xl mx-auto px-6 py-8">
+    <div class="text-center">
+        <div class="mb-8">
+            <div class="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+                <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+            </div>
+            
+            <h1 class="text-3xl font-bold text-gray-900 mb-4">
+                {% trans "Verkefnaauglýsing staðfest!" %}
+            </h1>
+            
+            <p class="text-lg text-gray-600 mb-6">
+                {% trans "Takk fyrir að staðfesta auglýsinguna þína." %}
+            </p>
+            
+            <div class="bg-green-50 border border-green-200 rounded-lg p-6 max-w-2xl mx-auto">
+                {% if project_ad %}
+                    <h3 class="text-lg font-semibold text-green-800 mb-2">
+                        "{{ project_ad.title }}"
+                    </h3>
+                    <p class="text-green-700 mb-4">
+                        {% trans "Frá" %} {{ project_ad.company_name }}
+                    </p>
+                {% endif %}
+                
+                <p class="text-green-800 mb-4">
+                    {% trans "Auglýsingin þín hefur verið send til yfirfarar hjá starfsmönnum Gervigreindarsetursins." %}
+                </p>
+                
+                <p class="text-green-700 text-sm">
+                    {% trans "Starfsmenn munu fara yfir auglýsinguna og búa til verkefnasíðu ef allt er í lagi." %}
+                </p>
+            </div>
+            
+            <div class="mt-8">
+                <a href="/" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-md font-semibold transition-colors duration-200">
+                    {% trans "Fara á forsíðu" %}
+                </a>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}
