@@ -1,4 +1,5 @@
 {% load static wagtailcore_tags %}
+{% load i18n i18n_extra %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -96,7 +97,6 @@
         });
         </script>
 
-        {# Live Search JavaScript #}
         <script>
         // Live Search JavaScript for Header Search
         document.addEventListener('DOMContentLoaded', function() {
@@ -110,6 +110,15 @@
             
             let searchTimeout;
             let currentQuery = '';
+            
+            // Get translations from Django
+            const translations = {
+                'searching': "{% trans 'Leitar...' %}",
+                'no_results': "{% trans 'Engar niðurstöður fundust fyrir' %}",
+                'pages': "{% trans 'Síður' %}",
+                'tags': "{% trans 'Merki' %}",
+                'see_all_results': "{% trans 'Sjá allar niðurstöður fyrir' %}"
+            };
             
             // Handle input events
             searchInput.addEventListener('input', function(e) {
@@ -168,8 +177,11 @@
                 // Show loading state
                 showLoading();
                 
-                // Make AJAX request to live search endpoint
-                fetch(`/search/live/?q=${encodeURIComponent(query)}`, {
+                // Get the current language prefix from the URL
+                const currentPath = window.location.pathname;
+                const langPrefix = currentPath.startsWith('/is/') ? '/is' : currentPath.startsWith('/en/') ? '/en' : '';
+                
+                fetch(`${langPrefix}/search/live/?q=${encodeURIComponent(query)}`, {
                     method: 'GET',
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest'
@@ -198,7 +210,7 @@
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
-                            Searching...
+                            ${translations.searching}
                         </div>
                     </div>
                 `;
@@ -213,7 +225,7 @@
                     if (!data.tags || data.tags.length === 0) {
                         html = `
                             <div class="p-4 text-center text-gray-500">
-                                No results found for "${query}"
+                                ${translations.no_results} "${query}"
                             </div>
                         `;
                     }
@@ -222,7 +234,7 @@
                 // Display page results
                 if (data.results && data.results.length > 0) {
                     html += '<div class="border-b border-gray-100 pb-2 mb-2">';
-                    html += '<div class="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">Pages</div>';
+                    html += `<div class="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">${translations.pages}</div>`;
                     
                     data.results.forEach(result => {
                         html += `
@@ -241,7 +253,7 @@
                 // Display tag suggestions
                 if (data.tags && data.tags.length > 0) {
                     html += '<div class="border-b border-gray-100 pb-2 mb-2">';
-                    html += '<div class="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">Tags</div>';
+                    html += `<div class="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">${translations.tags}</div>`;
                     
                     data.tags.forEach(tag => {
                         html += `
@@ -261,7 +273,7 @@
                     html += `
                         <div class="px-4 py-3 border-t border-gray-100">
                             <a href="/search/?query=${encodeURIComponent(query)}" class="text-sm text-blue-600 hover:text-blue-700 font-medium">
-                                See all results for "${query}"
+                                ${translations.see_all_results} "${query}"
                             </a>
                         </div>
                     `;

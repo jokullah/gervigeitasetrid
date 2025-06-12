@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-12 10:25+0000\n"
+"POT-Creation-Date: 2025-06-12 15:25+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -208,7 +208,7 @@ msgstr "Applicant"
 msgid "Umsókn send"
 msgstr "Application sent"
 
-#: advertise/models.py:385 gervigeitasetrid/templates/includes/header.html:147
+#: advertise/models.py:385 gervigeitasetrid/templates/includes/header.html:151
 msgid "Staða"
 msgstr "Status"
 
@@ -355,7 +355,7 @@ msgid "Sækja um verkefni"
 msgstr "Apply for project"
 
 #: advertise/templates/advertise/form.html:5
-#: gervigeitasetrid/templates/includes/header.html:115
+#: gervigeitasetrid/templates/includes/header.html:119
 msgid "Auglýsa verkefni"
 msgstr "Advertise project"
 
@@ -2273,6 +2273,30 @@ msgstr "Send again"
 msgid "Fara á innskráningarsíðu"
 msgstr "Go to login page"
 
+#: gervigeitasetrid/templates/base.html:116
+#, fuzzy
+#| msgid "Leita"
+msgid "Leitar..."
+msgstr "Search"
+
+#: gervigeitasetrid/templates/base.html:117
+#, fuzzy
+#| msgid "Engir viðburðir fundust"
+msgid "Engar niðurstöður fundust fyrir"
+msgstr "No events found"
+
+#: gervigeitasetrid/templates/base.html:118
+msgid "Síður"
+msgstr "Pages"
+
+#: gervigeitasetrid/templates/base.html:119
+msgid "Merki"
+msgstr "Tag"
+
+#: gervigeitasetrid/templates/base.html:120
+msgid "Sjá allar niðurstöður fyrir"
+msgstr "See all search results for"
+
 #: gervigeitasetrid/templates/forgot_password.html:4
 #: gervigeitasetrid/templates/forgot_password.html:9
 msgid "Gleymt lykilorð"
@@ -2320,15 +2344,17 @@ msgid "Innskrá"
 msgstr "Log in"
 
 #: gervigeitasetrid/templates/includes/header.html:100
-#: gervigeitasetrid/templates/includes/header.html:189
+#: gervigeitasetrid/templates/includes/header.html:193
+#: search/templates/search/search.html:15
+#: search/templates/search/search.html:29
 msgid "Leita"
 msgstr "Search"
 
-#: gervigeitasetrid/templates/includes/header.html:147
+#: gervigeitasetrid/templates/includes/header.html:151
 msgid "Nemandi"
 msgstr "Student"
 
-#: gervigeitasetrid/templates/includes/header.html:164
+#: gervigeitasetrid/templates/includes/header.html:168
 msgid "Opna valmynd"
 msgstr "Open menu"
 
@@ -2664,42 +2690,37 @@ msgstr ""
 msgid "Afrita"
 msgstr "Copy"
 
-#: search/templates/search/search.html:6
+#: search/templates/search/search.html:7
 #, python-format
 msgid "Search results for \"%(query)s\""
 msgstr ""
 
-#: search/templates/search/search.html:8 search/templates/search/search.html:14
-#: search/templates/search/search.html:28
+#: search/templates/search/search.html:9
 msgid "Search"
 msgstr ""
 
-#: search/templates/search/search.html:23
+#: search/templates/search/search.html:24
 msgid "Enter your search terms..."
 msgstr ""
 
-#: search/templates/search/search.html:35
-msgid "Filter by tags:"
-msgstr ""
+#: search/templates/search/search.html:36
+msgid "Sía eftir töggum:"
+msgstr "Filter by tags"
 
-#: search/templates/search/search.html:64
-msgid "Search expanded to include:"
-msgstr ""
+#: search/templates/search/search.html:65
+msgid "Leit útvíkkuð til að innihalda:"
+msgstr "Search expanded ti include:"
 
-#: search/templates/search/search.html:75
-msgid "Did you mean:"
-msgstr ""
+#: search/templates/search/search.html:76
+msgid "Meintir þú:"
+msgstr "Did you mean:"
 
-#: search/templates/search/search.html:90
-msgid "Related tags:"
-msgstr ""
-
-#: search/templates/search/search.html:109
+#: search/templates/search/search.html:94
 #, python-format
 msgid "1 result found for \"%(query)s\""
 msgstr ""
 
-#: search/templates/search/search.html:113
+#: search/templates/search/search.html:98
 #, python-format
 msgid ""
 "\n"
@@ -2712,67 +2733,61 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: search/templates/search/search.html:155
-msgid "Search results pages"
-msgstr ""
+#: search/templates/search/search.html:140
+msgid "Leitarniðurstöðusíður"
+msgstr "Search Result Pages"
 
-#: search/templates/search/search.html:161
-msgid "Previous"
-msgstr ""
+#: search/templates/search/search.html:146
+msgid "Fyrri"
+msgstr "Previous"
 
-#: search/templates/search/search.html:183
-msgid "Next"
-msgstr ""
+#: search/templates/search/search.html:168
+msgid "Næsta"
+msgstr "Next"
 
-#: search/templates/search/search.html:193
-msgid "No results found"
-msgstr ""
+#: search/templates/search/search.html:178
+msgid "Engar leitarniðurstöður fundust"
+msgstr "No search results"
 
-#: search/templates/search/search.html:194
+#: search/templates/search/search.html:179
 #, python-format
 msgid "Sorry, no results were found for \"%(query)s\"."
 msgstr ""
 
-#: search/templates/search/search.html:197
-msgid "Search tips:"
-msgstr ""
+#: search/templates/search/search.html:182
+msgid "Ábendingar:"
+msgstr "Tips"
 
-#: search/templates/search/search.html:199
-msgid "Try different keywords"
-msgstr ""
+#: search/templates/search/search.html:184
+msgid "Prófaðu önnur leitarorð"
+msgstr "Try different keywords"
 
-#: search/templates/search/search.html:200
-msgid "Use fewer, more general terms"
-msgstr ""
+#: search/templates/search/search.html:185
+msgid "Notaðu færri, almennari hugtök"
+msgstr "Use fewer, more general terms"
 
-#: search/templates/search/search.html:201
-msgid "Check your spelling"
-msgstr ""
+#: search/templates/search/search.html:186
+msgid "Athugaðu stafsetningu"
+msgstr "Check your spelling"
 
-#: search/templates/search/search.html:202
-msgid "Try filtering by tags above"
-msgstr ""
+#: search/templates/search/search.html:187
+msgid "Prófaðu að sía eftir töggunum að ofan"
+msgstr "Try filtering by the tags above"
 
-#: search/templates/search/search.html:210
-msgid "What are you looking for?"
-msgstr ""
+#: search/templates/search/search.html:195
+msgid "Hverju ertu að leita að?"
+msgstr "What are you looking for?"
 
-#: search/templates/search/search.html:211
+#: search/templates/search/search.html:196
 msgid ""
-"Enter your search terms above or browse by tags to find relevant content."
-msgstr ""
+"Skrifaðu leitarorð að ofan eða síaðu eftir töggum til að finna rétt efni."
+msgstr "Write your search terms above or filter by the tags to find relative content."
 
 #~ msgid "Þú leitaðir að"
 #~ msgstr "You searched for"
 
 #~ msgid "niðurstaða"
 #~ msgstr "result"
-
-#~ msgid "Fyrri"
-#~ msgstr "Previous"
-
-#~ msgid "Næsta"
-#~ msgstr "Next"
 
 #~ msgid "Engin leitarniðurstaða fannst"
 #~ msgstr "No search results found"

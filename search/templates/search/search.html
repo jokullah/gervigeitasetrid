@@ -12,7 +12,7 @@
 
 {% block content %}
 <div class="search-container">
-    <h1>{% trans "Search" %}</h1>
+    <h1>{% trans "Leita" %}</h1>
     
     <!-- Enhanced Search Form -->
     <form method="get" action="{% url 'search' %}" class="search-form">
@@ -26,14 +26,14 @@
                 autocomplete="off"
             >
             <button type="submit" class="search-button">
-                {% trans "Search" %}
+                {% trans "Leita" %}
             </button>
         </div>
         
         <!-- Tag Filtering Section -->
         {% if all_tags %}
         <div class="tag-filters">
-            <h3>{% trans "Filter by tags:" %}</h3>
+            <h3>{% trans "Sía eftir töggum:" %}</h3>
             <div class="tag-grid">
                 {% for tag in all_tags %}
                 <label class="tag-filter-item">
@@ -62,7 +62,7 @@
     {% if search_expanded %}
     <div class="search-expansion-notice">
         <p>
-            <strong>{% trans "Search expanded to include:" %}</strong>
+            <strong>{% trans "Leit útvíkkuð til að innihalda:" %}</strong>
             {% for term in expanded_terms %}
                 <span class="expanded-term">{{ term }}</span>{% if not forloop.last %}, {% endif %}
             {% endfor %}
@@ -73,28 +73,12 @@
     <!-- "Did You Mean?" Suggestions -->
     {% if did_you_mean_suggestions and not search_results %}
     <div class="did-you-mean">
-        <h3>{% trans "Did you mean:" %}</h3>
+        <h3>{% trans "Meintir þú:" %}</h3>
         <div class="did-you-mean-suggestions">
             {% for suggestion in did_you_mean_suggestions %}
             <a href="{% url 'search' %}?query={{ suggestion|urlencode }}" 
                class="did-you-mean-link">
                 {{ suggestion }}
-            </a>
-            {% endfor %}
-        </div>
-    </div>
-    {% endif %}
-    
-    <!-- Search Suggestions -->
-    {% if suggested_tags %}
-    <div class="search-suggestions">
-        <h3>{% trans "Related tags:" %}</h3>
-        <div class="suggested-tags">
-            {% for tag in suggested_tags %}
-            <a href="{% url 'search' %}?query={{ search_query }}&tags={{ tag.id }}" 
-               class="suggested-tag" 
-               style="{{ tag.get_style_attribute }}">
-                {{ tag.name }}
             </a>
             {% endfor %}
         </div>
@@ -153,13 +137,13 @@
                 
                 <!-- Pagination -->
                 {% if search_results.has_other_pages %}
-                    <nav class="pagination" aria-label="{% trans 'Search results pages' %}">
+                    <nav class="pagination" aria-label="{% trans 'Leitarniðurstöðusíður' %}">
                         <ul class="pagination-list">
                             {% if search_results.has_previous %}
                                 <li>
                                     <a href="?query={{ search_query }}&page={{ search_results.previous_page_number }}{% for tag_id in selected_tags %}&tags={{ tag_id }}{% endfor %}" 
                                        class="pagination-link">
-                                        {% trans "Previous" %}
+                                        {% trans "Fyrri" %}
                                     </a>
                                 </li>
                             {% endif %}
@@ -181,7 +165,7 @@
                                 <li>
                                     <a href="?query={{ search_query }}&page={{ search_results.next_page_number }}{% for tag_id in selected_tags %}&tags={{ tag_id }}{% endfor %}" 
                                        class="pagination-link">
-                                        {% trans "Next" %}
+                                        {% trans "Næsta" %}
                                     </a>
                                 </li>
                             {% endif %}
@@ -191,16 +175,16 @@
                 
             {% else %}
                 <div class="no-results">
-                    <h2>{% trans "No results found" %}</h2>
+                    <h2>{% trans "Engar leitarniðurstöður fundust" %}</h2>
                     <p>{% blocktrans with query=search_query %}Sorry, no results were found for "{{ query }}".{% endblocktrans %}</p>
                     
                     <div class="search-tips">
-                        <h3>{% trans "Search tips:" %}</h3>
+                        <h3>{% trans "Ábendingar:" %}</h3>
                         <ul>
-                            <li>{% trans "Try different keywords" %}</li>
-                            <li>{% trans "Use fewer, more general terms" %}</li>
-                            <li>{% trans "Check your spelling" %}</li>
-                            <li>{% trans "Try filtering by tags above" %}</li>
+                            <li>{% trans "Prófaðu önnur leitarorð" %}</li>
+                            <li>{% trans "Notaðu færri, almennari hugtök" %}</li>
+                            <li>{% trans "Athugaðu stafsetningu" %}</li>
+                            <li>{% trans "Prófaðu að sía eftir töggunum að ofan" %}</li>
                         </ul>
                     </div>
                 </div>
@@ -208,8 +192,8 @@
         </div>
     {% else %}
         <div class="search-welcome">
-            <h2>{% trans "What are you looking for?" %}</h2>
-            <p>{% trans "Enter your search terms above or browse by tags to find relevant content." %}</p>
+            <h2>{% trans "Hverju ertu að leita að?" %}</h2>
+            <p>{% trans "Skrifaðu leitarorð að ofan eða síaðu eftir töggum til að finna rétt efni." %}</p>
         </div>
     {% endif %}
 </div>
