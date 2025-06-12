@@ -3667,6 +3667,122 @@ main {
 .user-profile-btn:hover {
   color: var(--HI-blar);
 }
+/* Live Search Dropdown */
+.header-search-container {
+    position: relative;
+}
+
+.header-search-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-top: none;
+    border-radius: 0 0 0.75rem 0.75rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    max-height: 400px;
+    overflow-y: auto;
+    display: none;
+    margin-top: 1px;
+}
+
+.header-search-dropdown.block {
+    display: block;
+}
+
+/* Default search input styling */
+.header-search-input {
+    border-radius: 9999px; /* Full rounded */
+    transition: all 0.2s ease;
+}
+
+/* When dropdown is open, remove bottom border radius and adjust border */
+.header-search-input.dropdown-open {
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+    border-bottom-color: #e5e7eb !important;
+}
+
+/* Keep focus ring when input is focused */
+.header-search-input:focus {
+    outline: none;
+    ring: 2px;
+    ring-color: #3b82f6;
+    border-color: #3b82f6;
+}
+
+/* Special case: when dropdown is open AND input is focused */
+.header-search-input.dropdown-open:focus {
+    border-bottom-color: #e5e7eb !important;
+}
+
+/* Ensure dropdown border matches input when open */
+.header-search-dropdown.block {
+    border-color: #3b82f6;
+    border-top-color: #e5e7eb;
+}
+
+/* Line clamp utility for description text */
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Improve hover states for dropdown items */
+.header-search-dropdown a:hover {
+    background-color: #f9fafb;
+}
+
+.header-search-dropdown a:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: -2px;
+    background-color: #eff6ff;
+}
+
+/* Styling for highlighted search terms */
+.header-search-dropdown mark {
+    background-color: #fef3c7;
+    padding: 0.125rem 0.25rem;
+    border-radius: 0.25rem;
+    font-weight: 500;
+}
+
+/* Loading spinner */
+.header-search-dropdown .animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Scrollbar styling for dropdown */
+.header-search-dropdown::-webkit-scrollbar {
+    width: 6px;
+}
+
+.header-search-dropdown::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+.header-search-dropdown::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+.header-search-dropdown::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
 @property --tw-translate-x {
   syntax: "*";
   inherits: false;

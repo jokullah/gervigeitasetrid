@@ -27,7 +27,7 @@ urlpatterns = [
 ]
 
 urlpatterns += i18n_patterns(
-    path('search/', search_views.search, name='search'),
+    path('search/', include('search.urls')),
     path("i18n/", include("django.conf.urls.i18n")),
     path("login/", login, name="login"),
     path("signup/", signup, name="signup"),

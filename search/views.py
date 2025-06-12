@@ -3,6 +3,8 @@ from django.template.response import TemplateResponse
 from django.db.models import Q, Count
 from django.utils.translation import get_language
 import difflib
+from django.http import JsonResponse
+
 
 from wagtail.models import Page, Locale
 # For search query logging (optional)
@@ -458,3 +460,101 @@ def tag_search(request, tag_id):
             "search_query": f"#{tag.name}",
         },
     )
+
+
+def live_search(request):
+    """
+    AJAX endpoint for live search suggestions with debug info
+    """
+    query = request.GET.get('q', '').strip()
+    
+    # Debug logging
+    print(f"Live search query: '{query}'")
+    print(f"Request method: {request.method}")
+    print(f"Request headers: {dict(request.headers)}")
+    
+    if not query or len(query) < 2:
+        return JsonResponse({
+            'results': [], 
+            'tags': [],
+            'debug': f'Query too short: "{query}"'
+        })
+    
+    # Get locale
+    lang = request.LANGUAGE_CODE[:2]
+    try:
+        active_locale = Locale.objects.get(language_code=lang)
+        print(f"Using locale: {active_locale}")
+    except Locale.DoesNotExist:
+        active_locale = Locale.get_default()
+        print(f"Using default locale: {active_locale}")
+    
+    base_queryset = Page.objects.live().filter(locale=active_locale)
+    print(f"Base queryset count: {base_queryset.count()}")
+    
+    # Get top 3 search results
+    search_results = base_queryset.search(query)[:3]
+    print(f"Search results count: {len(list(search_results))}")
+    
+    # Convert to specific instances for proper data
+    results = []
+    for page in search_results:
+        try:
+            specific_page = page.specific
+            result_data = {
+                'title': specific_page.title,
+                'url': specific_page.url,
+                'type': str(specific_page._meta.verbose_name),
+                'description': getattr(specific_page, 'search_description', '') or ''
+            }
+            results.append(result_data)
+            print(f"Added result: {result_data['title']}")
+        except Exception as e:
+            print(f"Error processing page {page.id}: {e}")
+    
+    # Find matching tags
+    current_lang = get_language()
+    print(f"Current language: {current_lang}")
+    
+    if current_lang and current_lang.startswith('is'):
+        matching_tags = Tag.objects.filter(
+            Q(name_is__icontains=query) | Q(name_en__icontains=query)
+        )[:2]
+    else:
+        matching_tags = Tag.objects.filter(
+            Q(name_en__icontains=query) | Q(name_is__icontains=query)
+        )[:2]
+    
+    print(f"Matching tags count: {matching_tags.count()}")
+    
+    tags = []
+    for tag in matching_tags:
+        try:
+            # Create search URL for the tag
+            tag_search_url = f"/search/?query={tag.name}&tags={tag.id}"
+            tag_data = {
+                'name': tag.name,
+                'color': getattr(tag, 'color', '#6b7280'),
+                'search_url': tag_search_url,
+                'id': tag.id
+            }
+            tags.append(tag_data)
+            print(f"Added tag: {tag_data['name']}")
+        except Exception as e:
+            print(f"Error processing tag {tag.id}: {e}")
+    
+    response_data = {
+        'results': results,
+        'tags': tags,
+        'query': query,
+        'debug': {
+            'locale': str(active_locale),
+            'results_count': len(results),
+            'tags_count': len(tags),
+            'language': current_lang
+        }
+    }
+    
+    print(f"Returning response: {response_data}")
+    
+    return JsonResponse(response_data)
