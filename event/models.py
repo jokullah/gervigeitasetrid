@@ -2,11 +2,11 @@ from django import forms
 from django.db import models
 from django.forms.widgets import TimeInput
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-
+from wagtail.search import index
 from wagtail.models import Page, Locale
 from wagtail.admin.panels import FieldPanel, MultiFieldPanel, InlinePanel
 from wagtail.snippets.models import register_snippet
-
+from django.utils.translation import gettext_lazy as _
 from modelcluster.fields import ParentalManyToManyField
 
 
@@ -47,8 +47,20 @@ class EventPage(Page):
         ], heading="Lecture Fields"),
 	InlinePanel('tagged_items', label='Tags'),
     ]
+
+    search_fields = Page.search_fields + [
+        index.SearchField('description'),       
+        index.SearchField('location', partial_match=True),
+        index.SearchField('host', partial_match=True),
+        index.SearchField('speaker', partial_match=True),
+    ]
+
     parent_page_types = ['event.EventIndexPage']
     subpage_types = []
+
+    class Meta:
+        verbose_name = _("Viðburður")
+        verbose_name_plural = _("Viðburðir")
 
 
 class EventIndexPage(Page):
@@ -85,3 +97,7 @@ class EventIndexPage(Page):
     
     parent_page_types = ['home.HomePage']
     subpage_types = ['event.EventPage']
+
+    class Meta:
+        verbose_name = _("Viðburðasíða")
+        verbose_name_plural = _("Viðburðasíður")

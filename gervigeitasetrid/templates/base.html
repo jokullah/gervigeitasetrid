@@ -72,5 +72,28 @@
         {% block extra_js %}
         {# Override this in templates to add extra javascript #}
         {% endblock %}
+
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Find all tag elements and add click handlers
+            const tagElements = document.querySelectorAll('.tag-clickable');
+            
+            tagElements.forEach(function(tagElement) {
+                tagElement.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Get tag data from data attributes
+                    const tagId = this.dataset.tagId;
+                    const tagName = this.dataset.tagName;
+                    
+                    // Construct search URL
+                    const searchUrl = '/search/?query=' + encodeURIComponent(tagName) + '&tags=' + tagId;
+                    
+                    // Navigate to search
+                    window.location.href = searchUrl;
+                });
+            });
+        });
+        </script>
     </body>
 </html>

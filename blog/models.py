@@ -1,6 +1,6 @@
 from django import forms
 from django.db import models
-
+from django.utils.translation import gettext_lazy as _
 from wagtail.models import Page, Locale, Orderable
 from wagtail.fields import RichTextField
 from wagtail.search import index
@@ -39,6 +39,10 @@ class BlogIndexPage(Page):
     parent_page_types = ['home.HomePage']
     subpage_types = ['blog.BlogPage']
 
+    class Meta:
+        verbose_name = _("Fréttasíða")
+        verbose_name_plural = _("Fréttasíður")
+
 
 class BlogPage(Page):
     thumbnail_image = models.ForeignKey(
@@ -72,6 +76,10 @@ class BlogPage(Page):
         ]
     parent_page_types = ['blog.BlogIndexPage']
     subpage_types = []
+
+    class Meta:
+        verbose_name = _("Frétt")
+        verbose_name_plural = _("Fréttir")
 
 
 @register_snippet

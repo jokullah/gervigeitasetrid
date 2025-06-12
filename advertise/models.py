@@ -13,6 +13,7 @@ from django.utils import timezone
 from datetime import date, timedelta
 import json
 import uuid
+from wagtail.search import index
 
 
 class ProjectPageForm(WagtailAdminPageForm):
@@ -361,6 +362,10 @@ class ProjectIndexPage(Page):
         
         return context
 
+    class Meta:
+        verbose_name = _("Verkefnasíða")
+        verbose_name_plural = _("Verkefnasíður")
+
 
 class ProjectApplication(models.Model):
     project_page = models.ForeignKey(
@@ -523,8 +528,13 @@ class ProjectPage(Page):
         FieldPanel("selected_students"),
     ]
 
-    # Optional: makes fields searchable in Wagtail admin
-    search_fields = Page.search_fields
+    search_fields = Page.search_fields + [
+        index.SearchField('description'),
+        index.SearchField('other'),
+        index.SearchField('company_name', partial_match=True),
+        index.SearchField('contact_email', partial_match=True),
+        index.SearchField('contact_name', partial_match=True),
+    ]
 
     def get_context(self, request, *args, **kwargs):
         """Ensure request context is available in template and add people pages"""
@@ -644,6 +654,7 @@ class ProjectPage(Page):
     # class Meta should be LAST:
     class Meta:
         verbose_name = _("Verkefni")
+        verbose_name_plural = _("Verkefni")
 
 
 

@@ -111,9 +111,12 @@
                                 <span class="font-medium text-sm">{% trans "Tags" %}:</span>
                             </div>
                             <div class="flex flex-wrap gap-2">
-                                {% for tag in page.tagged_items.all %}
-                                    <span class="px-3 py-1 text-white rounded-full text-sm font-medium border hover:opacity-80 transition-all duration-200 cursor-pointer" style="background-color: {{ tag.tag.color }}; border-color: {{ tag.tag.color }};">
-                                        {{ tag.tag.name }}
+                                {% for tagged_item in page.tagged_items.all %}
+                                    <span class="tag-clickable px-3 py-1 text-white rounded-full text-sm font-medium border hover:opacity-80 transition-all duration-200 cursor-pointer transform hover:scale-105" 
+                                          style="background-color: {{ tagged_item.tag.color }}; border-color: {{ tagged_item.tag.color }};"
+                                          data-tag-id="{{ tagged_item.tag.id }}"
+                                          data-tag-name="{{ tagged_item.tag.name }}">
+                                        {{ tagged_item.tag.name }}
                                     </span>
                                 {% endfor %}
                             </div>

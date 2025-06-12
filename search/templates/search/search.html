@@ -1,53 +1,483 @@
 {% extends "base.html" %}
-{% load static wagtailcore_tags %}
-{% load i18n i18n_extra %}
-{% block body_class %}template-searchresults{% endblock %}
+{% load i18n %}
+{% load search_extras %}
 
-{% block title %}Search{% endblock %}
+{% block title %}
+    {% if search_query %}
+        {% blocktrans with query=search_query %}Search results for "{{ query }}"{% endblocktrans %}
+    {% else %}
+        {% trans "Search" %}
+    {% endif %}
+{% endblock %}
 
 {% block content %}
-<h1>{% trans "Leita" %}</h1>
-
-<form action="{% url 'search' %}" method="get" class="search-form">
-    <input type="text"
-           name="query"
-           {% if search_query %}value="{{ search_query }}"{% endif %}
-           placeholder="{% trans 'Leita' %}"
-           class="search-input">
-    <button type="submit"
-            class="search-btn"
-            aria-label="{% trans 'Leita' %}">    
-    </button>
-</form>
-
-{% if search_results %}
-
-<p>{% trans "Þú leitaðir að" %}{% if search_query %} “{{ search_query }}”{% endif %}, {% trans "niðurstaða" %}:</p>
-
-<ol>
-    {% for result in search_results %}
-    <li>
-        <h4><a href="{% pageurl result %}">{{ result }}</a></h4>
-        {% if result.search_description %}
-        {{ result.search_description }}
+<div class="search-container">
+    <h1>{% trans "Search" %}</h1>
+    
+    <!-- Enhanced Search Form -->
+    <form method="get" action="{% url 'search' %}" class="search-form">
+        <div class="search-input-group">
+            <input 
+                type="text" 
+                name="query" 
+                value="{{ search_query }}" 
+                placeholder="{% trans 'Enter your search terms...' %}"
+                class="search-input"
+                autocomplete="off"
+            >
+            <button type="submit" class="search-button">
+                {% trans "Search" %}
+            </button>
+        </div>
+        
+        <!-- Tag Filtering Section -->
+        {% if all_tags %}
+        <div class="tag-filters">
+            <h3>{% trans "Filter by tags:" %}</h3>
+            <div class="tag-grid">
+                {% for tag in all_tags %}
+                <label class="tag-filter-item">
+                    <input 
+                        type="checkbox" 
+                        name="tags" 
+                        value="{{ tag.id }}"
+                        {% if tag.id in selected_tags %}checked{% endif %}
+                        class="tag-checkbox"
+                        onchange="this.form.submit()"
+                    >
+                    <span class="tag-label" style="{{ tag.get_style_attribute }}">
+                        {{ tag.name }}
+                    </span>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
         {% endif %}
-    </li>
-    {% endfor %}
-</ol>
+        
+        <!-- Keep selected tags hidden - but don't duplicate -->
+        <!-- This is handled by the checkbox values above -->
+    </form>
+    
+    <!-- Search Expansion Notice -->
+    {% if search_expanded %}
+    <div class="search-expansion-notice">
+        <p>
+            <strong>{% trans "Search expanded to include:" %}</strong>
+            {% for term in expanded_terms %}
+                <span class="expanded-term">{{ term }}</span>{% if not forloop.last %}, {% endif %}
+            {% endfor %}
+        </p>
+    </div>
+    {% endif %}
+    
+    <!-- "Did You Mean?" Suggestions -->
+    {% if did_you_mean_suggestions and not search_results %}
+    <div class="did-you-mean">
+        <h3>{% trans "Did you mean:" %}</h3>
+        <div class="did-you-mean-suggestions">
+            {% for suggestion in did_you_mean_suggestions %}
+            <a href="{% url 'search' %}?query={{ suggestion|urlencode }}" 
+               class="did-you-mean-link">
+                {{ suggestion }}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Search Suggestions -->
+    {% if suggested_tags %}
+    <div class="search-suggestions">
+        <h3>{% trans "Related tags:" %}</h3>
+        <div class="suggested-tags">
+            {% for tag in suggested_tags %}
+            <a href="{% url 'search' %}?query={{ search_query }}&tags={{ tag.id }}" 
+               class="suggested-tag" 
+               style="{{ tag.get_style_attribute }}">
+                {{ tag.name }}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Search Results -->
+    {% if search_query %}
+        <div class="search-results">
+            {% if search_results %}
+                {% if search_results.paginator.count == 1 %}
+                    <p class="results-count">
+                        {% blocktrans with query=search_query %}1 result found for "{{ query }}"{% endblocktrans %}
+                    </p>
+                {% else %}
+                    <p class="results-count">
+                        {% blocktrans count counter=search_results.paginator.count with query=search_query %}
+                            {{ counter }} results found for "{{ query }}"
+                        {% plural %}
+                            {{ counter }} results found for "{{ query }}"
+                        {% endblocktrans %}
+                    </p>
+                {% endif %}
+                
+                <div class="results-list">
+                    {% for result in search_results %}
+                        <article class="search-result">
+                            <h2 class="result-title">
+                                <a href="{{ result.url }}">{{ result.title }}</a>
+                            </h2>
+                            
+                            {% if result.search_description %}
+                                <p class="result-description">{{ result.search_description }}</p>
+                            {% endif %}
+                            
+                            <!-- Show tags for this result -->
+                            {% if result.tagged_items.all %}
+                            <div class="result-tags">
+                                {% for tagged_item in result.tagged_items.all %}
+                                    <span class="result-tag" style="{{ tagged_item.tag.get_style_attribute }}">
+                                        {{ tagged_item.tag.name }}
+                                    </span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                            
+                            <div class="result-meta">
+                                <span class="result-type">{{ result|verbose_name }}</span>
+                                {% if result.last_published_at %}
+                                    <span class="result-date">{{ result.last_published_at|date:"M d, Y" }}</span>
+                                {% endif %}
+                            </div>
+                        </article>
+                    {% endfor %}
+                </div>
+                
+                <!-- Pagination -->
+                {% if search_results.has_other_pages %}
+                    <nav class="pagination" aria-label="{% trans 'Search results pages' %}">
+                        <ul class="pagination-list">
+                            {% if search_results.has_previous %}
+                                <li>
+                                    <a href="?query={{ search_query }}&page={{ search_results.previous_page_number }}{% for tag_id in selected_tags %}&tags={{ tag_id }}{% endfor %}" 
+                                       class="pagination-link">
+                                        {% trans "Previous" %}
+                                    </a>
+                                </li>
+                            {% endif %}
+                            
+                            {% for num in search_results.paginator.page_range %}
+                                {% if num == search_results.number %}
+                                    <li><span class="pagination-link current">{{ num }}</span></li>
+                                {% else %}
+                                    <li>
+                                        <a href="?query={{ search_query }}&page={{ num }}{% for tag_id in selected_tags %}&tags={{ tag_id }}{% endfor %}" 
+                                           class="pagination-link">
+                                            {{ num }}
+                                        </a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if search_results.has_next %}
+                                <li>
+                                    <a href="?query={{ search_query }}&page={{ search_results.next_page_number }}{% for tag_id in selected_tags %}&tags={{ tag_id }}{% endfor %}" 
+                                       class="pagination-link">
+                                        {% trans "Next" %}
+                                    </a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                {% endif %}
+                
+            {% else %}
+                <div class="no-results">
+                    <h2>{% trans "No results found" %}</h2>
+                    <p>{% blocktrans with query=search_query %}Sorry, no results were found for "{{ query }}".{% endblocktrans %}</p>
+                    
+                    <div class="search-tips">
+                        <h3>{% trans "Search tips:" %}</h3>
+                        <ul>
+                            <li>{% trans "Try different keywords" %}</li>
+                            <li>{% trans "Use fewer, more general terms" %}</li>
+                            <li>{% trans "Check your spelling" %}</li>
+                            <li>{% trans "Try filtering by tags above" %}</li>
+                        </ul>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    {% else %}
+        <div class="search-welcome">
+            <h2>{% trans "What are you looking for?" %}</h2>
+            <p>{% trans "Enter your search terms above or browse by tags to find relevant content." %}</p>
+        </div>
+    {% endif %}
+</div>
 
-{% if search_results.paginator.num_pages > 1 %}
-    <p>Page {{ search_results.number }} of {{ search_results.paginator.num_pages }}, showing {{ search_results|length }} result{{ search_results|pluralize }} out of {{ search_results.paginator.count }}</p>
-{% endif %}
+<style>
+.search-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+}
 
-{% if search_results.has_previous %}
-<a href="{% url 'search' %}?query={{ search_query|urlencode }}&amp;page={{ search_results.previous_page_number }}">{% trans "Fyrri" %}</a>
-{% endif %}
+.search-form {
+    background: #f8f9fa;
+    padding: 2rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+}
 
-{% if search_results.has_next %}
-<a href="{% url 'search' %}?query={{ search_query|urlencode }}&amp;page={{ search_results.next_page_number }}">{% trans "Næsta" %}</a>
-{% endif %}
+.search-input-group {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
 
-{% elif search_query %}
-{% trans "Engin leitarniðurstaða fannst" %}
-{% endif %}
+.search-input {
+    flex: 1;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.search-button {
+    padding: 0.75rem 1.5rem;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.search-button:hover {
+    background: #0056b3;
+}
+
+.tag-filters h3 {
+    margin-bottom: 1rem;
+    color: #333;
+}
+
+.tag-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.tag-filter-item {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.tag-filter-item input[type="checkbox"] {
+    display: none;
+}
+
+.tag-label {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    transition: opacity 0.2s;
+}
+
+.tag-filter-item input[type="checkbox"]:not(:checked) + .tag-label {
+    opacity: 0.6;
+}
+
+.tag-filter-item input[type="checkbox"]:checked + .tag-label {
+    opacity: 1;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.5);
+}
+
+.search-suggestions {
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: #e9ecef;
+    border-radius: 4px;
+}
+
+.search-expansion-notice {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: #d1ecf1;
+    border: 1px solid #bee5eb;
+    border-radius: 4px;
+    color: #0c5460;
+}
+
+.expanded-term {
+    background: #b8daff;
+    padding: 0.125rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.875rem;
+    margin: 0 0.25rem;
+}
+
+.did-you-mean {
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 4px;
+}
+
+.did-you-mean h3 {
+    margin-bottom: 0.5rem;
+    color: #856404;
+}
+
+.did-you-mean-suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.did-you-mean-link {
+    padding: 0.25rem 0.75rem;
+    background: #ffc107;
+    color: #856404;
+    text-decoration: none;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    transition: background-color 0.2s;
+}
+
+.did-you-mean-link:hover {
+    background: #e0a800;
+    color: #533f03;
+}
+
+.suggested-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.suggested-tag {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    text-decoration: none;
+    font-size: 0.875rem;
+    transition: transform 0.2s;
+}
+
+.suggested-tag:hover {
+    transform: translateY(-1px);
+}
+
+.results-count {
+    margin-bottom: 1.5rem;
+    color: #666;
+}
+
+.search-result {
+    border-bottom: 1px solid #eee;
+    padding: 1.5rem 0;
+}
+
+.search-result:last-child {
+    border-bottom: none;
+}
+
+.result-title a {
+    color: #007bff;
+    text-decoration: none;
+    font-size: 1.25rem;
+}
+
+.result-title a:hover {
+    text-decoration: underline;
+}
+
+.result-description {
+    margin: 0.5rem 0;
+    color: #666;
+    line-height: 1.5;
+}
+
+.result-tags {
+    margin: 0.75rem 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+}
+
+.result-tag {
+    padding: 0.125rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+}
+
+.result-meta {
+    font-size: 0.875rem;
+    color: #888;
+    display: flex;
+    gap: 1rem;
+}
+
+.pagination {
+    margin-top: 2rem;
+    text-align: center;
+}
+
+.pagination-list {
+    display: inline-flex;
+    list-style: none;
+    padding: 0;
+    gap: 0.5rem;
+}
+
+.pagination-link {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    text-decoration: none;
+    color: #007bff;
+}
+
+.pagination-link:hover {
+    background: #f8f9fa;
+}
+
+.pagination-link.current {
+    background: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+.no-results, .search-welcome {
+    text-align: center;
+    padding: 3rem 0;
+}
+
+.search-tips {
+    text-align: left;
+    display: inline-block;
+    margin-top: 2rem;
+}
+
+@media (max-width: 768px) {
+    .search-container {
+        padding: 1rem;
+    }
+    
+    .search-input-group {
+        flex-direction: column;
+    }
+    
+    .tag-grid {
+        gap: 0.25rem;
+    }
+    
+    .result-meta {
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+}
+</style>
 {% endblock %}

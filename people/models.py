@@ -8,6 +8,8 @@ from django.urls import path
 from wagtail.contrib.routable_page.models import RoutablePageMixin, route
 from wagtail.images.models import Image
 from base.models import TaggedItem, Tag
+from wagtail.search import index
+from django.utils.translation import gettext_lazy as _
 
 
 class DepartmentIndexPage(Page):
@@ -23,6 +25,10 @@ class DepartmentIndexPage(Page):
     parent_page_types = ['home.HomePage']
     subpage_types = ['people.PeopleIndexPage']
 
+    class Meta:
+        verbose_name = _("Hópasíða")
+        verbose_name_plural = _("Hópasíður")
+
 
 class PeopleIndexPage(Page):
     intro = RichTextField(blank=True)
@@ -36,6 +42,10 @@ class PeopleIndexPage(Page):
 
     parent_page_types = ['people.DepartmentIndexPage']
     subpage_types = ['people.PersonPage']
+
+    class Meta:
+        verbose_name = _("Fólksíða")
+        verbose_name_plural = _("Fólksíður")
 
 
 class PersonPage(RoutablePageMixin, Page):
@@ -65,6 +75,13 @@ class PersonPage(RoutablePageMixin, Page):
 
     parent_page_types = ['people.PeopleIndexPage']
     subpage_types = []
+
+    search_fields = Page.search_fields + [
+        index.SearchField('bio'),
+        index.SearchField('email', partial_match=True),
+        index.SearchField('job_title', partial_match=True),
+    ]
+    
     
 
     @route(r'^edit/$', name='edit')
@@ -125,3 +142,7 @@ class PersonPage(RoutablePageMixin, Page):
             'all_tags': all_tags,
             'page_tag_ids': page_tag_ids,
         })
+
+    class Meta:
+        verbose_name = _("Starfsmannasíða")
+        verbose_name_plural = _("Starfsmannasíður")
