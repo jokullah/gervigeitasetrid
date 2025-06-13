@@ -107,6 +107,51 @@
         <div class="text-red-600 text-sm mt-1">{{ form.requested_advisors.errors }}</div>
       {% endif %}
     </div>
+
+    <!-- NEW: Tags Section -->
+    <div class="pb-6 border-b border-gray-300">
+      <h2 class="text-xl font-semibold text-blue-700 mb-4">{% trans "Verkefnismerki (valfrjálst)" %}</h2>
+      
+      {{ form.tags.label_tag }}
+      {% if form.tags.help_text %}
+        <small class="block text-gray-600 italic mt-1 mb-3">{{ form.tags.help_text }}</small>
+      {% endif %}
+      
+      <!-- Custom Tag Multiselect Interface -->
+      <div class="tag-multiselect-container">
+        <!-- Search Input -->
+        <div class="tag-search-container mb-3">
+          <input 
+            type="text" 
+            id="tag-search-input" 
+            class="tag-search-input" 
+            placeholder="{% trans 'Leitaðu að merkjum...' %}"
+          />
+        </div>
+        
+        <!-- Selected Tags Display -->
+        <div id="selected-tags-display" class="selected-tags-display mb-3">
+          <!-- Selected tags will appear here as pills -->
+        </div>
+        
+        <!-- Available Tags List -->
+        <div id="available-tags-list" class="available-tags-list max-h-32 overflow-y-auto border border-gray-300 rounded-md p-2 bg-white">
+          <!-- Available tags will be loaded here -->
+          <div class="loading-message text-center text-gray-500 py-4">
+            {% trans "Hleð merkjum..." %}
+          </div>
+        </div>
+        
+        <!-- Hidden form field (the actual Django field) -->
+        <div style="display: none;">
+          {{ form.tags }}
+        </div>
+      </div>
+      
+      {% if form.tags.errors %}
+        <div class="text-red-600 text-sm mt-1">{{ form.tags.errors }}</div>
+      {% endif %}
+    </div>
     
     <div class="pb-6">
       <h2 class="text-xl font-semibold text-blue-700 mb-4">{% trans "Aðrar upplýsingar" %}</h2>
@@ -258,22 +303,126 @@ input[type="checkbox"] {
   font-style: italic;
 }
 
+/* NEW: Tag Multiselect Styling */
+.tag-multiselect-container {
+  width: 100%;
+}
+
+.tag-search-input {
+  width: 100% !important;
+  margin-bottom: 0 !important;
+}
+
+.selected-tags-display {
+  min-height: 40px;
+  padding: 8px;
+  border: 2px solid #d1d5db;
+  border-radius: 6px;
+  background-color: #f9fafb;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.selected-tags-display:empty::before {
+  content: "{% trans 'Engin merki valin...' %}";
+  color: #9ca3af;
+  font-style: italic;
+}
+
+.selected-tag-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: white;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.selected-tag-pill:hover {
+  opacity: 0.8;
+}
+
+.selected-tag-remove {
+  background: rgba(255, 255, 255, 0.3);
+  border: none;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 10px;
+  color: white;
+}
+
+.available-tags-list {
+  max-height: 120px; /* Reduced height for testing scrollability */
+}
+
+.available-tag-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.available-tag-item:hover {
+  background-color: #f3f4f6;
+}
+
+.available-tag-item.selected {
+  background-color: #dbeafe;
+}
+
+.available-tag-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.available-tag-name {
+  flex-grow: 1;
+  font-size: 14px;
+}
+
+.loading-message {
+  padding: 16px;
+  text-align: center;
+  color: #9ca3af;
+  font-style: italic;
+}
+
 /* Scrollbar styling */
-.max-h-48::-webkit-scrollbar {
+.max-h-48::-webkit-scrollbar,
+.available-tags-list::-webkit-scrollbar {
   width: 8px;
 }
 
-.max-h-48::-webkit-scrollbar-track {
+.max-h-48::-webkit-scrollbar-track,
+.available-tags-list::-webkit-scrollbar-track {
   background: #f3f4f6;
   border-radius: 4px;
 }
 
-.max-h-48::-webkit-scrollbar-thumb {
+.max-h-48::-webkit-scrollbar-thumb,
+.available-tags-list::-webkit-scrollbar-thumb {
   background: #9ca3af;
   border-radius: 4px;
 }
 
-.max-h-48::-webkit-scrollbar-thumb:hover {
+.max-h-48::-webkit-scrollbar-thumb:hover,
+.available-tags-list::-webkit-scrollbar-thumb:hover {
   background: #6b7280;
 }
 
@@ -283,6 +432,7 @@ input[type="checkbox"] {
 document.addEventListener('DOMContentLoaded', function() {
   console.log('DEBUG: Script loaded');
   
+  // Existing funding checkbox logic
   const isFundedCheckbox = document.getElementById('id_is_funded');
   const fundingAmountField = document.getElementById('funding-amount-field');
   
@@ -301,14 +451,9 @@ document.addEventListener('DOMContentLoaded', function() {
   toggleFundingAmount();
   isFundedCheckbox.addEventListener('change', toggleFundingAmount);
   
-  // Check advisor checkboxes
+  // Existing advisor tag enhancement
   const advisorCheckboxes = document.querySelectorAll('#id_requested_advisors input[type="checkbox"]');
-  console.log('DEBUG: Found checkboxes:', advisorCheckboxes.length);
-  
-  if (advisorCheckboxes.length === 0) {
-    console.error('DEBUG: No checkboxes found');
-    return;
-  }
+  console.log('DEBUG: Found advisor checkboxes:', advisorCheckboxes.length);
   
   async function fetchAdvisorTags(email) {
     console.log('DEBUG: Fetching tags for:', email);
@@ -352,7 +497,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   
   async function enhanceAdvisorCheckboxes() {
-    console.log('DEBUG: Starting enhancement');
+    console.log('DEBUG: Starting advisor enhancement');
     
     for (const checkbox of advisorCheckboxes) {
       const userId = checkbox.value;
@@ -392,7 +537,230 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
   
-  enhanceAdvisorCheckboxes();
+  if (advisorCheckboxes.length > 0) {
+    enhanceAdvisorCheckboxes();
+  }
+
+  // NEW: Tag Multiselect Functionality - FIXED TO WORK WITH DJANGO FORM
+  console.log('DEBUG: Setting up tag multiselect');
+  
+  const tagSearchInput = document.getElementById('tag-search-input');
+  const selectedTagsDisplay = document.getElementById('selected-tags-display');
+  const availableTagsList = document.getElementById('available-tags-list');
+  const hiddenTagsField = document.querySelector('select[name="tags"]'); // The hidden Django field
+  
+  console.log('DEBUG: Hidden tags field:', hiddenTagsField);
+  console.log('DEBUG: Hidden tags field type:', hiddenTagsField ? hiddenTagsField.tagName : 'not found');
+  
+  let allTags = [];
+  let selectedTags = new Set();
+  let searchTimeout = null;
+  
+  // Initialize selected tags from form (for edit forms)
+  if (hiddenTagsField) {
+    const selectedOptions = Array.from(hiddenTagsField.selectedOptions);
+    selectedOptions.forEach(option => {
+      selectedTags.add(parseInt(option.value));
+    });
+    console.log('DEBUG: Initialized selected tags:', Array.from(selectedTags));
+  }
+  
+  // Load all tags on page load
+  async function loadAllTags() {
+    console.log('DEBUG: Loading all tags');
+    try {
+      const response = await fetch('/advertise/api/tags/all/');
+      if (response.ok) {
+        const data = await response.json();
+        allTags = data.tags || [];
+        console.log('DEBUG: Loaded tags:', allTags.length);
+        renderAvailableTags(allTags);
+        renderSelectedTags();
+      } else {
+        console.error('DEBUG: Failed to load tags');
+        availableTagsList.innerHTML = '<div class="loading-message">{% trans "Villa við að hlaða merkjum" %}</div>';
+      }
+    } catch (error) {
+      console.error('DEBUG: Error loading tags:', error);
+      availableTagsList.innerHTML = '<div class="loading-message">{% trans "Villa við að hlaða merkjum" %}</div>';
+    }
+  }
+  
+  // Search tags - now searches locally for immediate response
+  function searchTags(query) {
+    console.log('DEBUG: Searching tags locally:', query);
+    if (!query.trim()) {
+      renderAvailableTags(allTags);
+      return;
+    }
+    
+    // Filter tags locally for immediate response
+    const filteredTags = allTags.filter(tag => {
+      const queryLower = query.toLowerCase();
+      return (
+        tag.name.toLowerCase().includes(queryLower) ||
+        tag.name_en.toLowerCase().includes(queryLower) ||
+        tag.name_is.toLowerCase().includes(queryLower)
+      );
+    });
+    
+    console.log('DEBUG: Found matching tags:', filteredTags.length);
+    renderAvailableTags(filteredTags);
+  }
+  
+  // Render available tags list
+  function renderAvailableTags(tags) {
+    if (tags.length === 0) {
+      const query = tagSearchInput.value.trim();
+      const message = query ? 
+        '{% trans "Engin merki fundust fyrir leit" %}' : 
+        '{% trans "Engin merki til staðar" %}';
+      availableTagsList.innerHTML = `<div class="loading-message">${message}</div>`;
+      return;
+    }
+    
+    const tagItems = tags.map(tag => {
+      const isSelected = selectedTags.has(tag.id);
+      return `
+        <div class="available-tag-item ${isSelected ? 'selected' : ''}" data-tag-id="${tag.id}">
+          <div class="available-tag-color" style="background-color: ${tag.color}"></div>
+          <div class="available-tag-name">${tag.name}</div>
+          ${isSelected ? '<div class="text-blue-600 text-sm">✓</div>' : ''}
+        </div>
+      `;
+    }).join('');
+    
+    availableTagsList.innerHTML = tagItems;
+    
+    // Add click handlers
+    availableTagsList.querySelectorAll('.available-tag-item').forEach(item => {
+      item.addEventListener('click', function() {
+        const tagId = parseInt(this.dataset.tagId);
+        toggleTag(tagId);
+      });
+    });
+  }
+  
+  // Render selected tags display
+  function renderSelectedTags() {
+    const selectedTagObjects = allTags.filter(tag => selectedTags.has(tag.id));
+    
+    if (selectedTagObjects.length === 0) {
+      selectedTagsDisplay.innerHTML = '';
+      return;
+    }
+    
+    const tagPills = selectedTagObjects.map(tag => `
+      <div class="selected-tag-pill" style="background-color: ${tag.color}" data-tag-id="${tag.id}">
+        <span>${tag.name}</span>
+        <button type="button" class="selected-tag-remove" data-tag-id="${tag.id}">×</button>
+      </div>
+    `).join('');
+    
+    selectedTagsDisplay.innerHTML = tagPills;
+    
+    // Add remove handlers
+    selectedTagsDisplay.querySelectorAll('.selected-tag-remove').forEach(button => {
+      button.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const tagId = parseInt(this.dataset.tagId);
+        toggleTag(tagId);
+      });
+    });
+    
+    // Update hidden field - THIS IS THE CRITICAL FIX!
+    updateHiddenField();
+  }
+  
+  // Toggle tag selection
+  function toggleTag(tagId) {
+    console.log('DEBUG: Toggling tag:', tagId);
+    if (selectedTags.has(tagId)) {
+      selectedTags.delete(tagId);
+      console.log('DEBUG: Removed tag:', tagId);
+    } else {
+      selectedTags.add(tagId);
+      console.log('DEBUG: Added tag:', tagId);
+    }
+    
+    console.log('DEBUG: Current selected tags:', Array.from(selectedTags));
+    
+    renderSelectedTags();
+    renderAvailableTags(getCurrentDisplayedTags());
+  }
+  
+  // Get currently displayed tags (for re-rendering after selection)
+  function getCurrentDisplayedTags() {
+    const query = tagSearchInput.value.trim();
+    if (!query) {
+      return allTags;
+    }
+    return allTags.filter(tag => 
+      tag.name.toLowerCase().includes(query.toLowerCase()) ||
+      tag.name_en.toLowerCase().includes(query.toLowerCase()) ||
+      tag.name_is.toLowerCase().includes(query.toLowerCase())
+    );
+  }
+  
+  // Update hidden Django field - CRITICAL FIX!
+  function updateHiddenField() {
+    if (hiddenTagsField) {
+      console.log('DEBUG: Updating hidden field with tags:', Array.from(selectedTags));
+      
+      // Clear all selections first
+      Array.from(hiddenTagsField.options).forEach(option => {
+        option.selected = false;
+      });
+      
+      // Select the chosen tags
+      selectedTags.forEach(tagId => {
+        const option = hiddenTagsField.querySelector(`option[value="${tagId}"]`);
+        if (option) {
+          option.selected = true;
+          console.log('DEBUG: Selected option for tag:', tagId);
+        } else {
+          console.log('DEBUG: No option found for tag:', tagId, 'Available options:', Array.from(hiddenTagsField.options).map(o => o.value));
+        }
+      });
+      
+      // Trigger change event to notify Django form
+      hiddenTagsField.dispatchEvent(new Event('change', { bubbles: true }));
+      
+      console.log('DEBUG: Hidden field updated. Selected values:', Array.from(hiddenTagsField.selectedOptions).map(o => o.value));
+    } else {
+      console.log('DEBUG: Hidden tags field not found!');
+    }
+  }
+  
+  // Set up search input handler with immediate local filtering
+  if (tagSearchInput) {
+    tagSearchInput.addEventListener('input', function() {
+      const query = this.value;
+      
+      // Clear previous timeout
+      if (searchTimeout) {
+        clearTimeout(searchTimeout);
+      }
+      
+      // Immediate local search (no debounce needed for local filtering)
+      searchTags(query);
+    });
+  }
+  
+  // Add form submission debugging
+  const form = document.querySelector('form');
+  if (form) {
+    form.addEventListener('submit', function(e) {
+      console.log('DEBUG: Form being submitted');
+      console.log('DEBUG: Selected tags at submission:', Array.from(selectedTags));
+      if (hiddenTagsField) {
+        console.log('DEBUG: Hidden field selected options at submission:', Array.from(hiddenTagsField.selectedOptions).map(o => ({value: o.value, text: o.text})));
+      }
+    });
+  }
+  
+  // Initialize tags
+  loadAllTags();
 });
 </script>
 {% endblock %}

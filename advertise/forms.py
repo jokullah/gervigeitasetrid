@@ -2,22 +2,33 @@ from django import forms
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
 from .models import ProjectAd, ProjectApplication
+from base.models import Tag  # Add this import
 from datetime import date
 
 
 class ProjectAdForm(forms.ModelForm):
+    tags = forms.ModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False,
+        widget=forms.SelectMultiple(attrs={
+            "class": "hidden-tags-field",
+            "style": "display: none;",
+        })
+    )
+    
     class Meta:
-        model  = ProjectAd
+        model = ProjectAd
         fields = [
             "title",
-            "description",
+            "description", 
             "company_name",
             "contact_name",
             "contact_email",
-            "time_limit",  # ADD THIS LINE
+            "time_limit",
             "is_funded",
             "funding_amount",
             "requested_advisors",
+            "tags",  # Add this
             "other",
         ]
         widgets = {
@@ -28,13 +39,11 @@ class ProjectAdForm(forms.ModelForm):
                 "step": "1000",
                 "min": "0"
             }),
-            # ADD THIS: Custom widget for time_limit field
             "time_limit": forms.DateInput(attrs={
                 "type": "date",
                 "class": "form-control",
                 "placeholder": _("YYYY-MM-DD")
             }),
-            # Changed to CheckboxSelectMultiple for better UX
             "requested_advisors": forms.CheckboxSelectMultiple(attrs={
                 "class": "advisor-checkbox-list",
             }),
@@ -43,13 +52,13 @@ class ProjectAdForm(forms.ModelForm):
             "is_funded": _("Er verkefnið fjármagnað?"),
             "funding_amount": _("Fjárhæð (ISK)"),
             "requested_advisors": _("Óskir um leiðbeinendur"),
-            "time_limit": _("Umsóknarfrestur verkefnis (valfrjálst)"),  # ADD THIS LINE
+            "time_limit": _("Umsóknarfrestur verkefnis (valfrjálst)"),
         }
         help_texts = {
             "is_funded": _("Krossa við ef verkefnið er fjármagnað"),
             "funding_amount": _("Heildarfjárhæð verkefnisins í íslenskum krónum (valfrjálst)"),
             "requested_advisors": _("Veljið þá starfsmenn sem þið viljið helst fá sem leiðbeinendur. Smellið á hvern starfsmann til að velja/afvelja."),
-            "time_limit": _("Umsóknarfrestur fyrir nemendur og starfsmenn. Verkefnið verður ekki sýnilegt að honum liðnum. Ef þessum reit er skilað tómum verður verkefnið til sýnis þar til admin tekur það niður eða haft er samband."),  # ADD THIS LINE
+            "time_limit": _("Umsóknarfrestur fyrir nemendur og starfsmenn. Verkefnið verður ekki sýnilegt að honum liðnum. Ef þessum reit er skilað tómum verður verkefnið til sýnis þar til admin tekur það niður eða haft er samband."),
         }
     
     def __init__(self, *args, **kwargs):
@@ -64,11 +73,17 @@ class ProjectAdForm(forms.ModelForm):
             f"{obj.get_full_name()}" if obj.get_full_name() else f"{obj.username}"
         )
         
+        # ADD THIS: Set up tags field
+        self.fields['tags'].queryset = Tag.objects.all().order_by('name_en')
+        self.fields['tags'].required = False  # Make tags optional
+        
         # Make funding amount field dependent on is_funded
         self.fields['funding_amount'].required = False
         
         # Make time_limit field optional and set min date to today
         self.fields['time_limit'].required = False
+
+        self.fields['tags'].queryset = Tag.objects.all().order_by('name_en')
         
     def clean_time_limit(self):
         """Validate that time_limit is not in the past"""
@@ -92,6 +107,11 @@ class ProjectAdForm(forms.ModelForm):
             cleaned_data['funding_amount'] = None
             
         return cleaned_data
+
+    def save(self, commit=True):
+        # Don't save tags here - just return the instance
+        # Tags will be handled in the view's form_valid method
+        return super().save(commit=commit)
 
 
 class ProjectApplicationForm(forms.ModelForm):

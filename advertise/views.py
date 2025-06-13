@@ -18,8 +18,10 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_GET
 from people.models import PersonPage
 from django.contrib.auth.models import User
-
-
+from django.utils.translation import get_language
+from base.models import Tag
+import json
+from django.db import models
 
 
 def send_form_verification_email(contact_email, verification_code, company_name, title):
@@ -67,48 +69,96 @@ class AdvertiseView(FormView):
     success_url   = reverse_lazy("advertise:advertise-verification-sent")
 
     def form_valid(self, form):
-        # Instead of saving as ProjectAd, save as PendingProjectAd
-        from .models import PendingProjectAd
+        """Handle form submission and create pending advertisement"""
         
-        # Get form data
+        # Get the form data
         form_data = form.cleaned_data.copy()
         
-        # Capture the current language
-        current_language = translation.get_language()
-        form_data['locale'] = current_language
+        # DEBUG: Check what's in the form data
+        print(f"DEBUG: Form cleaned_data keys: {list(form_data.keys())}")
+        print(f"DEBUG: Full form_data before processing: {form_data}")
         
-        # Handle requested_advisors (many-to-many field)
-        requested_advisors = form_data.pop('requested_advisors', [])
-        form_data['requested_advisors'] = [advisor.id for advisor in requested_advisors]
+        # Check specifically for tags
+        if 'tags' in form_data:
+            tags = form_data['tags']
+            print(f"DEBUG: Tags in form_data: {tags}")
+            print(f"DEBUG: Tags type: {type(tags)}")
+            if hasattr(tags, '__iter__'):
+                tag_ids = [tag.id if hasattr(tag, 'id') else tag for tag in tags]
+                print(f"DEBUG: Tag IDs: {tag_ids}")
+        else:
+            print(f"DEBUG: ❌ No 'tags' key found in form_data")
         
-        # Handle date field (convert to string for JSON storage)
+        # Convert QuerySets to lists of IDs for JSON serialization
+        if 'requested_advisors' in form_data:
+            # Convert QuerySet to list of IDs
+            advisor_ids = list(form_data['requested_advisors'].values_list('id', flat=True))
+            form_data['requested_advisors'] = advisor_ids
+            print(f"DEBUG: Converted advisors to IDs: {advisor_ids}")
+        
+        if 'tags' in form_data:
+            # Convert QuerySet to list of IDs
+            tag_ids = list(form_data['tags'].values_list('id', flat=True))
+            form_data['tags'] = tag_ids
+            print(f"DEBUG: Converted tags to IDs: {tag_ids}")
+        
+        # Convert date to string for JSON serialization
         if 'time_limit' in form_data and form_data['time_limit']:
             form_data['time_limit'] = form_data['time_limit'].strftime('%Y-%m-%d')
         
-        # Store contact email separately
+        # Extract contact email for separate storage
         contact_email = form_data['contact_email']
         
-        # Create pending submission
+        print(f"DEBUG: Final form_data before saving: {form_data}")
+        
+        # Create pending project ad
         pending_ad = PendingProjectAd.objects.create(
             form_data=form_data,
             contact_email=contact_email
         )
         
+        print(f"DEBUG: Created PendingProjectAd with ID: {pending_ad.id}")
+        print(f"DEBUG: PendingProjectAd.form_data: {pending_ad.form_data}")
+        
         # Send verification email
-        send_form_verification_email(
-            contact_email=contact_email,
-            verification_code=pending_ad.verification_code,
-            company_name=form_data['company_name'],
-            title=form_data['title']
+        self.send_verification_email(pending_ad)
+        
+        # Redirect to confirmation page - use the correct URL name
+        return redirect('advertise:advertise-verification-sent')
+
+    def send_verification_email(self, pending_ad):
+        """Send verification email to the contact"""
+        
+        verification_url = self.request.build_absolute_uri(
+            reverse('advertise:verify_project_ad', kwargs={
+                'verification_code': pending_ad.verification_code
+            })
         )
         
-        # Debug logging
-        print(f"DEBUG: Form submitted with email verification")
-        print(f"DEBUG: Contact email: {contact_email}")
-        print(f"DEBUG: Verification code: {pending_ad.verification_code}")
-        print(f"DEBUG: Current language: {current_language}")
+        subject = _('Staðfestið verkefnisauglýsingu ykkar')
         
-        return super().form_valid(form)
+        # Email content (you can customize this)
+        message = _(
+            'Halló!\n\n'
+            'Þú hefur sent inn verkefnisauglýsingu með titlinum "{title}".\n\n'
+            'Til að staðfesta auglýsinguna, vinsamlegast smelltu á eftirfarandi hlekk:\n'
+            '{verification_url}\n\n'
+            'Þessi hlekkur er gildur í 24 klukkustundir.\n\n'
+            'Kveðja,\n'
+            'Tölvunarfræðideild'
+        ).format(
+            title=pending_ad.form_data.get('title', 'Ótilgreindur titill'),
+            verification_url=verification_url
+        )
+        
+        # Send the email
+        send_mail(
+            subject=subject,
+            message=message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[pending_ad.contact_email],
+            fail_silently=False,
+        )
 
 
 class AdvertiseThanksView(TemplateView):
@@ -358,3 +408,60 @@ def verify_project_ad(request, verification_code):
         
     except PendingProjectAd.DoesNotExist:
         return render(request, 'advertise/verification_invalid.html')
+
+
+@require_GET
+def tag_search_api(request):
+    """API endpoint to search and return tags with localization"""
+    query = request.GET.get('q', '').strip().lower()
+    
+    # Get all tags
+    tags = Tag.objects.all().order_by('name_en')
+    
+    # Filter by search query if provided
+    if query:
+        tags = tags.filter(
+            models.Q(name_en__icontains=query) | 
+            models.Q(name_is__icontains=query)
+        )
+    
+    # Get current language for proper name selection
+    current_language = get_language()
+    
+    # Prepare response data
+    tag_data = []
+    for tag in tags:
+        tag_data.append({
+            'id': tag.id,
+            'name': tag.get_localized_name(current_language),
+            'name_en': tag.name_en,
+            'name_is': tag.name_is,
+            'color': tag.color,
+        })
+    
+    return JsonResponse({
+        'tags': tag_data,
+        'count': len(tag_data)
+    })
+
+@require_GET 
+def all_tags_api(request):
+    """API endpoint to get all tags for initial load"""
+    current_language = get_language()
+    
+    tags = Tag.objects.all().order_by('name_en')
+    
+    tag_data = []
+    for tag in tags:
+        tag_data.append({
+            'id': tag.id,
+            'name': tag.get_localized_name(current_language),
+            'name_en': tag.name_en,
+            'name_is': tag.name_is,
+            'color': tag.color,
+        })
+    
+    return JsonResponse({
+        'tags': tag_data,
+        'count': len(tag_data)
+    })

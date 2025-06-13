@@ -8,7 +8,7 @@ from wagtail import hooks
 from wagtail.admin.viewsets.model import ModelViewSet
 from wagtail.admin.viewsets.base import ViewSetGroup
 from wagtail.models import Locale
-from .models import ProjectAd, ProjectPage, ProjectIndexPage
+from .models import ProjectAd, ProjectPage, ProjectIndexPage, ProjectAdTaggedItem, ProjectPageTaggedItem
 from wagtail.admin.ui.tables import Column
 from django.utils.html import format_html
 from django import forms
@@ -21,21 +21,6 @@ class ProjectAdViewSet(ModelViewSet):
     menu_label = _("Verkefnaauglýsingar")
     icon = "form"
     
-    # Use form_fields approach instead of custom form class
-    form_fields = [
-        "title",
-        "description",
-        "company_name",
-        "contact_name",
-        "contact_email",
-        "time_limit",  # ADD THIS LINE
-        "is_funded",
-        "funding_amount",
-        "requested_advisors",
-        "other",
-        "locale",
-    ]
-    
     # Updated list_display with funding info
     list_display = ("title", "company_name", "contact_email", "funding_display", "locale_display", "status_display", "submitted_at")
     list_filter = ("company_name", "locale", "viewed_at", "is_funded")
@@ -43,10 +28,7 @@ class ProjectAdViewSet(ModelViewSet):
     
     edit_template_name = 'advertise/admin/projectad_edit.html'
     index_template_name = 'advertise/admin/projectad_list.html'
-    
-    def get_queryset(self, request):
-        return super().get_queryset(request).select_related('project_page')
-    
+
     def get_form_class(self, for_update=False):
         """Override to customize the form with better widgets"""
         form_class = super().get_form_class(for_update)
@@ -56,7 +38,30 @@ class ProjectAdViewSet(ModelViewSet):
             def __init__(self, *args, **kwargs):
                 super().__init__(*args, **kwargs)
                 
-                # Improve requested_advisors widget
+                # DEBUG: Check if we have an instance and what tags it has
+                if hasattr(self, 'instance') and self.instance and self.instance.pk:
+                    print(f"DEBUG: Form instance ID: {self.instance.pk}")
+                    print(f"DEBUG: Form instance title: {self.instance.title}")
+                    
+                    # Check tagged_items
+                    tagged_items = self.instance.tagged_items.all()
+                    print(f"DEBUG: Found {tagged_items.count()} tagged_items")
+                    for item in tagged_items:
+                        print(f"DEBUG: Tagged item: {item.tag.name} (color: {item.tag.color})")
+                    
+                    # Check if get_tags() method works
+                    try:
+                        tags = self.instance.get_tags()
+                        print(f"DEBUG: get_tags() returned {len(tags)} tags")
+                        for tag in tags:
+                            print(f"DEBUG: Tag from get_tags(): {tag.name}")
+                    except Exception as e:
+                        print(f"DEBUG: Error calling get_tags(): {e}")
+                
+                # Rest of your existing form customization code...
+                # (keep all the existing advisor styling, time_limit, etc.)
+                
+                # Keep your advisor styling!
                 if 'requested_advisors' in self.fields:
                     self.fields['requested_advisors'].widget = forms.CheckboxSelectMultiple()
                     self.fields['requested_advisors'].queryset = User.objects.filter(
@@ -68,7 +73,7 @@ class ProjectAdViewSet(ModelViewSet):
                         f"{obj.get_full_name()} ({obj.email})" if obj.get_full_name() else f"{obj.username} ({obj.email})"
                     )
                 
-                # ADD THIS: Improve time_limit widget
+                # Keep your time_limit widget
                 if 'time_limit' in self.fields:
                     self.fields['time_limit'].widget = forms.DateInput(attrs={
                         "type": "date",
@@ -77,7 +82,7 @@ class ProjectAdViewSet(ModelViewSet):
                     })
                     self.fields['time_limit'].required = False
                 
-                # Improve other widgets
+                # Keep other widget improvements
                 if 'description' in self.fields:
                     self.fields['description'].widget = forms.Textarea(attrs={"rows": 5})
                 
@@ -92,7 +97,7 @@ class ProjectAdViewSet(ModelViewSet):
                     })
                     self.fields['funding_amount'].required = False
             
-            # ADD THIS: Validation for time_limit
+            # Keep your validation
             def clean_time_limit(self):
                 """Validate that time_limit is not in the past"""
                 time_limit = self.cleaned_data.get('time_limit')
@@ -117,11 +122,8 @@ class ProjectAdViewSet(ModelViewSet):
         
         return CustomizedForm
     
-    edit_template_name = 'advertise/admin/projectad_edit.html'
-    index_template_name = 'advertise/admin/projectad_list.html'
-    
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related('project_page')
+        return super().get_queryset(request).select_related('project_page').prefetch_related('tagged_items__tag')
 
 
 class SubmissionAdminGroup(ViewSetGroup):
@@ -139,13 +141,6 @@ def register_submission_group():
 def mark_project_ad_as_viewed(request, page):
     """Mark ProjectAd as viewed when the edit page is accessed"""
     pass  # This hook is for Wagtail pages, not our custom model
-
-
-# Custom hook for our model editing
-@hooks.register('after_edit_page')  
-def mark_ad_viewed_after_edit(request, page):
-    """This won't work for our custom model, we need a different approach"""
-    pass
 
 
 # Better approach: Use a custom view mixin
@@ -260,8 +255,6 @@ class PublishProjectAdView(View):
             # Handle requested_advisors many-to-many field
             advisor_ids = request.POST.getlist('requested_advisors')
             print(f"DEBUG: Advisor IDs from form: {advisor_ids}")
-            print(f"DEBUG: All POST keys: {list(request.POST.keys())}")
-            print(f"DEBUG: All POST items with 'advisor': {[(k, v) for k, v in request.POST.items() if 'advisor' in k.lower()]}")
             
             project_ad.save()
             print(f"DEBUG: ProjectAd updated and saved")
@@ -347,7 +340,17 @@ class PublishProjectAdView(View):
                 print(f"DEBUG: Added advisor {advisor.get_full_name()} to project page")
             
             print(f"DEBUG: Copied {project_ad.requested_advisors.count()} requested advisors")
-            
+
+            # NEW: Copy tags from ProjectAd to ProjectPage
+            existing_tags = project_ad.get_tags()
+            print(f"DEBUG: Found {len(existing_tags)} tags to copy")
+            for tag in existing_tags:
+                ProjectPageTaggedItem.objects.create(
+                    tag=tag,
+                    content_object=project_page
+                )
+                print(f"DEBUG: Added tag {tag.name} to project page")
+                        
             # Link the ProjectAd to the newly created ProjectPage
             project_ad.project_page = project_page
             project_ad.save()

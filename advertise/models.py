@@ -1,19 +1,66 @@
 from django.db import models
 from wagtail.models import Page
 from wagtail.fields import RichTextField
-from wagtail.admin.panels import FieldPanel, MultiFieldPanel
+from wagtail.admin.panels import FieldPanel, MultiFieldPanel, InlinePanel  # Add InlinePanel
 from django.utils.translation import gettext_lazy as _
 from wagtail.search.index import SearchField
 from django.contrib.auth.models import User
 from django import forms
 from wagtail.admin.forms import WagtailAdminPageForm
-from django.contrib.auth.models import User
 from django.utils.safestring import mark_safe
 from django.utils import timezone
 from datetime import date, timedelta
 import json
 import uuid
 from wagtail.search import index
+from modelcluster.fields import ParentalKey  # Add this
+from modelcluster.models import ClusterableModel  # Add this
+
+
+class ProjectAdTaggedItem(models.Model):
+    """Tagged item for ProjectAd"""
+    tag = models.ForeignKey(
+        'base.Tag', 
+        on_delete=models.CASCADE,
+        verbose_name=_("Tag")
+    )
+    content_object = ParentalKey(
+        'advertise.ProjectAd',
+        related_name='tagged_items',
+        on_delete=models.CASCADE,
+    )
+    
+    panels = [FieldPanel('tag')]
+    
+    def __str__(self):
+        return self.tag.name
+    
+    class Meta:
+        verbose_name = _("Project Ad Tag")
+        verbose_name_plural = _("Project Ad Tags")
+
+
+class ProjectPageTaggedItem(models.Model):
+    """Tagged item for ProjectPage"""
+    tag = models.ForeignKey(
+        'base.Tag', 
+        on_delete=models.CASCADE,
+        verbose_name=_("Tag")
+    )
+    content_object = ParentalKey(
+        'advertise.ProjectPage',
+        related_name='project_tagged_items',  # Changed this to avoid conflict
+        on_delete=models.CASCADE,
+    )
+    
+    panels = [FieldPanel('tag')]
+    
+    def __str__(self):
+        return self.tag.name
+    
+    class Meta:
+        verbose_name = _("Project Page Tag")
+        verbose_name_plural = _("Project Page Tags")
 
 
 class ProjectPageForm(WagtailAdminPageForm):
@@ -95,7 +142,7 @@ class ProjectPageForm(WagtailAdminPageForm):
     
 
 
-class ProjectAd(models.Model):
+class ProjectAd(ClusterableModel):
     title          = models.CharField(_("Titill"), max_length=200) 
     description    = models.TextField(_("Lýsing")) 
     company_name   = models.CharField(_("Fyrirtæki"), max_length=200) 
@@ -164,6 +211,21 @@ class ProjectAd(models.Model):
         verbose_name=_("Linked project page"),
         help_text=_("Project page created from this advertisement")
     )
+
+    panels = [
+        FieldPanel("title"),
+        FieldPanel("description"),
+        FieldPanel("company_name"),
+        FieldPanel("contact_name"),
+        FieldPanel("contact_email"),
+        FieldPanel("time_limit"),
+        FieldPanel("is_funded"),
+        FieldPanel("funding_amount"),
+        FieldPanel("requested_advisors"),
+        InlinePanel('tagged_items', label=_("Verkefnistögg")),  # This adds the inline tag selector
+        FieldPanel("other"),
+        FieldPanel("locale"),
+    ]
     
     class Meta:
         verbose_name        = _("Project advertisement")
@@ -276,6 +338,15 @@ class ProjectAd(models.Model):
             from django.utils import timezone
             self.viewed_at = timezone.now()
             self.save(update_fields=['viewed_at'])
+
+    def get_tags(self):
+        """Get all tags for this project page"""
+        return [tagged_item.tag for tagged_item in self.tagged_items.all()]
+
+    @property  
+    def tags_list(self):
+        """Property to get tags as a list (for compatibility)"""
+        return self.get_tags()
 
 
 class ProjectIndexPage(Page):
@@ -500,6 +571,16 @@ class ProjectPage(Page):
         else:
             return "Visible to faculty only"
 
+    # And add the same to ProjectPage model:
+    def get_tags(self):
+        """Get all tags for this project page"""
+        return [tagged_item.tag for tagged_item in self.project_tagged_items.all()]
+
+    @property  
+    def tags_list(self):
+        """Property to get tags as a list (for compatibility)"""
+        return self.get_tags()
+
     ai_translated = models.BooleanField(default=False, help_text="This page was translated using AI")
     
     # Update content_panels to include the new field
@@ -522,7 +603,8 @@ class ProjectPage(Page):
             heading=_("Fjármögnun"),
         ),
         FieldPanel("other"),
-        FieldPanel("time_limit"),  # Add this line
+        FieldPanel("time_limit"),
+        InlinePanel('tagged_items', label=_("Verkefnistögg")),
         FieldPanel("requested_advisors"),
         FieldPanel("leidbeinendur"),
         FieldPanel("selected_students"),
@@ -683,6 +765,11 @@ class PendingProjectAd(models.Model):
             # Handle the requested_advisors many-to-many field
             requested_advisor_ids = ad_data.pop('requested_advisors', [])
             
+            # Handle the tags - get them from form data
+            tag_ids = ad_data.pop('tags', [])
+            print(f"DEBUG: Tag IDs from form_data: {tag_ids}")
+            print(f"DEBUG: Full form_data: {self.form_data}")
+            
             # Handle time_limit date conversion
             if 'time_limit' in ad_data and ad_data['time_limit']:
                 from datetime import datetime
@@ -690,15 +777,33 @@ class PendingProjectAd(models.Model):
             
             # Create the ProjectAd
             project_ad = ProjectAd.objects.create(**ad_data)
+            print(f"DEBUG: Created ProjectAd with ID: {project_ad.id}")
             
             # Add requested advisors
             if requested_advisor_ids:
+                from django.contrib.auth.models import User
                 advisors = User.objects.filter(id__in=requested_advisor_ids)
                 project_ad.requested_advisors.set(advisors)
+                print(f"DEBUG: Added {advisors.count()} advisors")
+            
+            # Add tags using TaggedItems - USE STRING REFERENCE TO AVOID IMPORT ISSUES
+            if tag_ids:
+                from base.models import Tag
+                
+                for tag_id in tag_ids:
+                    try:
+                        tag = Tag.objects.get(id=tag_id)
+                        ProjectAdTaggedItem.objects.create(
+                            tag=tag,
+                            content_object=project_ad
+                        )
+                        print(f"DEBUG: ✅ Created TaggedItem for tag '{tag.name}'")
+                    except Tag.DoesNotExist:
+                        print(f"DEBUG: ❌ Tag with ID {tag_id} not found")
             
             return project_ad
         return None
-    
+        
     def __str__(self):
         return f"Pending: {self.form_data.get('title', 'No title')} ({self.contact_email})"
     

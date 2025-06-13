@@ -89,6 +89,21 @@
                 {{ proj.description|richtext|truncatewords_html:25 }}
               </div>
             </div>
+
+            {% comment %} Tags Section - Always reserve space {% endcomment %}
+            <div class="mt-4 h-12 flex items-start overflow-hidden">
+              {% if proj.project_tagged_items.all %}
+                <div class="flex flex-wrap gap-1.5">
+                  {% for tagged_item in proj.project_tagged_items.all %}
+                    <span class="px-2 py-1 text-white rounded-full text-xs font-medium border hover:opacity-80 transition-opacity duration-200" 
+                          style="background-color: {{ tagged_item.tag.color }}; border-color: {{ tagged_item.tag.color }}; color: white !important;"
+                          title="{{ tagged_item.tag.name }}">
+                      {{ tagged_item.tag.name }}
+                    </span>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
           </div>
         </a>
       </article>

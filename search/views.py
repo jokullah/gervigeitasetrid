@@ -299,10 +299,22 @@ def search(request):
                 
                 # Get pages tagged with matching tags
                 if matching_tags:
-                    tag_results = list(base_queryset.filter(
-                        tagged_items__tag__in=matching_tags
-                    ).distinct())
-            
+                    print(f"DEBUG: Found {len(matching_tags)} matching tags: {[tag.name for tag in matching_tags]}")
+                    
+                    # First, let's see what we get before any filtering
+                    all_tagged_pages = base_queryset.filter(tagged_items__tag__in=matching_tags).distinct()
+                    print(f"DEBUG: Found {all_tagged_pages.count()} total pages with these tags")
+                    
+                    # Let's see what types of pages we have
+                    for page in all_tagged_pages:
+                        specific_page = page.specific
+                        print(f"DEBUG: Tagged page: {page.title} (Type: {specific_page.__class__.__name__}, Live: {page.live})")
+                        if hasattr(specific_page, 'has_faculty_assigned'):
+                            print(f"  - Has faculty: {specific_page.has_faculty_assigned}")
+                        if hasattr(specific_page, 'is_expired'):
+                            print(f"  - Is expired: {specific_page.is_expired}")
+                    
+                    tag_results = list(all_tagged_pages)
             # Strategy 4: Partial text search (cast a wide net, including fuzzy terms)
             partial_results = []
             if search_query:
