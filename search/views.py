@@ -194,10 +194,31 @@ def search(request):
             # Initialize variables
             fuzzy_expanded_terms = []
             
-            # Get all searchable content for fuzzy matching
+            # Get all searchable content for fuzzy matching - apply role-based filtering
             if search_query:
-                # Get all page titles and tag names for fuzzy matching
-                all_page_titles = list(base_queryset.values_list('title', flat=True))
+                # Get page titles with role-based filtering
+                all_pages = list(base_queryset.select_related())
+                filtered_page_titles = []
+                
+                for page in all_pages:
+                    specific_page = page.specific
+                    
+                    # Apply same role-based filtering as in the main results
+                    if hasattr(specific_page, '_meta') and 'ProjectPage' in specific_page._meta.object_name:
+                        # This is a ProjectPage, apply visibility rules
+                        if not request.user.is_authenticated:
+                            # Anonymous users cannot see project pages
+                            continue
+                        elif request.user.groups.filter(name='Nemandi').exists():
+                            # Students can only see projects with faculty assigned and not expired
+                            if not (specific_page.has_faculty_assigned and not specific_page.is_expired):
+                                continue
+                        # Faculty and other authenticated users can see all live project pages
+                    
+                    # Add this page's title to searchable terms
+                    filtered_page_titles.append(page.title)
+                
+                # Get tag names (tags don't have role restrictions)
                 all_tag_names = []
                 current_lang = get_language()
                 
@@ -208,7 +229,7 @@ def search(request):
                         all_tag_names.extend([tag.name_en, tag.name_is])
                 
                 # Remove empty strings and duplicates
-                all_searchable_terms = list(set([term for term in all_page_titles + all_tag_names if term]))
+                all_searchable_terms = list(set([term for term in filtered_page_titles + all_tag_names if term]))
                 
                 # Extract individual words from search query for fuzzy matching
                 search_words = search_query.split()
@@ -374,7 +395,7 @@ def search(request):
     all_tags = Tag.objects.all().order_by('name_en')
     
     # ------------------------------------------------------------------
-    # 4. Convert to specific page instances and paginate
+    # 4. Convert to specific page instances and apply role-based filtering
     # ------------------------------------------------------------------
     # Convert search results to specific page instances
     if search_results:
@@ -383,6 +404,20 @@ def search(request):
         for page in search_results:
             # Get the specific page instance
             specific_page = page.specific
+            
+            # Apply role-based filtering for ProjectPages
+            if hasattr(specific_page, '_meta') and 'ProjectPage' in specific_page._meta.object_name:
+                # This is a ProjectPage, apply visibility rules
+                if not request.user.is_authenticated:
+                    # Anonymous users cannot see project pages
+                    continue
+                elif request.user.groups.filter(name='Nemandi').exists():
+                    # Students can only see projects with faculty assigned and not expired
+                    if not (specific_page.has_faculty_assigned and not specific_page.is_expired):
+                        continue
+                # Faculty and other authenticated users can see all live project pages
+                # (this is handled by the base queryset already filtering for live pages)
+            
             specific_pages.append(specific_page)
         
         # Re-create the paginated results with specific instances
@@ -464,7 +499,7 @@ def tag_search(request, tag_id):
 
 def live_search(request):
     """
-    AJAX endpoint for live search suggestions with debug info
+    AJAX endpoint for live search suggestions with role-based filtering
     """
     query = request.GET.get('q', '').strip()
     
@@ -492,15 +527,34 @@ def live_search(request):
     base_queryset = Page.objects.live().filter(locale=active_locale)
     print(f"Base queryset count: {base_queryset.count()}")
     
-    # Get top 3 search results
-    search_results = base_queryset.search(query)[:3]
-    print(f"Search results count: {len(list(search_results))}")
+    # Get search results with expanded limit to account for filtering
+    search_results = base_queryset.search(query)[:10]  # Get more to account for filtering
+    print(f"Initial search results count: {len(list(search_results))}")
     
-    # Convert to specific instances for proper data
+    # Convert to specific instances and apply role-based filtering
     results = []
     for page in search_results:
         try:
             specific_page = page.specific
+            
+            # Apply role-based filtering for ProjectPages
+            if hasattr(specific_page, '_meta') and 'ProjectPage' in specific_page._meta.object_name:
+                # This is a ProjectPage, apply visibility rules
+                if not request.user.is_authenticated:
+                    # Anonymous users cannot see project pages
+                    print(f"Filtering out ProjectPage '{specific_page.title}' - user not authenticated")
+                    continue
+                elif request.user.groups.filter(name='Nemandi').exists():
+                    # Students can only see projects with faculty assigned and not expired
+                    if not (specific_page.has_faculty_assigned and not specific_page.is_expired):
+                        print(f"Filtering out ProjectPage '{specific_page.title}' - student but no faculty or expired")
+                        continue
+                # Faculty and other authenticated users can see all live project pages
+                print(f"Including ProjectPage '{specific_page.title}' - user has access")
+            else:
+                # Non-ProjectPage, include it
+                print(f"Including non-ProjectPage '{specific_page.title}'")
+            
             result_data = {
                 'title': specific_page.title,
                 'url': specific_page.url,
@@ -509,10 +563,15 @@ def live_search(request):
             }
             results.append(result_data)
             print(f"Added result: {result_data['title']}")
+            
+            # Limit to top 3 after filtering
+            if len(results) >= 3:
+                break
+                
         except Exception as e:
             print(f"Error processing page {page.id}: {e}")
     
-    # Find matching tags
+    # Find matching tags (tags don't have role restrictions)
     current_lang = get_language()
     print(f"Current language: {current_lang}")
     
@@ -551,7 +610,9 @@ def live_search(request):
             'locale': str(active_locale),
             'results_count': len(results),
             'tags_count': len(tags),
-            'language': current_lang
+            'language': current_lang,
+            'user_authenticated': request.user.is_authenticated,
+            'user_groups': [group.name for group in request.user.groups.all()] if request.user.is_authenticated else []
         }
     }
     
