@@ -11,25 +11,6 @@ from base.models import TaggedItem, Tag
 from wagtail.search import index
 from django.utils.translation import gettext_lazy as _
 
-
-class DepartmentIndexPage(Page):
-    intro = RichTextField(blank=True)
-
-    ai_translated = models.BooleanField(default=False, help_text="This page was translated using AI")
-
-    content_panels = Page.content_panels + [
-        FieldPanel('intro'),
-        FieldPanel('ai_translated'),
-    ]
-
-    parent_page_types = ['home.HomePage']
-    subpage_types = ['people.PeopleIndexPage']
-
-    class Meta:
-        verbose_name = _("Hópasíða")
-        verbose_name_plural = _("Hópasíður")
-
-
 class PeopleIndexPage(Page):
     intro = RichTextField(blank=True)
 
@@ -40,7 +21,7 @@ class PeopleIndexPage(Page):
         FieldPanel('ai_translated'),
     ]
 
-    parent_page_types = ['people.DepartmentIndexPage']
+    parent_page_types = ['home.HomePage']
     subpage_types = ['people.PersonPage']
 
     class Meta:
