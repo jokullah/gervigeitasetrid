@@ -10,7 +10,7 @@ from wagtail.images.blocks import ImageChooserBlock
 
 from event.models import EventPage, EventIndexPage
 from blog.models import BlogPage
-
+from home.utils import get_tag_cloud_data
 
 class HomePage(Page):
     # add the Hero section of HomePage:
@@ -63,6 +63,7 @@ class HomePage(Page):
 
     def get_context(self, request):
         context = super().get_context(request)
+        context["tags"] = get_tag_cloud_data()
 
         current_locale = Locale.objects.get(language_code=request.LANGUAGE_CODE)
 
