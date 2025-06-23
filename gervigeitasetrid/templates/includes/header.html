@@ -24,7 +24,7 @@
                   {% csrf_token %}
                   <input type="hidden" name="next" value="{% pageurl en_page %}">
                   <button type="submit" name="language" value="en"
-                          class="px-2 py-1 text-xs font-medium rounded transition-colors duration-200 
+                          class="cursor-pointer px-2 py-1 text-xs font-medium rounded transition-colors duration-200 
                                  {% if cur_lang|slice:':2' == 'en' %}bg-gray-900 text-white{% else %}text-gray-600 hover:text-gray-900{% endif %}">
                     EN
                   </button>
@@ -35,7 +35,7 @@
                   {% csrf_token %}
                   <input type="hidden" name="next" value="{% pageurl is_page %}">
                   <button type="submit" name="language" value="is"
-                          class="px-2 py-1 text-xs font-medium rounded transition-colors duration-200
+                          class="cursor-pointer px-2 py-1 text-xs font-medium rounded transition-colors duration-200
                                  {% if cur_lang|slice:':2' == 'is' %}bg-gray-900 text-white{% else %}text-gray-600 hover:text-gray-900{% endif %}">
                     ÍS
                   </button>
@@ -51,7 +51,7 @@
             <form method="post" action="{% url 'logout' %}" class="inline">
               {% csrf_token %}
               <button type="submit" 
-                      class="text-xs text-gray-600 hover:text-red-600 transition-colors duration-200"
+                      class="cursor-pointer text-xs text-gray-600 hover:text-red-600 transition-colors duration-200"
                       onclick="return confirm('{% trans "Ertu viss um að þú viljir skrá þig út?" %}')">
                 {% trans "Skrá út" %}
               </button>
